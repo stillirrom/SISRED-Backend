@@ -31,8 +31,9 @@ class Metadata(models.Model):
 
 
 class Recurso(models.Model):
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=200)
     archivo = models.CharField(max_length=200)
+    thumbnail = models.CharField(max_length=200)
     fecha_creacion = models.DateField(default=datetime.date.today)
     fecha_ultima_modificacion = models.DateField(default=datetime.date.today)
     tipo = models.CharField(max_length=50)
@@ -46,7 +47,12 @@ class Recurso(models.Model):
 
 
 class ProyectoConectate(models.Model):
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=200)
+    nombre_corto = models.CharField(max_length=50, blank=True, null=True)
+    codigo = models.CharField(max_length=50)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+
 
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
@@ -54,8 +60,8 @@ class ProyectoConectate(models.Model):
 
 class RED(models.Model):
     codigo = models.CharField(max_length=50)
-    nombre = models.CharField(max_length=100)
-    nombre_corto = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=200)
+    nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     descripcion = models.TextField()
     fecha_inicio = models.DateField()
     fecha_cierre = models.DateField()
@@ -66,14 +72,22 @@ class RED(models.Model):
     proyecto_conectate = models.ForeignKey(ProyectoConectate, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso)
     metadata = models.ManyToManyField(Metadata)
+    horas_estimadas = models.IntegerField()
+    horas_trabajadas = models.IntegerField()
 
     def __str__(self):
         return 'Red: ' + self.codigo
 
 
+class SubproductoRED(models.Model):
+    red = models.ForeignKey(RED, on_delete=models.CASCADE, related_name='subproductos_del_red')
+    subproducto = models.ForeignKey(RED, on_delete=models.CASCADE, related_name='reds_del_subproducto')
+
+
 class ProyectoRED(models.Model):
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=200)
     tipo = models.CharField(max_length=50)
+    carpeta = models.CharField(max_length=200)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -99,6 +113,7 @@ class HistorialEstados(models.Model):
 class Version(models.Model):
     es_final = models.BooleanField(default=False)
     numero = models.IntegerField()
+    archivo = models.CharField(max_length=200)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -123,8 +138,18 @@ class RolAsignado(models.Model):
 
 class Comentario(models.Model):
     contenido = models.TextField()
-    version = models.ForeignKey(Version, on_delete=models.CASCADE)
+    version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
+    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
 
     def __str__(self):
         return 'Comentario: ' + self.contenido
+
+
+class Propiedad(models.Model):
+    llave = models.CharField(max_length=200)
+    valor = models.CharField(max_length=200)
+    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return 'Llave: ' + self.llave + ', Valor: ' + self.valor
