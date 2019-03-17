@@ -1,21 +1,33 @@
 from django.db import models
 import datetime
+from django.contrib.auth.models import User
+
 
 # Create your models here.
+
+
+class Perfil(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    tipo_identificacion = models.CharField(max_length=50)
+    numero_identificacion = models.CharField(max_length=50)
+
+    def __str__(self):
+        return "Rol: " + self.usuario
+
 
 class Notificacion(models.Model):
     mensaje = models.TextField()
     fecha = models.DateField(default=datetime.date.today)
 
     def __str__(self):
-        return 'Notificacion: ' + self.name
+        return 'Notificacion: ' + self.mensaje
 
 
 class Estado(models.Model):
     nombre_estado = models.CharField(max_length=50)
 
     def __str__(self):
-        return 'Estado: ' + self.name
+        return 'Estado: ' + self.nombre_estado
 
 
 class HistorialEstados(models.Model):
@@ -23,15 +35,14 @@ class HistorialEstados(models.Model):
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'HistorialEstados: ' + self.name
-
+        return 'Fecha de cambio: ' + self.fecha_cambio + ', Estado: ' + self.estado
 
 
 class Metadata(models.Model):
     tag = models.CharField(max_length=50)
 
     def __str__(self):
-        return "Metadata: "+self.tag
+        return "Metadata: " + self.tag
 
 
 class Recurso(models.Model):
@@ -44,8 +55,7 @@ class Recurso(models.Model):
     metadata = models.ManyToManyField(Metadata)
 
     def __str__(self):
-        return "Recurso: "+self.nombre
-
+        return "Recurso: " + self.nombre
 
 
 class ProyectoConectate(models.Model):
@@ -80,7 +90,7 @@ class ProyectoRED(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "Proyecto RED: "+self.nombre
+        return "Proyecto RED: " + self.nombre
 
 
 class Version(models.Model):
@@ -89,13 +99,29 @@ class Version(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Version: ' + self.name
+        return 'Version: ' + self.numero
+
+
+class Rol(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "Rol: " + self.nombre
+
+
+class RolAsignado(models.Model):
+    fecha_inicio = models.DateField(default=datetime.date.today)
+    fecha_fin = models.DateField(blank=True, null=True)
+    notificaciones = models.ManyToManyField(Notificacion)
+    red = models.ForeignKey(RED, on_delete=models.CASCADE)
+    rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
 
 
 class Comentario(models.Model):
     contenido = models.TextField()
-    #usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     version = models.ForeignKey(Version, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Comentario: ' + self.name
+        return 'Comentario: ' + self.contenido
