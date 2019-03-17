@@ -23,21 +23,6 @@ class Notificacion(models.Model):
         return 'Notificacion: ' + self.mensaje
 
 
-class Estado(models.Model):
-    nombre_estado = models.CharField(max_length=50)
-
-    def __str__(self):
-        return 'Estado: ' + self.nombre_estado
-
-
-class HistorialEstados(models.Model):
-    fecha_cambio = models.DateField(default=datetime.date.today)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return 'Fecha de cambio: ' + self.fecha_cambio + ', Estado: ' + self.estado
-
-
 class Metadata(models.Model):
     tag = models.CharField(max_length=50)
 
@@ -53,6 +38,8 @@ class Recurso(models.Model):
     tipo = models.CharField(max_length=50)
     descripcion = models.TextField()
     metadata = models.ManyToManyField(Metadata)
+    autor = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_autor')
+    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_ultima_modificacion')
 
     def __str__(self):
         return "Recurso: " + self.nombre
@@ -91,6 +78,22 @@ class ProyectoRED(models.Model):
 
     def __str__(self):
         return "Proyecto RED: " + self.nombre
+
+
+class Estado(models.Model):
+    nombre_estado = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Estado: ' + self.nombre_estado
+
+
+class HistorialEstados(models.Model):
+    fecha_cambio = models.DateField(default=datetime.date.today)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
+    red = models.ForeignKey(RED, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return 'Fecha de cambio: ' + self.fecha_cambio + ', Estado: ' + self.estado + ', Red: ' + self.red
 
 
 class Version(models.Model):
