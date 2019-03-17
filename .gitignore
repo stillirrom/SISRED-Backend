@@ -1,10 +1,10 @@
 
 \.idea/
 
-sisred/sisred/__pycache__/
+sisred/__pycache__/
 
-sisred/db\.sqlite3
+sisred_app/__pycache__/
 
-sisred/sisred_app/__pycache__/
+sisred_app/migrations/
 
-sisred/sisred_app/migrations/
+*.sqlite3
