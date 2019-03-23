@@ -1,1 +1,1 @@
-web: gunicorn apropiacion.wsgi
+web: gunicorn sisred.wsgi
