@@ -1,7 +1,13 @@
 import csv
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sisred.settings")
+django.setup()
+
 from sisred_app.models import Rol, Perfil, RED, RolAsignado
 from django.contrib.auth.models import User
 from datetime import datetime
+
 
 with open('C:\\Users\\Usuario\\Desktop\\asignaciones.txt') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
