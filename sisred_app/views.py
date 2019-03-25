@@ -99,14 +99,15 @@ def add(request):
 
 @csrf_exempt
 def get_reds_asignados(request, id):
-    usuario = User.objects.get(pk=id);
-    nombreUsuario = usuario.first_name + " " + usuario.last_name
-    perfil = Perfil.objects.get(usuario=usuario);
-    reds_asignados = []
-    rolesAsignado = RolAsignado.objects.filter(usuario=perfil)
-    for rolAsignado in rolesAsignado:
-        red = rolAsignado.red
-        rol = rolAsignado.rol.nombre
-        reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
-    respuesta = [{"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}]
-    return HttpResponse(respuesta)
+    if request.method == 'GET':
+        usuario = User.objects.get(pk=id);
+        nombreUsuario = usuario.first_name + " " + usuario.last_name
+        perfil = Perfil.objects.get(usuario=usuario);
+        reds_asignados = []
+        rolesAsignado = RolAsignado.objects.filter(usuario=perfil)
+        for rolAsignado in rolesAsignado:
+            red = rolAsignado.red
+            rol = rolAsignado.rol.nombre
+            reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
+        respuesta = [{"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}]
+        return HttpResponse(respuesta)
