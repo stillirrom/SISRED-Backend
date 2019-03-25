@@ -4,15 +4,13 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-
-
 class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return "Usuario: " + self.usuario.first_name
+        return "Usuario: " + self.id_conectate
 
 
 class Notificacion(models.Model):
@@ -127,7 +125,7 @@ class Rol(models.Model):
     nombre = models.CharField(max_length=100)
 
     def __str__(self):
-        return "Rol: " + self.nombre
+        return "Rol: " + self.id_conectate
 
 
 class RolAsignado(models.Model):

@@ -3,12 +3,9 @@ import os
 import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sisred.settings")
 django.setup()
-
 from sisred_app.models import Rol, Perfil, RED, RolAsignado
-from django.contrib.auth.models import User
-from datetime import datetime
 
-#Metodo para cargar las asignaciones de los proyectos REDs
+# Metodo para cargar las asignaciones de los proyectos REDs
 with open('C:\\Users\\Usuario\\Desktop\\asignaciones.txt') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
@@ -23,11 +20,11 @@ with open('C:\\Users\\Usuario\\Desktop\\asignaciones.txt') as csv_file:
             id_usuario = row[3]
             id_rol = row[4]
             estado = row[6]
-            rol = Rol.objects.get(id=id_rol)
-            red = RED.objects.get(id=id_red)
-            perfil = Perfil.objects.get(id=id_usuario)
+            rol = Rol.objects.get(id_conectate=id_rol)
+            red = RED.objects.get(id_conectate=id_red)
+            perfil = Perfil.objects.get(id_conectate=id_usuario)
             rol_asignado = RolAsignado(
-                id=id_asigancion,
+                id_conectate=id_asigancion,
                 estado=estado,
                 red=red,
                 rol=rol,
