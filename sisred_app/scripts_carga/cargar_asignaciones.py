@@ -24,9 +24,8 @@ with open('C:\\Users\\Usuario\\Desktop\\asignaciones.txt') as csv_file:
             id_rol = row[4]
             estado = row[6]
             rol = Rol.objects.get(id=id_rol)
-            usuario = User.objects.get(id=id_usuario)
             red = RED.objects.get(id=id_red)
-            perfil = Perfil.objects.get(usuario=usuario)
+            perfil = Perfil.objects.get(id=id_usuario)
             rol_asignado = RolAsignado(
                 id=id_asigancion,
                 estado=estado,
