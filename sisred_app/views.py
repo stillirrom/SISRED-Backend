@@ -96,3 +96,17 @@ def add(request):
     rol = RolAsignado.objects.create(usuario=perfil, red=red)
     red.metadata.add(metadata)
     return HttpResponse(serializers.serialize("json", [red]))
+
+@csrf_exempt
+def get_reds_asignados(request, id):
+    usuario = User.objects.get(pk=id);
+    nombreUsuario = usuario.first_name + " " + usuario.last_name
+    perfil = Perfil.objects.get(usuario=usuario);
+    reds_asignados = []
+    rolesAsignado = RolAsignado.objects.filter(usuario=perfil)
+    for rolAsignado in rolesAsignado:
+        red = rolAsignado.red
+        rol = rolAsignado.rol.nombre
+        reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
+    respuesta = [{"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}]
+    return HttpResponse(respuesta)
