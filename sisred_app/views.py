@@ -8,7 +8,7 @@ from django.core import serializers
 from django.contrib.auth.models import User
 # Create your views here.
 
-
+#Metodo para agregar un proyecto RED
 @csrf_exempt
 def post_proyecto_red(request):
     if request.method == 'POST':
@@ -82,7 +82,7 @@ def create(request):
     return HttpResponse(serializers.serialize("json", [red]))
 
 @csrf_exempt
-def agregar(request):
+def add(request):
     user = User.objects.create_user(username='user', password='1234ABC', first_name='Usuario', last_name='Prueba',email='userpruerba@prueba.com')
     perfil = Perfil.objects.create(usuario=user, tipo_identificacion="Cedula", numero_identificacion="1111111111")
     metadata = Metadata.objects.create(tag="Prueba")
