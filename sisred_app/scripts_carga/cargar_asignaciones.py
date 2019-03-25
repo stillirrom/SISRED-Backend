@@ -17,21 +17,22 @@ with open('C:\\Users\\Usuario\\Desktop\\asignaciones.txt') as csv_file:
             print(f'Nombres de las columnas {", ".join(row)}')
             line_count += 1
         else:
-            print(f'\t{row[2]}, {row[4]}, {row[5]}, {row[12]}')
-            id_red = row[2]
-            id_usuario = row[4]
-            id_rol = row[5]
-            fecha_inicio_temp = row[12]
-            rol = Rol.objects.get(nombre=id_rol)
-            usuario = User.objects.get(username=id_usuario)
-            red = RED.objects.get(codigo=id_red)
+            print(f'\t{row[0]}, {row[1]}, {row[2]}, {row[3]}, {row[4]}, {row[5]}, {row[6]}')
+            id_asigancion = row[0]
+            id_red = row[1]
+            id_usuario = row[3]
+            id_rol = row[4]
+            estado = row[6]
+            rol = Rol.objects.get(id=id_rol)
+            usuario = User.objects.get(id=id_usuario)
+            red = RED.objects.get(id=id_red)
             perfil = Perfil.objects.get(usuario=usuario)
-            fecha = datetime.strftime(fecha_inicio_temp, '%d/$m/$Y')
             rol_asignado = RolAsignado(
-                fecha_inicio=fecha,
+                id=id_asigancion,
+                estado=estado,
                 red=red,
                 rol=rol,
-                usuario=perfil
+                usuario=perfil,
             )
             rol_asignado.save()
             line_count += 1
