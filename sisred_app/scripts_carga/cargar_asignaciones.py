@@ -8,7 +8,7 @@ from sisred_app.models import Rol, Perfil, RED, RolAsignado
 from django.contrib.auth.models import User
 from datetime import datetime
 
-
+#Metodo para cargar las asignaciones de los proyectos REDs
 with open('C:\\Users\\Usuario\\Desktop\\asignaciones.txt') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0

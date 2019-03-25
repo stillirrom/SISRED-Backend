@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    tipo_identificacion = models.CharField(max_length=50)
-    numero_identificacion = models.CharField(max_length=50)
+    tipo_identificacion = models.CharField(max_length=50,blank=True,null=True)
+    numero_identificacion = models.CharField(max_length=50,blank=True,null=True)
 
     def __str__(self):
         return "Rol: " + self.usuario
@@ -63,15 +63,15 @@ class RED(models.Model):
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     descripcion = models.TextField()
-    fecha_inicio = models.DateField()
-    fecha_cierre = models.DateField()
+    fecha_inicio = models.DateField(blank=True,null=True)
+    fecha_cierre = models.DateField(blank=True,null=True)
     fecha_creacion = models.DateField(default=datetime.date.today)
     porcentaje_avance = models.IntegerField()
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
     proyecto_conectate = models.ForeignKey(ProyectoConectate, on_delete=models.CASCADE)
-    recursos = models.ManyToManyField(Recurso)
-    metadata = models.ManyToManyField(Metadata)
+    recursos = models.ManyToManyField(Recurso, blank=True, null=True)
+    metadata = models.ManyToManyField(Metadata, blank=True, null=True)
     horas_estimadas = models.IntegerField()
     horas_trabajadas = models.IntegerField()
 

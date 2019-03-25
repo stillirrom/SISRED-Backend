@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.core import serializers
 # Create your views here.
 
-
+#Metodo para agregar un proyecto RED
 @csrf_exempt
 def post_proyecto_red(request):
     if request.method == 'POST':
