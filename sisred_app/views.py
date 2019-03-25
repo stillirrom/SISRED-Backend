@@ -8,7 +8,8 @@ from django.core import serializers
 from django.contrib.auth.models import User
 # Create your views here.
 
-#Metodo para agregar un proyecto RED
+
+# Metodo para agregar un proyecto RED
 @csrf_exempt
 def post_proyecto_red(request):
     if request.method == 'POST':
@@ -18,6 +19,8 @@ def post_proyecto_red(request):
             nombre=json_proyecto_red['nombre'],
             tipo=json_proyecto_red['tipo'],
             carpeta=json_proyecto_red['carpeta'],
+            descipcion=json_proyecto_red['descipcion'],
+            autor=json_proyecto_red['autor'],
             red=red)
         nuevo_proyecto_red.save()
         return HttpResponse(serializers.serialize("json", [nuevo_proyecto_red]))
