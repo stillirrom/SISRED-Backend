@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from .models import RED, ProyectoRED, RolAsignado, Perfil
+from .models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate
 from django.http import HttpResponse
 from django.core import serializers
+from django.contrib.auth.models import User
 # Create your views here.
 
 
@@ -23,10 +24,10 @@ def post_proyecto_red(request):
 
 
 @csrf_exempt
-def get_detailred_personas(request):
+def get_detallered_personas(request):
     if request.method == 'GET':
-        json_info = json.loads(request.body)
-        personas = RolAsignado.objects.filter(red=json_info['RED'])
+        red = RED.objects.get(nombre=request.GET['RED'])
+        personas = RolAsignado.objects.filter(red=red)
         respuesta = []
         for persona in personas:
             nombre = persona.perfil.usuario.name
@@ -36,52 +37,59 @@ def get_detailred_personas(request):
 
 
 @csrf_exempt
-def get_detailred_proyectosred(request):
+def get_detallered_proyectosred(request):
     if request.method == 'GET':
-        json_info = json.loads(request.body)
-        personas = RolAsignado.objects.filter(red=json_info['RED'])
-        respuesta = []
-        for persona in personas:
-            nombre = persona.perfil.usuario.name
-            rol = persona.rol
-            respuesta.append({"nombre": nombre, "rol": rol})
+        red = RED.objects.get(nombre=request.GET['RED'])
+        respuesta = ProyectoRED.objects.filter(red=red)
         return HttpResponse(serializers.serialize("json", respuesta))
 
 
 @csrf_exempt
-def get_detailred_metadata(request):
+def get_detallered_metadata(request):
     if request.method == 'GET':
-        json_info = json.loads(request.body)
-        personas = RolAsignado.objects.filter(red=json_info['RED'])
-        respuesta = []
-        for persona in personas:
-            nombre = persona.perfil.usuario.name
-            rol = persona.rol
-            respuesta.append({"nombre":nombre, "rol": rol})
+        red = RED.objects.get(nombre=request.GET['RED'])
+        respuesta = Metadata.objects.filter(red=red)
         return HttpResponse(serializers.serialize("json", respuesta))
 
 
 @csrf_exempt
-def get_detailred_recursos(request):
+def get_detallered_recursos(request):
     if request.method == 'GET':
-        json_info = json.loads(request.body)
-        personas = RolAsignado.objects.filter(red=json_info['RED'])
-        respuesta = []
-        for persona in personas:
-            nombre = persona.perfil.usuario.name
-            rol = persona.rol
-            respuesta.append({"nombre":nombre, "rol": rol})
+        red = RED.objects.get(nombre=request.GET['RED'])
+        respuesta = Recurso.objects.filter(red=red)
         return HttpResponse(serializers.serialize("json", respuesta))
 
 
 @csrf_exempt
-def get_detailred(request):
+def get_detallered(request):
     if request.method == 'GET':
-        json_info = json.loads(request.body)
-        personas = RolAsignado.objects.filter(red=json_info['RED'])
-        respuesta = []
-        for persona in personas:
-            nombre = persona.perfil.usuario.name
-            rol = persona.rol
-            respuesta.append({"nombre":nombre, "rol": rol})
-        return HttpResponse(serializers.serialize("json", respuesta))
+        red = request.GET['RED']
+        respuesta = RED.objects.get(nombre=red)
+        return HttpResponse(serializers.serialize("json", [respuesta]))
+
+
+@csrf_exempt
+def create(request):
+    user = User.objects.create_user(username='user', password='1234ABC', first_name='Usuario', last_name='Prueba',email='userpruerba@prueba.com')
+    perfil = Perfil.objects.create(usuario=user, tipo_identificacion="Cedula", numero_identificacion="1111111111")
+    metadata = Metadata.objects.create(tag="Prueba")
+    proyecto = ProyectoConectate.objects.create()
+    recurso1 = Recurso.objects.create(nombre="RecursoPrueba", archivo="pruebadearchivo", thumbnail="pruebathumbnail", tipo="tipoPrueba", descripcion="descripcion de prueba para este recurso de aca", autor=perfil, usuario_ultima_modificacion=perfil)
+    red = RED.objects.create(codigo="PP", nombre="REDPrueba", nombre_corto="RedP", proyecto_conectate=proyecto)
+    red.metadata.add(metadata)
+    rol = RolAsignado.objects.create(usuario=perfil, red=red)
+    red.metadata.add(metadata)
+    return HttpResponse(serializers.serialize("json", [red]))
+
+@csrf_exempt
+def agregar(request):
+    user = User.objects.create_user(username='user', password='1234ABC', first_name='Usuario', last_name='Prueba',email='userpruerba@prueba.com')
+    perfil = Perfil.objects.create(usuario=user, tipo_identificacion="Cedula", numero_identificacion="1111111111")
+    metadata = Metadata.objects.create(tag="Prueba")
+    proyecto = ProyectoConectate.objects.create()
+    recurso1 = Recurso.objects.create(nombre="RecursoPrueba", archivo="pruebadearchivo", thumbnail="pruebathumbnail", tipo="tipoPrueba", descripcion="descripcion de prueba para este recurso de aca", autor=perfil, usuario_ultima_modificacion=perfil)
+    red = RED.objects.create(codigo="PP", nombre="REDPrueba", nombre_corto="RedP", proyecto_conectate=proyecto)
+    red.metadata.add(metadata)
+    rol = RolAsignado.objects.create(usuario=perfil, red=red)
+    red.metadata.add(metadata)
+    return HttpResponse(serializers.serialize("json", [red]))

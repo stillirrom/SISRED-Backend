@@ -50,8 +50,8 @@ class ProyectoConectate(models.Model):
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     codigo = models.CharField(max_length=50)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    fecha_inicio = models.DateField(null=True)
+    fecha_fin = models.DateField(null=True)
 
 
     def __str__(self):
@@ -62,18 +62,18 @@ class RED(models.Model):
     codigo = models.CharField(max_length=50)
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
-    descripcion = models.TextField()
-    fecha_inicio = models.DateField()
-    fecha_cierre = models.DateField()
+    descripcion = models.TextField(null=True)
+    fecha_inicio = models.DateField(null=True)
+    fecha_cierre = models.DateField(null=True)
     fecha_creacion = models.DateField(default=datetime.date.today)
-    porcentaje_avance = models.IntegerField()
-    tipo = models.CharField(max_length=50)
-    solicitante = models.CharField(max_length=50)
+    porcentaje_avance = models.IntegerField(null=True)
+    tipo = models.CharField(max_length=50, null=True)
+    solicitante = models.CharField(max_length=50, null=True)
     proyecto_conectate = models.ForeignKey(ProyectoConectate, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso)
     metadata = models.ManyToManyField(Metadata)
-    horas_estimadas = models.IntegerField()
-    horas_trabajadas = models.IntegerField()
+    horas_estimadas = models.IntegerField(null=True)
+    horas_trabajadas = models.IntegerField(null=True)
 
     def __str__(self):
         return 'Red: ' + self.codigo
@@ -128,9 +128,9 @@ class Rol(models.Model):
 
 
 class RolAsignado(models.Model):
-    fecha_inicio = models.DateField(default=datetime.date.today)
+    fecha_inicio = models.DateField(default=datetime.date.today, null=True)
     fecha_fin = models.DateField(blank=True, null=True)
-    notificaciones = models.ManyToManyField(Notificacion)
+    notificaciones = models.ManyToManyField(Notificacion, null=True)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
