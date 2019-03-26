@@ -109,5 +109,5 @@ def get_reds_asignados(request, id):
             red = rolAsignado.red
             rol = rolAsignado.rol.nombre
             reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
-        respuesta = [{"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}]
+        respuesta = {"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
