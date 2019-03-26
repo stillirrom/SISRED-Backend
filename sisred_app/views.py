@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
-
+from django.http import JsonResponse
 from .models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate
 from django.http import HttpResponse
 from django.core import serializers
@@ -110,4 +110,4 @@ def get_reds_asignados(request, id):
             rol = rolAsignado.rol.nombre
             reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
         respuesta = [{"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}]
-        return HttpResponse(respuesta)
+        return JsonResponse(respuesta, safe=False)
