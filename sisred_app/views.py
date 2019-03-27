@@ -30,6 +30,7 @@ def recurso_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET', 'POST'])
 def recurso_addget(request,id):
     if request.method == 'GET':
         recurso = Recurso.objects.filter(id=id).first()
