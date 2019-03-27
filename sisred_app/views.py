@@ -11,8 +11,8 @@ from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, MultiPartParser
 
 
-from sisred_app.models import  Recurso
-from sisred_app.serializer import RecursoSerializer
+from sisred_app.models import Recurso, Estado
+from sisred_app.serializer import RecursoSerializer ,EstadoSerializer
 # Create your views here.
 
 
@@ -39,6 +39,19 @@ def recurso_addget(request,id):
 
     elif request.method == 'POST':
         serializer = RecursoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET', 'POST'])
+def estado_byid(request,id):
+    if request.method == 'GET':
+        recurso = Estado.objects.filter(id=id).first()
+        serializer = EstadoSerializer(recurso)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = EstadoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
