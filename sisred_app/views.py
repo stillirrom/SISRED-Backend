@@ -34,7 +34,7 @@ def recurso_list(request):
 def recurso_addget(request,id):
     if request.method == 'GET':
         recurso = Recurso.objects.filter(id=id).first()
-        serializer = RecursoSerializer(recurso, many=True)
+        serializer = RecursoSerializer(recurso)
         return Response(serializer.data)
 
     elif request.method == 'POST':
