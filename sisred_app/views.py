@@ -1,18 +1,15 @@
-from django.shortcuts import render
+from rest_framework import  status
+from rest_framework.decorators import api_view
+from rest_framework.exceptions import NotFound
 
-from django.shortcuts import get_object_or_404
-from rest_framework import generics, status
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.parsers import FormParser, MultiPartParser
 
 
-from sisred_app.models import Recurso, Estado
-from sisred_app.serializer import RecursoSerializer ,EstadoSerializer
+
+from sisred_app.models import Recurso, RED
+from sisred_app.serializer import RecursoSerializer, FaseSerializer
+
+
 # Create your views here.
 
 
@@ -34,6 +31,8 @@ def recurso_list(request):
 def recurso_addget(request,id):
     if request.method == 'GET':
         recurso = Recurso.objects.filter(id=id).first()
+        if(recurso==None):
+            raise NotFound(detail="Error 404, recurso not found", code=404)
         serializer = RecursoSerializer(recurso)
         return Response(serializer.data)
 
@@ -44,14 +43,16 @@ def recurso_addget(request,id):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['GET', 'POST'])
-def estado_byid(request,id):
+def fase_byid(request,id):
     if request.method == 'GET':
-        recurso = Estado.objects.filter(id=id).first()
-        serializer = EstadoSerializer(recurso)
+        fase = RED.objects.filter(id=id).first()
+        if(fase==None):
+            raise NotFound(detail="Error 404, RED not found", code=404)
+        serializer = FaseSerializer(fase)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = EstadoSerializer(data=request.data)
+        serializer = FaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

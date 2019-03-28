@@ -77,6 +77,7 @@ class RED(models.Model):
     porcentaje_avance = models.IntegerField()
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
+    fase = models.CharField(max_length=50,default="pre-produccion")
     proyecto_conectate = models.ForeignKey(ProyectoConectate, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso)
     metadata = models.ManyToManyField(Metadata)
