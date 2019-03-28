@@ -45,6 +45,14 @@ class Recurso(models.Model):
     def __str__(self):
         return "Recurso: " + self.nombre
 
+    @property
+    def getAutor(self):
+        return self.autor.usuario.first_name + " "  + self.autor.usuario.last_name
+
+    @property
+    def getResponsableModificacion(self):
+        return self.autor.usuario.first_name + " " + self.autor.usuario.last_name
+
 
 class ProyectoConectate(models.Model):
     nombre = models.CharField(max_length=200)
