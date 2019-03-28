@@ -1,7 +1,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.core import serializers
-from .models import User, Perfil
+from django.http import JsonResponse
+from .models import User, Perfil, ProyectoConectate, RolAsignado, RED, Rol
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST
@@ -132,4 +133,29 @@ def get_user_id_view(request, id):
             status=HTTP_400_BAD_REQUEST
         )
 
+
+@csrf_exempt
+def get_reds_relacionados(request, id):
+    if request.method == 'GET':
+
+        proyectoConectate_model = ProyectoConectate.objects.get(pk=id)
+        reds_relacionados = []
+        rol_model = Rol.objects.filter(nombre='Productor').first()
+        reds_models = RED.objects.filter(proyecto_conectate=proyectoConectate_model)
+
+        for red in reds_models:
+            rolAsignado_model = RolAsignado.objects.filter(red=red).filter(rol=rol_model).first()
+
+            if rolAsignado_model != None:
+                perfil_model = Perfil.objects.get(pk=rolAsignado_model.usuario.id)
+                usuario_model = User.objects.get(pk=perfil_model.usuario.id)
+                nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
+
+            reds_relacionados.append(
+                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto, "tipo": red.tipo,
+                 "productor": nombreUsuario})
+        respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
+                     "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
+
+        return JsonResponse(respuesta, safe=False)
 
