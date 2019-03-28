@@ -18,6 +18,11 @@ def getRecurso(request):
         serializer = ResorceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
 
+class RedDetSerializer(serializers.ModelSerializer):
+    recursos = ResorceSerializer(many=True)
+    class Meta:
+        model = RED
+        fields = ('codigo', 'nombre', 'descripcion', 'recursos')
 
 
 """
