@@ -24,6 +24,11 @@ class RedDetSerializer(serializers.ModelSerializer):
         model = RED
         fields = ('codigo', 'nombre', 'descripcion', 'recursos')
 
+def getRedDet(request):
+    data = RED.objects.all()
+    if request.method == 'GET':
+        serializer = RedDetSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
 """
 Vista para crear un usuario nuevo (POST)
