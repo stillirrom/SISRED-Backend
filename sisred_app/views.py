@@ -1,7 +1,13 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from .models import *
 from rest_framework import serializers
+from django.views.decorators.csrf import csrf_exempt
+import json
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+)
 
+from django.core.exceptions import ObjectDoesNotExist
 """
 Vista para ver recursos asociados al RED (GET)
 Se usan archivos sereializer para import de los modelos con los campos filtrados
@@ -18,6 +24,7 @@ def getRecurso(request):
         serializer = ResorceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
 
+
 class RedDetSerializer(serializers.ModelSerializer):
     recursos = ResorceSerializer(many=True)
     class Meta:
@@ -28,6 +35,15 @@ def getRedDet(request):
     data = RED.objects.all()
     if request.method == 'GET':
         serializer = RedDetSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
+class UserAutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username','email')
+
+def getUserAut(request):
+    serializer = UserAutSerializer(request.user)
     return JsonResponse(serializer.data, safe=False)
 
 """
@@ -179,30 +195,3 @@ def get_reds_relacionados(request, id):
                      "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
 
         return JsonResponse(respuesta, safe=False)
-
-
-
-class ResorceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recurso
-        fields = '__all__'
-
-def getRecurso(request):
-    data = Recurso.objects.all()
-    if request.method == 'GET':
-        serializer = ResorceSerializer(data, many=True)
-    return JsonResponse(serializer.data, safe=False)
-
-
-class RedDetSerializer(serializers.ModelSerializer):
-    recursos = ResorceSerializer(many=True)
-    class Meta:
-        model = RED
-        fields = ('codigo', 'nombre', 'descripcion', 'recursos')
-
-
-def getRedDet(request):
-    data = RED.objects.all()
-    if request.method == 'GET':
-        serializer = RedDetSerializer(data, many=True)
-    return JsonResponse(serializer.data, safe=False)

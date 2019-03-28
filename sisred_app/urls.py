@@ -12,5 +12,5 @@ urlpatterns = [
     path('reds/relacionados/<int:id>', views.get_reds_relacionados, name='reds_relacionados'),
     path('getRecurso/', views.getRecurso, name='getRecurso'),
     path('getRedDet/', views.getRedDet, name='getRedDet'),
-
+    path('getUserAut/', views.getUserAut, name='getUserAut'),
 ]
