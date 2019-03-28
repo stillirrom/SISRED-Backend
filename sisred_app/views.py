@@ -28,20 +28,21 @@ def post_proyecto_red(request):
 @csrf_exempt
 def get_detallered_personas(request):
     if request.method == 'GET':
-        red = RED.objects.get(nombre=request.GET['RED'])
+        red = RED.objects.get(id=request.GET['RED'])
         personas = RolAsignado.objects.filter(red=red)
         respuesta = []
         for persona in personas:
-            nombre = persona.perfil.usuario.name
-            rol = persona.rol
-            respuesta.append({"nombre":nombre, "rol": rol})
-        return HttpResponse(serializers.serialize("json", respuesta))
+            usuario = persona.usuario.usuario
+            nombre= usuario.first_name + " " + usuario.last_name
+            rol = persona.rol.nombre
+            respuesta.append({"name": nombre, "rol": rol})
+        return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
 
 @csrf_exempt
 def get_detallered_proyectosred(request):
     if request.method == 'GET':
-        red = RED.objects.get(nombre=request.GET['RED'])
+        red = RED.objects.get(id=request.GET['RED'])
         proyectos = ProyectoRED.objects.filter(red=red)
         respuesta = []
         for pro in proyectos:
@@ -52,18 +53,23 @@ def get_detallered_proyectosred(request):
 @csrf_exempt
 def get_detallered_metadata(request):
     if request.method == 'GET':
-        red = RED.objects.get(nombre=request.GET['RED'])
-        respuesta = Metadata.objects.filter(red=red)
-        return HttpResponse(serializers.serialize("json", respuesta))
+        red = RED.objects.get(id=request.GET['RED'])
+        metas = Metadata.objects.filter(red=red)
+        respuesta = []
+        for met in metas:
+            respuesta.append({"id": met.pk, "tag": met.tag})
+        return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
 
 @csrf_exempt
 def get_detallered_recursos(request):
     if request.method == 'GET':
-        red = RED.objects.get(nombre=request.GET['RED'])
-        respuesta = Recurso.objects.filter(red=red)
-        return HttpResponse(serializers.serialize("json", respuesta))
-
+        red = RED.objects.get(id=request.GET['RED'])
+        recursos = Recurso.objects.filter(red=red)
+        respuesta = []
+        for re in recursos:
+            respuesta.append({"id": re.pk, "name": re.nombre, "typeFormat": re.tipo})
+        return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
 @csrf_exempt
 def get_detallered(request):
@@ -86,6 +92,7 @@ def get_detallered(request):
                     ultimo = hist
                     ultimoDate = actDate
             status = ultimo.estado.nombre_estado
+
         respuesta = {"nombreRed": nombreRed, "nombreProject":nombreProject, "status":status, "url": url}
 
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
