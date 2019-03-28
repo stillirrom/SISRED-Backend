@@ -25,7 +25,7 @@ with open('C:\\Users\\Familia\\Documents\\MISO\\PROCESOS_AGILES\\SISRED\\usuario
             correo = row[5]
             est = row[6]
 
-            if est == 1:
+            if est == "1":
                 try:
                     user_exist = User.objects.get(email=correo)
                     print("Usuario con correo: "+correo+" ya existe!")
