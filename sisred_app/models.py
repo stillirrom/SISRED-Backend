@@ -59,7 +59,7 @@ class ProyectoConectate(models.Model):
 
 
 class RED(models.Model):
-    id_conectate = models.CharField(unique=True, max_length=50)
+    id_conectate = models.CharField(unique=True, max_length=50, default="")
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     descripcion = models.TextField()
