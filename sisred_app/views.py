@@ -133,7 +133,11 @@ def get_user_id_view(request, id):
             status=HTTP_400_BAD_REQUEST
         )
 
-
+"""
+Vista para consultar los REDs relacionados a un id de ProyectoConectate (GET)
+Parametros: request, id
+Return: información del proyecto y una lista de los reds relacionados con su informacion en formato Json
+"""
 @csrf_exempt
 def get_reds_relacionados(request, id):
     if request.method == 'GET':
