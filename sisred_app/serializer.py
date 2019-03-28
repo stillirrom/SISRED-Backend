@@ -1,4 +1,4 @@
-from .models import Recurso, ProyectoRED, Estado
+from .models import Recurso, Estado
 from rest_framework import  serializers
 
 class RecursoSerializer(serializers.ModelSerializer):

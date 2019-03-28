@@ -12,9 +12,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 
 
 from sisred_app.models import Recurso, Estado
-from sisred_app.serializer import RecursoSerializer, EstadoSerializer
-
-
+from sisred_app.serializer import RecursoSerializer ,EstadoSerializer
 # Create your views here.
 
 
@@ -45,7 +43,6 @@ def recurso_addget(request,id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 @api_view(['GET', 'POST'])
 def estado_byid(request,id):
     if request.method == 'GET':
