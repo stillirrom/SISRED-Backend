@@ -1,17 +1,18 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.core import serializers
-from django.http import JsonResponse
-from .models import User, Perfil, ProyectoConectate, RolAsignado, RED, Rol
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.status import (
-    HTTP_400_BAD_REQUEST
-)
-import json
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from .models import *
+from rest_framework import serializers
 
-from django.shortcuts import render
+"""
+Vista para ver recursos asociados al RED (GET)
+Se usan archivos sereializer para import de los modelos con los campos filtrados
+"""
 
-# Create your views here.
+class ResorceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recurso
+        fields = '__all__'
+
+
 
 """
 Vista para crear un usuario nuevo (POST)
@@ -163,3 +164,29 @@ def get_reds_relacionados(request, id):
 
         return JsonResponse(respuesta, safe=False)
 
+
+
+class ResorceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recurso
+        fields = '__all__'
+
+def getRecurso(request):
+    data = Recurso.objects.all()
+    if request.method == 'GET':
+        serializer = ResorceSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
+
+class RedDetSerializer(serializers.ModelSerializer):
+    recursos = ResorceSerializer(many=True)
+    class Meta:
+        model = RED
+        fields = ('codigo', 'nombre', 'descripcion', 'recursos')
+
+
+def getRedDet(request):
+    data = RED.objects.all()
+    if request.method == 'GET':
+        serializer = RedDetSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
