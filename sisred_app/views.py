@@ -11,6 +11,12 @@ import json
 from django.shortcuts import render
 
 # Create your views here.
+
+"""
+Vista para crear un usuario nuevo (POST)
+Parametros: request (en el body se agregan los atributos del modelo de User y perfil)
+Return: El usuario creado con su id en formato Json
+"""
 @csrf_exempt
 def add_user_view(request):
     if request.method == 'POST':
@@ -43,7 +49,11 @@ def add_user_view(request):
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
             )
-
+"""
+Vista para editar un usuario nuevo (PUT)
+Parametros: request (en el body se agregan los atributos que se pueden modificar del modelo de User y perfil), id
+Return: El usuario editado en formato Json
+"""
 @csrf_exempt
 def update_user_view(request, id):
     if request.method == 'PUT':
@@ -81,6 +91,11 @@ def update_user_view(request, id):
                 status=HTTP_400_BAD_REQUEST
             )
 
+"""
+Vista para consultar todos los usuarios (GET)
+Parametros: request
+Return: Lista de los usuarios con sus perfiles en formato Json
+"""
 @csrf_exempt
 def get_all_users(request):
     try:
@@ -96,6 +111,11 @@ def get_all_users(request):
             status=HTTP_400_BAD_REQUEST
         )
 
+"""
+Vista para consultar el usuario por id (GET)
+Parametros: request, id
+Return: Usuario con su perfil en formato Json
+"""
 @csrf_exempt
 def get_user_id_view(request, id):
     try:
