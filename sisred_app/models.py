@@ -48,8 +48,8 @@ class ProyectoConectate(models.Model):
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     codigo = models.CharField(max_length=50)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    fecha_inicio = models.DateField(null=True)
+    fecha_fin = models.DateField(null=True)
 
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
@@ -62,7 +62,7 @@ class RED(models.Model):
     descripcion = models.TextField()
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_cierre = models.DateField(blank=True, null=True)
-    fecha_creacion = models.DateField(default=datetime.date.today)
+    fecha_creacion = models.DateField(default=datetime.date.today, null=True)
     porcentaje_avance = models.IntegerField(blank=True, null=True)
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
@@ -94,7 +94,7 @@ class ProyectoRED(models.Model):
 
 
 class Estado(models.Model):
-    id_conectate = models.CharField(unique=True, max_length=50)
+    id_conectate = models.CharField(max_length=50)
     nombre_estado = models.CharField(max_length=50)
 
     def __str__(self):
