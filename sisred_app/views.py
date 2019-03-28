@@ -12,6 +12,12 @@ class ResorceSerializer(serializers.ModelSerializer):
         model = Recurso
         fields = '__all__'
 
+def getRecurso(request):
+    data = Recurso.objects.all()
+    if request.method == 'GET':
+        serializer = ResorceSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
 
 
 """
