@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'sisred_app'
 ]
 
 MIDDLEWARE = [
@@ -77,16 +76,11 @@ WSGI_APPLICATION = 'sisred.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'deoh8llj5dbb40',
-        'USER': 'qxbutnzvawcexm',
-        'PASSWORD': '48563fb0cb38121c326260145d8533460d5045f6b46787197e5509de6bd53067',
-        'HOST': 'ec2-107-20-177-161.compute-1.amazonaws.com',
-        'PORT': '',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3")
     }
 }
-
 
 
 # Password validation
