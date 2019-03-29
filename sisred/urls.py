@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from sisred_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('getProyectosRED/', views.getProyectosRED),
+    path('getRecurso/', views.getRecurso),
+    path('getRED/', views.getRED),
 ]

@@ -1,9 +1,6 @@
+from django.utils import timezone
 from django.db import models
-import datetime
 from django.contrib.auth.models import User
-
-
-# Create your models here.
 
 
 class Perfil(models.Model):
@@ -12,12 +9,12 @@ class Perfil(models.Model):
     numero_identificacion = models.CharField(max_length=50)
 
     def __str__(self):
-        return "Rol: " + self.usuario
+        return "Rol: " + self.usuario.username
 
 
 class Notificacion(models.Model):
     mensaje = models.TextField()
-    fecha = models.DateField(default=datetime.date.today)
+    fecha = models.DateField(default=timezone.now)
 
     def __str__(self):
         return 'Notificacion: ' + self.mensaje
@@ -34,13 +31,14 @@ class Recurso(models.Model):
     nombre = models.CharField(max_length=200)
     archivo = models.CharField(max_length=200)
     thumbnail = models.CharField(max_length=200)
-    fecha_creacion = models.DateField(default=datetime.date.today)
-    fecha_ultima_modificacion = models.DateField(default=datetime.date.today)
+    fecha_creacion = models.DateField(default=timezone.now)
+    fecha_ultima_modificacion = models.DateField(default=timezone.now)
     tipo = models.CharField(max_length=50)
     descripcion = models.TextField()
     metadata = models.ManyToManyField(Metadata)
     autor = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_autor')
-    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_ultima_modificacion')
+    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE,
+                                                    related_name='usuario_ultima_modificacion')
 
     def __str__(self):
         return "Recurso: " + self.nombre
@@ -53,7 +51,6 @@ class ProyectoConectate(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
 
-
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
 
@@ -65,7 +62,7 @@ class RED(models.Model):
     descripcion = models.TextField()
     fecha_inicio = models.DateField()
     fecha_cierre = models.DateField()
-    fecha_creacion = models.DateField(default=datetime.date.today)
+    fecha_creacion = models.DateField(default=timezone.now)
     porcentaje_avance = models.IntegerField()
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
@@ -102,7 +99,7 @@ class Estado(models.Model):
 
 
 class HistorialEstados(models.Model):
-    fecha_cambio = models.DateField(default=datetime.date.today)
+    fecha_cambio = models.DateField(default=timezone.now)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
@@ -128,7 +125,7 @@ class Rol(models.Model):
 
 
 class RolAsignado(models.Model):
-    fecha_inicio = models.DateField(default=datetime.date.today)
+    fecha_inicio = models.DateField(default=timezone.now)
     fecha_fin = models.DateField(blank=True, null=True)
     notificaciones = models.ManyToManyField(Notificacion)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
