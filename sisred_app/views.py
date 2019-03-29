@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
 from .models import *
+from django.core.serializers import *
 from rest_framework import serializers
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -56,7 +57,7 @@ Parametros: request (en el body se agregan los atributos del modelo de User y pe
 Return: El usuario creado con su id en formato Json
 """
 @csrf_exempt
-def add_user_view(request):
+def postUser(request):
     if request.method == 'POST':
         try:
             json_user = json.loads(request.body)
@@ -67,22 +68,20 @@ def add_user_view(request):
             email = json_user['email']
             id_conectate=json_user['id_conectate']
             numero_identificacion=json_user['numero_identificacion']
-
             user_model = User.objects.create_user(username=username, password=password)
             user_model.first_name = first_name
             user_model.last_name = last_name
             user_model.email = email
             user_model.save()
-            user_profile = Perfil.objects.create(usuario=user_model, id_conectate=id_conectate, numero_identificacion=numero_identificacion)
+            user_profile = Perfil.objects.create(usuario=user_model, id_conectate=id_conectate, numero_identificacion=numero_identificacion, estado=1)
             user_profile.save()
 
-            return HttpResponse(serializers.serialize("json", [user_model, user_profile]))
+            return HttpResponse(serialize("json", [user_model, user_profile]))
         except KeyError as e:
             return HttpResponseBadRequest(
                 content='El campo ' + str(e) + ' es requerido.'
             )
         except Exception as ex:
-            print('error')
             return HttpResponseBadRequest(
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
@@ -93,7 +92,7 @@ Parametros: request (en el body se agregan los atributos que se pueden modificar
 Return: El usuario editado en formato Json
 """
 @csrf_exempt
-def update_user_view(request, id):
+def putUser(request, id):
     if request.method == 'PUT':
         try:
             json_user = json.loads(request.body)
@@ -114,7 +113,7 @@ def update_user_view(request, id):
 
             perfil.save()
             user.save()
-            return HttpResponse(serializers.serialize("json",[user, perfil]))
+            return HttpResponse(serialize("json",[user, perfil]))
         except ObjectDoesNotExist as e:
             return HttpResponseBadRequest(
                 content='No existe el usuario con id ' + str(id)
@@ -135,14 +134,14 @@ Parametros: request
 Return: Lista de los usuarios con sus perfiles en formato Json
 """
 @csrf_exempt
-def get_all_users(request):
+def getAllUser(request):
     try:
         users = User.objects.filter(is_superuser=False)
-        serialize = ""
+        datosSerializados = ""
         for user in users:
             perfil = Perfil.objects.get(usuario=user)
-            serialize += serializers.serialize("json", [user, perfil])
-        return HttpResponse(serialize)
+            datosSerializados += serialize("json", [user, perfil])
+        return HttpResponse(datosSerializados)
     except Exception as ex:
         return HttpResponseBadRequest(
             content='BAD_REQUEST: ' + str(ex),
@@ -155,11 +154,11 @@ Parametros: request, id
 Return: Usuario con su perfil en formato Json
 """
 @csrf_exempt
-def get_user_id_view(request, id):
+def getUser(request, id):
     try:
         user = User.objects.get(id=id)
         perfil = Perfil.objects.get(usuario=user)
-        return HttpResponse(serializers.serialize("json", [user, perfil]))
+        return HttpResponse(serialize("json", [user, perfil]))
     except ObjectDoesNotExist as e:
         return HttpResponseBadRequest(
             content='No existe el usuario con id ' + str(id)
@@ -304,3 +303,27 @@ def update_sisred(request):
         return HttpResponse("Updated successful", status=200)
     else:
         return HttpResponse("Bad request", status=400)
+
+"""
+Vista para eliminar el usuario por id (DELETE)
+Parametros: request, id
+Return: Usuario marcado como eliminado en formato Json
+"""
+@csrf_exempt
+def deleteUser(request, id):
+    if request.method == 'DELETE':
+        try:
+            user = User.objects.get(id=id)
+            perfil = Perfil.objects.get(usuario=user)
+            perfil.estado = 0
+            perfil.save()
+            return HttpResponse(serialize("json", [user, perfil]))
+        except ObjectDoesNotExist as e:
+            return HttpResponseBadRequest(
+                content='No existe el usuario con id ' + str(id)
+            )
+        except Exception as ex:
+            return HttpResponseBadRequest(
+                content='BAD_REQUEST: ' + str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )

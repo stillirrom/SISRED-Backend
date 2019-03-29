@@ -10,6 +10,7 @@ class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
+    estado = models.IntegerField()
 
     def __str__(self):
         return "Usuario: " + self.usuario.first_name
