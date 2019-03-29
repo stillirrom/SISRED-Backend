@@ -8,6 +8,7 @@ class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
+    estado = models.IntegerField()
 
     def __str__(self):
         return "Usuario: " + self.id_conectate
@@ -45,6 +46,7 @@ class Recurso(models.Model):
 
 
 class ProyectoConectate(models.Model):
+    id_conectate = models.CharField(unique=True, max_length=50)
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     codigo = models.CharField(max_length=50)
@@ -135,6 +137,7 @@ class RolAsignado(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    estado = models.IntegerField()
 
     def __str__(self):
         return self.usuario.__str__() + " " + self.red.__str__() + " " + self.rol.__str__()
