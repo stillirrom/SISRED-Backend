@@ -77,7 +77,6 @@ class RED(models.Model):
     porcentaje_avance = models.IntegerField()
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
-    fase = models.CharField(max_length=50,default="pre-produccion")
     proyecto_conectate = models.ForeignKey(ProyectoConectate, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso)
     metadata = models.ManyToManyField(Metadata)
@@ -103,20 +102,14 @@ class ProyectoRED(models.Model):
         return "Proyecto RED: " + self.nombre
 
 
-class Estado(models.Model):
-    nombre_estado = models.CharField(max_length=50)
 
-    def __str__(self):
-        return 'Estado: ' + self.nombre_estado
-
-
-class HistorialEstados(models.Model):
+class HistorialFase(models.Model):
     fecha_cambio = models.DateField(default=datetime.date.today)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
-    red = models.ForeignKey(RED, on_delete=models.CASCADE)
+    nombre_fase = models.CharField(max_length=50)
+    red = models.ForeignKey(RED, on_delete=models.CASCADE , related_name='fase_red')
 
     def __str__(self):
-        return 'Fecha de cambio: ' + self.fecha_cambio + ', Estado: ' + self.estado + ', Red: ' + self.red
+        return 'Fecha de cambio: ' + self.fecha_cambio + ', Fase: ' + self.fase + ', Red: ' + self.red
 
 
 class Version(models.Model):
