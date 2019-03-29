@@ -13,4 +13,5 @@ urlpatterns = [
     path('getRecurso/', views.getRecurso, name='getRecurso'),
     path('getRedDet/', views.getRedDet, name='getRedDet'),
     path('getUserAut/', views.getUserAut, name='getUserAut'),
+    path('update_sisred/', views.update_sisred, name='update_sisred'),
 ]

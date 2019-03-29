@@ -1,4 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from psycopg2._psycopg import IntegrityError, DatabaseError
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
 from .models import *
 from rest_framework import serializers
 from django.views.decorators.csrf import csrf_exempt
@@ -195,3 +199,103 @@ def get_reds_relacionados(request, id):
                      "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
 
         return JsonResponse(respuesta, safe=False)
+
+@csrf_exempt
+@api_view(["PUT"])
+@permission_classes((AllowAny,))
+def update_sisred(request):
+
+    print("update_sisred")
+
+    if request.method == 'PUT':
+        arrayMessages = []
+        count = 0
+        # Obtengo la lista de REDs del JSON
+        json_data = json.loads(request.body)
+
+        # Recorro el listado de REDS con la etiqueta RED
+        for data in json_data["RED"]:
+            count += 1
+            id_conectate = data['id_conectate']
+            print('id_conectate', id_conectate)
+
+            try:
+                #updateRed = RED.objects.get(id=1)  # debe ir el ID que se creo en el nuevo modelo
+                print('updateRed')
+                updateRed = RED.objects.filter(id_conectate=id_conectate).first()
+
+                print("updateRed", updateRed.nombre)
+
+                #json_data = json.loads(request.body)
+
+
+                #updateRed.codigo=json_data['codigo']
+                updateRed.nombre=data['nombre']
+                updateRed.nombre_corto=data['nombre_corto']
+                updateRed.descripcion=data['descripcion']
+                updateRed.fecha_inicio = data['fecha_inicio']
+                updateRed.fecha_cierre = data['fecha_cierre']
+                #   fecha_creacion = json_data['fecha_creacion'],
+                updateRed.porcentaje_avance=data['porcentaje_avance']
+                updateRed.tipo=data['tipo']
+                updateRed.solicitante=data['solicitante']
+                #updateRed.proyecto_conectate=ProyectoConectate.objects.get(id=json_data['solicitante']),
+                # recursos=res,
+                # metadata=met,
+                updateRed.horas_estimadas=data['horas_estimadas']
+                updateRed.horas_trabajadas=data['horas_trabajadas']
+
+                print("updateRed", updateRed.nombre)
+
+                json_pyConectate = data['proyecto_conectate']
+                namep = json_pyConectate['nombre']
+                nameShort = json_pyConectate['nombre_corto']
+                code = json_pyConectate['codigo']
+                initDate = json_pyConectate['fecha_inicio']
+                endDate = json_pyConectate['fecha_fin']
+                print("endDate", endDate)
+
+                try:
+                    proyecto_conectate = ProyectoConectate.objects.get(id=updateRed.proyecto_conectate.id)
+                except ProyectoConectate.DoesNotExist:
+                    proyectoConectate = None
+                    proyecto_conectate = ProyectoConectate.objects.create(nombre=namep, nombre_corto=nameShort, codigo=code,
+                                                                  fecha_inicio=initDate, fecha_fin=endDate),
+
+                updateRed.proyecto_conectate = proyecto_conectate
+                #for Metadata in request..all():
+                # met = Metadata.objects.create(tag='metadataTest2')
+                # updateRed.metadata.add(met)
+                # print("metadata")
+                # updateRed.metadata.all()
+                # print("met", newRED.metadata.all())
+
+                try:
+                    updateRed.save()
+                    #json_metadata = json_data['metadata']
+                    #tags = json_metadata['tag']
+                    #print("Metadata.objects")
+                    #met = Metadata.objects.get(id=updateRed.metadata.)
+                    #met = updateRed.metadata.all()
+                    #print("tags", len(tags))
+                    #for tagData in tags :
+                    #updateRed.metadata.add();
+                    #updateRed.save()
+                except IntegrityError as ie:
+                    return HttpResponse("Integrity Error", status=400)
+                except DatabaseError as e:
+                    return HttpResponse("DatabaseError Error", status=400)
+                except ValueError as ve:
+                    print("ValueError", ve)
+                    return HttpResponse("Error value saving", status=400)
+                         #headers = {'Authorization': 'Bearer ' + token, "Content-Type": "application/json"}
+                print("updateRed ok")
+
+
+            except AttributeError:
+                arrayMessages.insert(count, ' RED: Proyecto RED ' + updateRed.id_conectate + ' no existe ')
+                return HttpResponse(arrayMessages, status=400)
+
+        return HttpResponse("Updated successful", status=200)
+    else:
+        return HttpResponse("Bad request", status=400)
