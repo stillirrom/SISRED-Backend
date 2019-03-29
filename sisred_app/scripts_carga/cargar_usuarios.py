@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from sisred_app.models import Perfil
 
 # Metodo para cargar las asignaciones de los proyectos REDs
-with open('C:\\Users\\Familia\\Documents\\MISO\\PROCESOS_AGILES\\SISRED\\usuarios.txt') as csv_file:
+with open('./archivos/usuarios.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
     for row in csv_reader:
@@ -42,7 +42,8 @@ with open('C:\\Users\\Familia\\Documents\\MISO\\PROCESOS_AGILES\\SISRED\\usuario
                     perfil = Perfil(
                         id_conectate=id_persona,
                         usuario=usuario,
-                        numero_identificacion=identificacion
+                        numero_identificacion=identificacion,
+                        estado=est
                     )
                     perfil.save()
                     line_count += 1
