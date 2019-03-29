@@ -200,6 +200,11 @@ def get_reds_relacionados(request, id):
 
         return JsonResponse(respuesta, safe=False)
 
+"""
+Servicio para actualizar o editar un registros del modelo RED (PUT)
+Parametros: request (en el body se agregan los atributos del modelo de RED en formato json)
+Return: 200 exitoso, 400 fallido explicando en un string el motivo del fallo.
+"""
 @csrf_exempt
 @api_view(["PUT"])
 @permission_classes((AllowAny,))
