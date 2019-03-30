@@ -35,7 +35,7 @@ class RedDetSerializer(serializers.ModelSerializer):
     recursos = ResorceSerializer(many=True)
     class Meta:
         model = RED
-        fields = ('codigo', 'nombre', 'descripcion', 'recursos')
+        fields = ('nombre', 'descripcion', 'recursos')
 
 def getRedDet(request, id):
     data = RED.objects.filter(id=id)
