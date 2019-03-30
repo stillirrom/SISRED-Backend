@@ -1,6 +1,8 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
+import dropbox
+from dropbox.files import CommitInfo, WriteMode
 
 
 class Perfil(models.Model):
@@ -160,3 +162,14 @@ class Propiedad(models.Model):
 
     def __str__(self):
         return 'Llave: ' + self.llave + ', Valor: ' + self.valor
+
+
+class SubirRed:
+    def __init__(self, access_token):
+        self.access_token = access_token
+
+    def obtenerEnlaceSubida(self):
+        dbx = dropbox.Dropbox(self.access_token)
+        commit_info = CommitInfo(path='', mode=WriteMode.overwrite)
+        temp_link = dbx.files_get_temporary_upload_link(commit_info=commit_info)
+        print(temp_link.link)
