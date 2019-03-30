@@ -43,10 +43,10 @@ def recurso_addget(request,id):
             if (ItemRecurso!=None):
                 ItemRecurso.nombre=request.data.get("nombre")
                 ItemRecurso.descripcion=request.data.get("descripcion")
-
-                Per=Perfil.objects.filter(id=int(request.data.get("usuario_ultima_modificacion")))
-                #if (Per!=None):
-                    #ItemRecurso.usuario_ultima_modificacion=Per
+                ItemRecurso.archivo = request.data.get("archivo")
+                Per=Perfil.objects.get(id=int(request.data.get("usuario_ultima_modificacion")))
+                if (Per!=None):
+                    ItemRecurso.usuario_ultima_modificacion=Per
                 ItemRecurso.fecha_ultima_modificacion=datetime.datetime.now()
                 ItemRecurso.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
