@@ -60,6 +60,7 @@ Return: El usuario creado con su id en formato Json
 @csrf_exempt
 def postUser(request):
     if request.method == 'POST':
+        user_model = None
         try:
             json_user = json.loads(request.body)
             username = json_user['username']
@@ -83,6 +84,8 @@ def postUser(request):
                 content='El campo ' + str(e) + ' es requerido.'
             )
         except Exception as ex:
+            if(user_model.id > 0):
+                User.objects.filter(id=user_model.id).delete()
             return HttpResponseBadRequest(
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
@@ -137,12 +140,22 @@ Return: Lista de los usuarios con sus perfiles en formato Json
 @csrf_exempt
 def getAllUser(request):
     try:
+        usersAll = []
         users = User.objects.filter(is_superuser=False)
-        datosSerializados = ""
         for user in users:
             perfil = Perfil.objects.get(usuario=user)
-            datosSerializados += serialize("json", [user, perfil])
-        return HttpResponse(datosSerializados)
+            estado = ""
+            if(perfil.estado == 0 ):
+                estado = "Eliminado"
+            elif perfil.estado == 1:
+                estado = "Vigente"
+            else:
+                estado = "Inactivo"
+            usersAll.append({"id":user.id, "username": user.username, "email":user.email,
+                             "first_name":user.first_name, "lastname":user.last_name, "password":user.password,
+                             "id_conectate": perfil.id_conectate, "numero_identificacion":perfil.numero_identificacion,
+                             "estado":estado})
+        return JsonResponse(usersAll, safe=False)
     except Exception as ex:
         return HttpResponseBadRequest(
             content='BAD_REQUEST: ' + str(ex),
@@ -193,7 +206,8 @@ def get_reds_relacionados(request, id):
                 nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
 
             reds_relacionados.append(
-                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto, "tipo": red.tipo,
+                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
+                 "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
                  "productor": nombreUsuario})
         respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
                      "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
@@ -450,3 +464,82 @@ def sisred_remove(request):
 
         return HttpResponse(json.dumps(arrayMessages), content_type="application/json")
 
+
+
+
+"""
+Vista para consultar todos las asignaciones (GET)
+Parametros: request
+Return: Lista de los usuarios con sus perfiles en formato Json
+"""
+@csrf_exempt
+def getAllAsignaciones(request):
+    try:
+        asignaciones = RolAsignado.objects.filter()
+        asignacionesJSON = ""
+        for asignacion in asignaciones:
+            asignacionesJSON += serialize("json", [asignacion])
+        return HttpResponse(asignacionesJSON)
+    except Exception as ex:
+        return HttpResponseBadRequest(
+            content='BAD_REQUEST: ' + str(ex),
+            status=HTTP_400_BAD_REQUEST
+        )
+
+
+"""
+Vista para crear una nueva asignación (POST)
+Parametros: request (se deben incluir todos los campos del RolAsignado, incluyendo el id del red, del rol y del usuario)
+Return: Un mensaje de confirmación
+"""
+@csrf_exempt
+def postRolAsignado(request):
+    if request.method == 'POST':
+        error = ''
+        try:
+            json_rol_asignado = json.loads(request.body)
+            print(json_rol_asignado)
+            id_conectate = json_rol_asignado['id_conectate']
+            id_red = json_rol_asignado['id_red']
+            id_usuario = json_rol_asignado['id_usuario']
+            id_rol = json_rol_asignado['id_rol']
+            estado = json_rol_asignado['estado']
+            notificaciones = json_rol_asignado['notificaciones']
+
+            rol_asignado_existente = RolAsignado.objects.filter(id_conectate=id_conectate).first()
+
+            if rol_asignado_existente == None:
+                perfil = Perfil.objects.filter(id_conectate=id_usuario).first()
+
+                if perfil != None:
+                    rol = Rol.objects.filter(id_conectate=id_rol).first()
+                    if rol != None:
+                        red = RED.objects.filter(id_conectate=id_red).first()
+                        if red != None:
+                            rol_asignado = RolAsignado.objects.create(id_conectate=id_conectate, estado=estado, red=red,
+                                                                      rol=rol, usuario=perfil)
+
+                            for notificacion in notificaciones:
+                                rol_asignado.notificaciones.create(mensaje=notificacion['mensaje'],
+                                                                   fecha=notificacion['fecha'])
+
+                            mensaje = {"mensaje": 'El rol ha sido creado'}
+                            return HttpResponseBadRequest(json.dumps(mensaje))
+                        else:
+                            error = {"error": 'No hay un RED con el id ' + id_red}
+                            return HttpResponseBadRequest(json.dumps(error))
+                    else:
+                        error = {"error": 'No hay un rol con el id ' + id_rol}
+                        return HttpResponseBadRequest(json.dumps(error))
+                else:
+                    error = {"error": 'No hay un perfil con ese ID'}
+                    return HttpResponseBadRequest(json.dumps(error))
+            else:
+                error = {"error": 'Ya existe un rol asignado con el id ' + id_conectate}
+                return HttpResponseBadRequest(json.dumps(error))
+        except KeyError as e:
+            error = {"error": 'El campo ' + str(e) + ' es requerido.'}
+            return HttpResponseBadRequest(json.dumps(error))
+        except Exception as ex:
+            error = {"error": 'Error: ' + str(ex)}
+            return HttpResponseBadRequest(json.dumps(error))
