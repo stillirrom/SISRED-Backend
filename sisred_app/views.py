@@ -59,6 +59,7 @@ Return: El usuario creado con su id en formato Json
 @csrf_exempt
 def postUser(request):
     if request.method == 'POST':
+        user_model = None
         try:
             json_user = json.loads(request.body)
             username = json_user['username']
@@ -82,6 +83,8 @@ def postUser(request):
                 content='El campo ' + str(e) + ' es requerido.'
             )
         except Exception as ex:
+            if(user_model.id > 0):
+                User.objects.filter(id=user_model.id).delete()
             return HttpResponseBadRequest(
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
@@ -136,12 +139,22 @@ Return: Lista de los usuarios con sus perfiles en formato Json
 @csrf_exempt
 def getAllUser(request):
     try:
+        usersAll = []
         users = User.objects.filter(is_superuser=False)
-        datosSerializados = ""
         for user in users:
             perfil = Perfil.objects.get(usuario=user)
-            datosSerializados += serialize("json", [user, perfil])
-        return HttpResponse(datosSerializados)
+            estado = ""
+            if(perfil.estado == 0 ):
+                estado = "Eliminado"
+            elif perfil.estado == 1:
+                estado = "Vigente"
+            else:
+                estado = "Inactivo"
+            usersAll.append({"id":user.id, "username": user.username, "email":user.email,
+                             "first_name":user.first_name, "lastname":user.last_name, "password":user.password,
+                             "id_conectate": perfil.id_conectate, "numero_identificacion":perfil.numero_identificacion,
+                             "estado":estado})
+        return JsonResponse(usersAll, safe=False)
     except Exception as ex:
         return HttpResponseBadRequest(
             content='BAD_REQUEST: ' + str(ex),
