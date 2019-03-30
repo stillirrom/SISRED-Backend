@@ -10,6 +10,7 @@ class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     tipo_identificacion = models.CharField(max_length=50)
     numero_identificacion = models.CharField(max_length=50)
+    estado = models.IntegerField()
 
     def __str__(self):
         return "Rol: " + self.usuario
