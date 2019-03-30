@@ -6,7 +6,7 @@ django.setup()
 from sisred_app.models import Rol, Perfil, RED, RolAsignado
 from django.core.exceptions import ObjectDoesNotExist
 
-
+#Metodo para cargar los roles desde el archivo plano
 with open('./archivos/roles.csv', encoding='utf-8') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0

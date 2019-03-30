@@ -7,7 +7,7 @@ django.setup()
 from django.contrib.auth.models import User
 from sisred_app.models import Perfil
 
-# Metodo para cargar las asignaciones de los proyectos REDs
+# Metodo para cargar los usuarios desde un archivo plano
 with open('./archivos/usuarios.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
