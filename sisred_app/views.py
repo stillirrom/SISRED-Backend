@@ -38,11 +38,13 @@ def getRedDeProyectoContectatePorId(request, id):
     vLstObjects = Fase.objects.filter(pk=id)
     return HttpResponse(serializers.serialize('json', vLstObjects), content_type="application/json")
 
+@csrf_exempt
 def subirRed(request):
     access_token = 'axrp2tiqri3l4yt'
     subirRed = SubirRed(access_token)
 
     enlaceSubida = subirRed.obtenerEnlaceSubida()
+    print(enlaceSubida)
 
     data = open('', 'rb').read()
     res = requests.post(url=enlaceSubida, data=request.body, headers={'Content-Type': 'application/octet-stream'})
