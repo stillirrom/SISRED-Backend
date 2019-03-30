@@ -206,7 +206,8 @@ def get_reds_relacionados(request, id):
                 nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
 
             reds_relacionados.append(
-                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto, "tipo": red.tipo,
+                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
+                 "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
                  "productor": nombreUsuario})
         respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
                      "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
