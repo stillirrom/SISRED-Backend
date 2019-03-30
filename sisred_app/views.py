@@ -236,12 +236,17 @@ def update_sisred(request):
         for data in json_data["RED"]:
             count += 1
             id_conectate = data['id_conectate']
+
             print('id_conectate', id_conectate)
 
             try:
                 #updateRed = RED.objects.get(id=1)  # debe ir el ID que se creo en el nuevo modelo
                 print('updateRed')
                 updateRed = RED.objects.filter(id_conectate=id_conectate).first()
+
+                if updateRed == None:
+                    arrayMessages.insert(count, ' RED: Proyecto RED ' + id_conectate + ' no existe ')
+                    return HttpResponse(arrayMessages, status=400)
 
                 print("updateRed", updateRed.nombre)
 
