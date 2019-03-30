@@ -18,4 +18,6 @@ urlpatterns = [
     path('reds/', views.get_red, name='reds'),
     path('sisred_create/', views.sisred_create, name='sisred_create'),
     path('sisred_remove/', views.sisred_remove, name='sisred_remove'),
+    path('asignaciones/', views.getAllAsignaciones, name='getAllAsignaciones'),
+    path('asignaciones/add/', views.postRolAsignado, name='addRolAsignado')
 ]
