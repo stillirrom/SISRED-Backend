@@ -15,4 +15,7 @@ urlpatterns = [
     path('getRedDet/<int:id>/', views.getRedDet, name='getRedDet'),
     path('getUserAut/', views.getUserAut, name='getUserAut'),
     path('update_sisred/', views.update_sisred, name='update_sisred'),
+    path('reds/', views.get_red, name='reds'),
+    path('sisred_create/', views.sisred_create, name='sisred_create'),
+    path('sisred_remove/', views.sisred_remove, name='sisred_remove'),
 ]
