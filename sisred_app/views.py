@@ -19,7 +19,7 @@ def post_proyecto_red(request):
             nombre=json_proyecto_red['nombre'],
             tipo=json_proyecto_red['tipo'],
             carpeta=json_proyecto_red['carpeta'],
-            descipcion=json_proyecto_red['descipcion'],
+            descripcion=json_proyecto_red['descripcion'],
             autor=json_proyecto_red['autor'],
             red=red)
         nuevo_proyecto_red.save()
