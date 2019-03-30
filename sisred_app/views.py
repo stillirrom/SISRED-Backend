@@ -327,3 +327,81 @@ def deleteUser(request, id):
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
             )
+
+
+"""
+Vista para consultar todos las asignaciones (GET)
+Parametros: request
+Return: Lista de los usuarios con sus perfiles en formato Json
+"""
+@csrf_exempt
+def getAllAsignaciones(request):
+    try:
+        asignaciones = RolAsignado.objects.filter()
+        asignacionesJSON = ""
+        for asignacion in asignaciones:
+            asignacionesJSON += serialize("json", [asignacion])
+        return HttpResponse(asignacionesJSON)
+    except Exception as ex:
+        return HttpResponseBadRequest(
+            content='BAD_REQUEST: ' + str(ex),
+            status=HTTP_400_BAD_REQUEST
+        )
+
+
+"""
+Vista para crear una nueva asignación (POST)
+Parametros: request (se deben incluir todos los campos del RolAsignado, incluyendo el id del red, del rol y del usuario)
+Return: Un mensaje de confirmación
+"""
+@csrf_exempt
+def postRolAsignado(request):
+    if request.method == 'POST':
+        error = ''
+        try:
+            json_rol_asignado = json.loads(request.body)
+            print(json_rol_asignado)
+            id_conectate = json_rol_asignado['id_conectate']
+            id_red = json_rol_asignado['id_red']
+            id_usuario = json_rol_asignado['id_usuario']
+            id_rol = json_rol_asignado['id_rol']
+            estado = json_rol_asignado['estado']
+            notificaciones = json_rol_asignado['notificaciones']
+
+            rol_asignado_existente = RolAsignado.objects.filter(id_conectate=id_conectate).first()
+
+            if rol_asignado_existente == None:
+                perfil = Perfil.objects.filter(id_conectate=id_usuario).first()
+
+                if perfil != None:
+                    rol = Rol.objects.filter(id_conectate=id_rol).first()
+                    if rol != None:
+                        red = RED.objects.filter(id_conectate=id_red).first()
+                        if red != None:
+                            rol_asignado = RolAsignado.objects.create(id_conectate=id_conectate, estado=estado, red=red,
+                                                                      rol=rol, usuario=perfil)
+
+                            for notificacion in notificaciones:
+                                rol_asignado.notificaciones.create(mensaje=notificacion['mensaje'],
+                                                                   fecha=notificacion['fecha'])
+
+                            mensaje = {"mensaje": 'El rol ha sido creado'}
+                            return HttpResponseBadRequest(json.dumps(mensaje))
+                        else:
+                            error = {"error": 'No hay un RED con el id ' + id_red}
+                            return HttpResponseBadRequest(json.dumps(error))
+                    else:
+                        error = {"error": 'No hay un rol con el id ' + id_rol}
+                        return HttpResponseBadRequest(json.dumps(error))
+                else:
+                    error = {"error": 'No hay un perfil con ese ID'}
+                    return HttpResponseBadRequest(json.dumps(error))
+            else:
+                error = {"error": 'Ya existe un rol asignado con el id ' + id_conectate}
+                return HttpResponseBadRequest(json.dumps(error))
+        except KeyError as e:
+            error = {"error": 'El campo ' + str(e) + ' es requerido.'}
+            return HttpResponseBadRequest(json.dumps(error))
+        except Exception as ex:
+            error = {"error": 'Error: ' + str(ex)}
+            return HttpResponseBadRequest(json.dumps(error))

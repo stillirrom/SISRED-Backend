@@ -15,4 +15,6 @@ urlpatterns = [
     path('getRedDet/', views.getRedDet, name='getRedDet'),
     path('getUserAut/', views.getUserAut, name='getUserAut'),
     path('update_sisred/', views.update_sisred, name='update_sisred'),
+    path('asignaciones/', views.getAllAsignaciones, name='getAllAsignaciones'),
+    path('asignaciones/add/', views.postRolAsignado, name='addRolAsignado')
 ]
