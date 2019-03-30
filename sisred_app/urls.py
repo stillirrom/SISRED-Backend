@@ -21,4 +21,5 @@ urlpatterns = [
     path('asignaciones/', views.getAllAsignaciones, name='getAllAsignaciones'),
     path('asignaciones/add/', views.postRolAsignado, name='addRolAsignado'),
     path('asignaciones/update/<int:id>/', views.putRolAsignado, name='putRolAsignado'),
+    path('asignaciones/delete/<int:id>/', views.deleteRolAsignado, name='deleteRolAsignado'),
 ]
