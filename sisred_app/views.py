@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpRe
 from psycopg2._psycopg import IntegrityError, DatabaseError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from sisred_app.serializers import REDSerializer
 
 from .models import *
 from django.core.serializers import *
@@ -59,6 +60,7 @@ Return: El usuario creado con su id en formato Json
 @csrf_exempt
 def postUser(request):
     if request.method == 'POST':
+        user_model = None
         try:
             json_user = json.loads(request.body)
             username = json_user['username']
@@ -82,6 +84,8 @@ def postUser(request):
                 content='El campo ' + str(e) + ' es requerido.'
             )
         except Exception as ex:
+            if(user_model.id > 0):
+                User.objects.filter(id=user_model.id).delete()
             return HttpResponseBadRequest(
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
@@ -136,12 +140,22 @@ Return: Lista de los usuarios con sus perfiles en formato Json
 @csrf_exempt
 def getAllUser(request):
     try:
+        usersAll = []
         users = User.objects.filter(is_superuser=False)
-        datosSerializados = ""
         for user in users:
             perfil = Perfil.objects.get(usuario=user)
-            datosSerializados += serialize("json", [user, perfil])
-        return HttpResponse(datosSerializados)
+            estado = ""
+            if(perfil.estado == 0 ):
+                estado = "Eliminado"
+            elif perfil.estado == 1:
+                estado = "Vigente"
+            else:
+                estado = "Inactivo"
+            usersAll.append({"id":user.id, "username": user.username, "email":user.email,
+                             "first_name":user.first_name, "lastname":user.last_name, "password":user.password,
+                             "id_conectate": perfil.id_conectate, "numero_identificacion":perfil.numero_identificacion,
+                             "estado":estado})
+        return JsonResponse(usersAll, safe=False)
     except Exception as ex:
         return HttpResponseBadRequest(
             content='BAD_REQUEST: ' + str(ex),
@@ -327,6 +341,129 @@ def deleteUser(request, id):
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
             )
+
+
+"""
+Vista para consultar los SISREDs
+Parametros: request
+Return: Lista de SISREDS creados en el sistema
+"""
+def get_red(request):
+    data = RED.objects.all()
+    if request.method == 'GET':
+        serializer = REDSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
+
+"""
+Vista para Crear SISREDs
+Parametros: request
+Return: Lista en JSON indicando los codigos de REDs que fueron creados
+        y los que no fueron creados
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def sisred_create(request):
+    if request.method == 'POST':
+        arrayMessages = []
+        count = 0
+        # Obtengo la lista de REDs del JSON
+        json_data = json.loads(request.body)
+
+        # Recorro el listado de REDS con la etiqueta RED
+        for data in json_data["RED"]:
+            count += 1
+            id_conectate = data['id_conectate']
+            print('id_conectate', id_conectate)
+
+            try:
+                red = RED.objects.filter(id_conectate=id_conectate).first()
+                arrayMessages.insert(count, "RED: Proyecto RED " + red.id_conectate + " Ya existe ")
+                continue
+            except AttributeError:
+
+                # Seteo los valores del proyecto Conectate
+                json_pyConectate = data['proyecto_conectate']
+                name = json_pyConectate['nombre']
+                nameShort = json_pyConectate['nombre_corto']
+                code = json_pyConectate['codigo']
+                initDate = json_pyConectate['fecha_inicio']
+                endDate = json_pyConectate['fecha_fin']
+
+                # Verifico si el proyecto conectate no existe en la base de datos
+                try:
+                    proyecto_conectate = ProyectoConectate.objects.filter(nombre=name).first()
+                    print(proyecto_conectate.nombre)
+                except AttributeError:
+                    proyecto_conectate = ProyectoConectate.objects.create(nombre=name, nombre_corto=nameShort,
+                                                                          codigo=code, fecha_inicio=initDate,
+                                                                          fecha_fin=endDate)
+
+                # seteo un nuevo objeto RED
+                newRED = RED(
+                    id_conectate=data['id_conectate'],
+                    nombre=data['nombre'],
+                    nombre_corto=data['nombre_corto'],
+                    descripcion=data['descripcion'],
+                    fecha_inicio=data['fecha_inicio'],
+                    fecha_cierre=data['fecha_cierre'],
+                    fecha_creacion=data['fecha_creacion'],
+                    porcentaje_avance=data['porcentaje_avance'],
+                    tipo=data['tipo'],
+                    solicitante=data['solicitante'],
+                    proyecto_conectate=proyecto_conectate,
+
+                    horas_estimadas=data['horas_estimadas'],
+                    horas_trabajadas=data['horas_trabajadas'],
+                )
+                newRED.save()
+                arrayMessages.insert(count, " RED: Proyecto RED creado correctamente: " + id_conectate)
+                print("newRED create", newRED.nombre)
+
+        # return HttpResponse(arrayMessages)
+
+        return HttpResponse(json.dumps(arrayMessages), content_type="application/json")
+
+
+"""
+Vista para eliminar una lista de SISREDs
+Parametros: request
+Return: SISREDs que fueron eliminados y los que no
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def sisred_remove(request):
+    if request.method == 'POST':
+
+        arrayMessages = []
+        count = 0
+        # Obtengo la lista de REDs del JSON
+        json_data = json.loads(request.body)
+
+        # Recorro el listado de REDS con la etiqueta RED
+        for data in json_data["RED"]:
+            # verificar primero que exista
+            count += 1
+            id_conectate = data['id_conectate']
+            print('id_conectate', id_conectate)
+
+            try:
+                red = RED.objects.filter(id_conectate=id_conectate).first()
+                print(red.nombre)
+                if red.borrado:
+                    arrayMessages.insert(count, 'Proyecto RED ' + id_conectate + ' Ya se encuentra eliminado')
+                else:
+                    RED.objects.filter(id_conectate=id_conectate).update(borrado=True)
+                    arrayMessages.insert(count, 'Proyecto RED ' + id_conectate + ' Eliminado correctamente')
+                continue
+            except AttributeError:
+                arrayMessages.insert(count, 'Proyecto RED ' + id_conectate + ' No Existe en SISRED')
+
+        return HttpResponse(json.dumps(arrayMessages), content_type="application/json")
+
+
 
 
 """
