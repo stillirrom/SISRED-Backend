@@ -19,5 +19,7 @@ urlpatterns = [
     path('sisred_create/', views.sisred_create, name='sisred_create'),
     path('sisred_remove/', views.sisred_remove, name='sisred_remove'),
     path('asignaciones/', views.getAllAsignaciones, name='getAllAsignaciones'),
-    path('asignaciones/add/', views.postRolAsignado, name='addRolAsignado')
+    path('asignaciones/add/', views.postRolAsignado, name='addRolAsignado'),
+    path('asignaciones/update/<int:id>/', views.putRolAsignado, name='putRolAsignado'),
+    path('asignaciones/delete/<int:id>/', views.deleteRolAsignado, name='deleteRolAsignado'),
 ]
