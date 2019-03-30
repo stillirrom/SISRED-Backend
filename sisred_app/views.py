@@ -493,7 +493,7 @@ Parametros: request (se deben incluir todos los campos del RolAsignado, incluyen
 Return: Un mensaje de confirmación
 """
 @csrf_exempt
-def postRolAsignado(request, id):
+def postRolAsignado(request):
     if request.method == 'POST':
         error = ''
         try:
