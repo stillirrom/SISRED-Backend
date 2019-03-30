@@ -22,4 +22,7 @@ urlpatterns = [
     path('getProyectosRED/', views.getProyectosRED),
     path('getRecurso/', views.getRecurso),
     path('getRED/', views.getRED),
+    path('getRoles/', views.getRoles),
+    path('getEstados/', views.getEstados),
+    path('getFases/', views.getFases),
 ]
