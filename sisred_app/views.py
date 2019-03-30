@@ -24,8 +24,8 @@ class ResorceSerializer(serializers.ModelSerializer):
         model = Recurso
         fields = '__all__'
 
-def getRecurso(request):
-    data = Recurso.objects.all()
+def getRecurso(request, id):
+    data = Recurso.objects.filter(id=id)
     if request.method == 'GET':
         serializer = ResorceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
@@ -37,8 +37,8 @@ class RedDetSerializer(serializers.ModelSerializer):
         model = RED
         fields = ('codigo', 'nombre', 'descripcion', 'recursos')
 
-def getRedDet(request):
-    data = RED.objects.all()
+def getRedDet(request, id):
+    data = RED.objects.filter(id=id)
     if request.method == 'GET':
         serializer = RedDetSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
@@ -206,7 +206,8 @@ def get_reds_relacionados(request, id):
                 nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
 
             reds_relacionados.append(
-                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto, "tipo": red.tipo,
+                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
+                 "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
                  "productor": nombreUsuario})
         respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
                      "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
