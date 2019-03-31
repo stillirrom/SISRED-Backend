@@ -22,6 +22,7 @@ with open('./archivos/reds.csv') as csv_file:
             nombre_corto = row[3][1:200]
             descripcion = row[3]
             # Se agrega formato de fechas para que la misma esté acorde al campo de la base de datos
+            # Se agregan las funciones rstrip().lstrip() para quitar espacios en blanco en las fechas
             fecha_inicio = datetime.datetime.strptime(row[4].rstrip().lstrip(), '%Y-%m-%d')
             fecha_cierre = datetime.datetime.strptime(row[5].rstrip().lstrip(), '%Y-%m-%d')
             fecha_creacion = datetime.datetime.strptime(row[6].rstrip().lstrip(), '%Y-%m-%d')
