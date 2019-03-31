@@ -38,7 +38,7 @@ class Recurso(models.Model):
     fecha_ultima_modificacion = models.DateField(default=datetime.date.today)
     tipo = models.CharField(max_length=50)
     descripcion = models.TextField()
-    metadata = models.ManyToManyField(Metadata)
+    metadata = models.ManyToManyField(Metadata,blank=True)
     autor = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_autor')
     usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_ultima_modificacion')
 
