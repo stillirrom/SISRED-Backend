@@ -65,6 +65,13 @@ class ProyectoConectate(models.Model):
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
 
+class Fase(models.Model):
+    id_conectate = models.CharField(max_length=50)
+    nombre_fase = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Fase: ' + self.nombre_fase
+
 
 class RED(models.Model):
     codigo = models.CharField(max_length=50)
@@ -77,12 +84,12 @@ class RED(models.Model):
     porcentaje_avance = models.IntegerField()
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
-    fase = models.CharField(max_length=50,default="pre-produccion")
     proyecto_conectate = models.ForeignKey(ProyectoConectate, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso)
     metadata = models.ManyToManyField(Metadata)
     horas_estimadas = models.IntegerField()
     horas_trabajadas = models.IntegerField()
+    fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return 'Red: ' + self.codigo
@@ -101,6 +108,7 @@ class ProyectoRED(models.Model):
 
     def __str__(self):
         return "Proyecto RED: " + self.nombre
+
 
 
 class Estado(models.Model):
