@@ -4,6 +4,8 @@ from . import views
 
 urlpatterns = [
     path('recurso_list/', views.recurso_list, name='recurso_list'),
-    path('recurso_addget/<int:id>', views.recurso_addget, name='recurso_addget'),
+    path('recurso_get/<int:id>', views.recurso_get, name='recurso_get'),
+    path('recurso_put/<int:id>', views.recurso_put, name='recurso_put'),
+    path('recurso_post/<int:id>', views.recurso_post, name='recurso_post'),
     path('fase_byid/<int:id>', views.fase_byid, name='fase_byid'),
 ]
