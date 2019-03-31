@@ -18,8 +18,9 @@ with open('./archivos/reds.csv') as csv_file:
         else:
             print(f'\t{row[0]}, {row[1]}, {row[2]}, {row[3]}, {row[4]}, {row[5]}, {row[6]}, {row[7]}, {row[8]}, {row[9]},{row[10]}, {row[11]}, {row[12]}')
             id_conectate = row[0]
-            nombre = row[3][1:6]
-            nombre_corto = row[3][1:200]
+            #El nombre y nombre corto se toma de la descripcion dado que no viene en el archivo CSV
+            nombre = row[3][1:15]
+            nombre_corto = row[3][1:6]
             descripcion = row[3]
             # Se agrega formato de fechas para que la misma esté acorde al campo de la base de datos
             # Se agregan las funciones rstrip().lstrip() para quitar espacios en blanco en las fechas
