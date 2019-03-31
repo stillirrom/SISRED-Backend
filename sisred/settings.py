@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -82,11 +83,11 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dbsisred',
-        'USER': 'usdbsisred',
-        'PASSWORD': 'sisred',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': 'dbuem666oi0h8c',
+        'USER': 'fvwpspnxwnwefp',
+        'PASSWORD': '2b36d638c841956b98db8efc81ddb20fd29f14e9b2f7d0e805b8370935500105',
+        'HOST': 'ec2-184-73-216-48.compute-1.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
@@ -126,5 +127,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#STATIC_URL = '/static/'
 
-STATIC_URL = '/static/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_URL = '/media/'
+
+django_heroku.settings(locals())

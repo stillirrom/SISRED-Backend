@@ -7,8 +7,8 @@ django.setup()
 from sisred_app.models import RED
 import datetime
 
-# Metodo para cargar las asignaciones de los proyectos REDs
-with open('D:\\INFORMACION CREG\\RED.csv') as csv_file:
+# Metodo para cargar los REDs desde los archivos planos
+with open('./archivos/reds.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
     for row in csv_reader:

@@ -19,12 +19,13 @@ def post_proyecto_red(request):
             nombre=json_proyecto_red['nombre'],
             tipo=json_proyecto_red['tipo'],
             carpeta=json_proyecto_red['carpeta'],
-            descipcion=json_proyecto_red['descipcion'],
+            descripcion=json_proyecto_red['descripcion'],
             autor=json_proyecto_red['autor'],
             red=red)
         nuevo_proyecto_red.save()
         return HttpResponse(serializers.serialize("json", [nuevo_proyecto_red]))
 
+# Metodo para obtener detalle de las personas asignadas al RED
 @csrf_exempt
 def get_detallered_personas(request):
     if request.method == 'GET':
@@ -38,7 +39,7 @@ def get_detallered_personas(request):
             respuesta.append({"name": nombre, "rol": rol})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
-
+# Metodo para obtener detalle de proyectos RED
 @csrf_exempt
 def get_detallered_proyectosred(request):
     if request.method == 'GET':
@@ -49,7 +50,7 @@ def get_detallered_proyectosred(request):
             respuesta.append({"id": pro.pk, "name": pro.nombre, "autor": pro.autor, "typeFile": pro.tipo, "createdDate": red.fecha_creacion.strftime('%Y/%m/%d'),"description":pro.descripcion})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
-
+# Metodo para obtener detalle de los metadatas del RED
 @csrf_exempt
 def get_detallered_metadata(request):
     if request.method == 'GET':
@@ -60,7 +61,7 @@ def get_detallered_metadata(request):
             respuesta.append({"id": met.pk, "tag": met.tag})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
-
+# Metodo para obtener detalle de los recursos asociados al RED
 @csrf_exempt
 def get_detallered_recursos(request):
     if request.method == 'GET':
@@ -71,6 +72,7 @@ def get_detallered_recursos(request):
             respuesta.append({"id": re.pk, "name": re.nombre, "typeFormat": re.tipo})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
+# Metodo para obtener detalle del RED
 @csrf_exempt
 def get_detallered(request):
     if request.method == 'GET':
@@ -97,6 +99,7 @@ def get_detallered(request):
 
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
+# Metodo para obtener los REDs asignados
 @csrf_exempt
 def get_reds_asignados(request, id):
     if request.method == 'GET':
