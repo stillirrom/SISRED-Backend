@@ -7,7 +7,8 @@ import datetime
 
 
 from sisred_app.models import Recurso, RED, Perfil
-from sisred_app.serializer import RecursoSerializer, FaseSerializer,RecursoSerializer_post,RecursoSerializer_put
+from sisred_app.serializer import RecursoSerializer, FaseSerializer, RecursoSerializer_post, RecursoSerializer_put, \
+    REDSerializer
 
 
 # Create your views here.
@@ -75,16 +76,14 @@ def recurso_put(request):
 
 
 @api_view(['GET', 'POST'])
-def fase_byid(request,id):
+def fase_byid(request):
     if request.method == 'GET':
-        fase = RED.objects.filter(id=id).first()
-        if(fase==None):
-            raise NotFound(detail="Error 404, RED not found", code=404)
-        serializer = FaseSerializer(fase)
+        recurso = RED.objects.all()
+        serializer = REDSerializer(recurso, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = FaseSerializer(data=request.data)
+        serializer = REDSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
