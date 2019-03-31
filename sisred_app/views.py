@@ -28,7 +28,7 @@ def recurso_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-def recurso_post(request,id):
+def recurso_post(request):
     serializer = RecursoSerializer_post(data=request.data)
     if serializer.is_valid():
         autor = Perfil.objects.get(id=int(request.data.get("autor")))
@@ -57,9 +57,10 @@ def recurso_get(request,id):
 
 
 @api_view(['PUT'])
-def recurso_put(request,id):
+def recurso_put(request):
     serializer = RecursoSerializer_put(data=request.data)
     if serializer.is_valid():
+        id=int(request.data.get("id"))
         ItemRecurso = Recurso.objects.filter(id=id).first()
         if (ItemRecurso==None):
             raise NotFound(detail="Error 404, recurso not found", code=404)
