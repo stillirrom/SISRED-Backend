@@ -1,7 +1,13 @@
-from .models import Recurso, RED
+from .models import Recurso, RED, Metadata
 from rest_framework import  serializers
 
+class MetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Metadata
+        fields=('id','tag')
+
 class RecursoSerializer(serializers.ModelSerializer):
+    metadata = MetadataSerializer(many=True, read_only=True)
     class Meta:
         model=Recurso
         fields=('nombre','archivo','thumbnail','fecha_creacion','fecha_ultima_modificacion','tipo','descripcion','metadata','autor','usuario_ultima_modificacion','getAutor','getResponsableModificacion')
