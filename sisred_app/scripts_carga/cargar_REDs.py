@@ -1,3 +1,4 @@
+# Librería para leer archivos csv
 import csv
 import os
 import django
