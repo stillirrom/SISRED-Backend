@@ -7,7 +7,7 @@ import datetime
 
 
 from sisred_app.models import Recurso, RED, Perfil
-from sisred_app.serializer import RecursoSerializer, FaseSerializer
+from sisred_app.serializer import RecursoSerializer, FaseSerializer,RecursoSerializer_post,RecursoSerializer_put
 
 
 # Create your views here.
@@ -27,33 +27,38 @@ def recurso_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'POST'])
-def recurso_addget(request,id):
-    if request.method == 'GET':
-        recurso = Recurso.objects.filter(id=id).first()
-        if(recurso==None):
-            raise NotFound(detail="Error 404, recurso not found", code=404)
-        serializer = RecursoSerializer(recurso)
-        return Response(serializer.data)
+@api_view(['POST'])
+def recurso_post(request,id):
+    serializer = RecursoSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    elif request.method == 'POST':
-        serializer = RecursoSerializer(data=request.data)
-        if serializer.is_valid():
-            ItemRecurso = Recurso.objects.filter(id=id).first()
-            if (ItemRecurso!=None):
-                ItemRecurso.nombre=request.data.get("nombre")
-                ItemRecurso.descripcion=request.data.get("descripcion")
-                ItemRecurso.archivo = request.data.get("archivo")
-                Per=Perfil.objects.get(id=int(request.data.get("usuario_ultima_modificacion")))
-                if (Per!=None):
-                    ItemRecurso.usuario_ultima_modificacion=Per
-                ItemRecurso.fecha_ultima_modificacion=datetime.datetime.now()
-                ItemRecurso.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+def recurso_get(request,id):
+    recurso = Recurso.objects.filter(id=id).first()
+    if(recurso==None):
+        raise NotFound(detail="Error 404, recurso not found", code=404)
+    serializer = RecursoSerializer(recurso)
+    return Response(serializer.data)
+
+
+@api_view(['PUT'])
+def recurso_put(request,id):
+    serializer = RecursoSerializer_put(data=request.data)
+    if serializer.is_valid():
+        ItemRecurso = Recurso.objects.filter(id=id).first()
+        if (ItemRecurso==None):
+            raise NotFound(detail="Error 404, recurso not found", code=404)
+        ItemRecurso.nombre=request.data.get("nombre")
+        ItemRecurso.descripcion=request.data.get("descripcion")
+        Per=Perfil.objects.get(id=int(request.data.get("usuario_ultima_modificacion")))
+        if (Per!=None):
+            ItemRecurso.usuario_ultima_modificacion=Per
+        ItemRecurso.fecha_ultima_modificacion=datetime.datetime.now()
+        ItemRecurso.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET', 'POST'])
 def fase_byid(request,id):
