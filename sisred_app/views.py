@@ -10,23 +10,14 @@ from sisred_app.models import Recurso, RED, Perfil
 from sisred_app.serializer import RecursoSerializer, FaseSerializer,RecursoSerializer_post,RecursoSerializer_put
 
 
-# Create your views here.
 
 
-@api_view(['GET', 'POST'])
-def recurso_list(request):
-    if request.method == 'GET':
-        recurso = Recurso.objects.all()
-        serializer = RecursoSerializer(recurso, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        serializer = RecursoSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+#Autor: Francisco Perneth
+#Fecha: 2019-03-30
+#Parametros:
+#    Request -> Datos de la solicitud
+#Descripcion:
+#   Permite registrar un recurso
 @api_view(['POST'])
 def recurso_post(request):
     serializer = RecursoSerializer_post(data=request.data)
@@ -46,7 +37,13 @@ def recurso_post(request):
         rec.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
+#Autor: Francisco Perneth
+#Fecha: 2019-03-30
+#Parametros:
+#    Request -> Datos de la solicitud
+#    id -> id del recurso para obtener
+#Descripcion:
+#   Permite consultar un recurso mediante su identificador (id)
 @api_view(['GET'])
 def recurso_get(request,id):
     recurso = Recurso.objects.filter(id=id).first()
@@ -55,7 +52,14 @@ def recurso_get(request,id):
     serializer = RecursoSerializer(recurso)
     return Response(serializer.data)
 
-
+#Autor: Francisco Perneth
+#Fecha: 2019-03-30
+#Parametros:
+#    Request -> Datos de la solicitud
+#Descripcion:
+#   Permite modificar un recurso mediante.
+#   los datos permitios a modificar son: nombre y descripción. la fecha y usaurio de la modificación son valores tomados de
+#   el usuario que está realizando la operación (auntenticado en el sistema) y la fecha del sistema.
 @api_view(['PUT'])
 def recurso_put(request):
     serializer = RecursoSerializer_put(data=request.data)
@@ -73,7 +77,13 @@ def recurso_put(request):
         ItemRecurso.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
+#Autor: Ramiro Vargas
+#Fecha: 2019-03-30
+#Parametros:
+#    Request -> Datos de la solicitud
+#    id -> id del recurso para consultar
+#Descripcion:
+#   Permite consultar  la información de un RED, especialmente información del avance
 @api_view(['GET', 'POST'])
 def fase_byid(request,id):
     if request.method == 'GET':
