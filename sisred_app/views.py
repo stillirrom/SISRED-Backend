@@ -29,10 +29,23 @@ def recurso_list(request):
 
 @api_view(['POST'])
 def recurso_post(request,id):
-    serializer = RecursoSerializer(data=request.data)
+    serializer = RecursoSerializer_post(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        autor = Perfil.objects.get(id=int(request.data.get("autor")))
+
+        rec = Recurso.objects.create(nombre=request.data.get('nombre'),
+                                     archivo=request.data.get('archivo'),
+                                     thumbnail=request.data.get('thumbnail'),
+                                     descripcion=request.data.get('descripcion'),
+                                     tipo=request.data.get('tipo'),
+                                     autor=autor,
+                                     usuario_ultima_modificacion=autor
+                                     )
+        rec.fecha_creacion=datetime.datetime.now()
+        rec.fecha_ultima_modificacion = datetime.datetime.now()
+        rec.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 def recurso_get(request,id):
