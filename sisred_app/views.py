@@ -194,7 +194,7 @@ def get_reds_relacionados(request, id):
 
         proyectoConectate_model = ProyectoConectate.objects.get(pk=id)
         reds_relacionados = []
-        rol_model = Rol.objects.filter(nombre='Productor').first()
+        rol_model = Rol.objects.filter(nombre='Asesor').first()
         reds_models = RED.objects.filter(proyecto_conectate=proyectoConectate_model)
 
         for red in reds_models:
@@ -208,7 +208,7 @@ def get_reds_relacionados(request, id):
             reds_relacionados.append(
                 {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
                  "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
-                 "productor": nombreUsuario})
+                 "asesor": nombreUsuario})
         respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
                      "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
 
