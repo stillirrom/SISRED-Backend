@@ -25,7 +25,7 @@ SECRET_KEY = 'c6s6hw2p%1j2fr+7xe$s5ahhhk_%0k1o@!^6wj&2g_g=lo6vot'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -120,6 +120,10 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = ('*')
 
 
 # Static files (CSS, JavaScript, Images)
