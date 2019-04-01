@@ -31,13 +31,13 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'sisred_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sisred_app',
 ]
 
 MIDDLEWARE = [
@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'sisred.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ["BD_SISRED"],
+        'USER': os.environ["BD_SISRED_USUARIO"],
+        'PASSWORD': os.environ["BD_SISRED_PASSWORD"],
+        'HOST': os.environ["BD_SISRED_HOST"],
+        'PORT': os.environ["BD_SISRED_PORT"]
     }
 }
 
