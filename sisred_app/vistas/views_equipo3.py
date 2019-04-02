@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
-from .models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
