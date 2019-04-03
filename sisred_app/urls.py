@@ -1,6 +1,5 @@
 from django.urls import path
-from . import views
-from sisred_app.views import views_equipo3
+from sisred_app.views import views_equipo3,views_equipo2
 
 urlpatterns = [
 
@@ -11,8 +10,8 @@ urlpatterns = [
     path('detallered/recursos/', views_equipo3.get_detallered_recursos, name='detallered'),
     path('detallered/proyectos/', views_equipo3.get_detallered_proyectosred, name='detallered'),
     path('reds/asignados/<int:id>', views_equipo3.get_reds_asignados, name='reds_asignados'),
-    path('getProyectosRED/', views.getProyectosRED),
-    path('getRecurso/', views.getRecurso),
-    path('getRED/', views.getRED),
-    path('asignaciones/', views.getAsignaciones),
+    path('getProyectosRED/', views_equipo2.getProyectosRED),
+    path('getRecurso/', views_equipo2.getRecurso),
+    path('getRED/', views_equipo2.getRED),
+    path('asignaciones/', views_equipo2.getAsignaciones),
 ]
