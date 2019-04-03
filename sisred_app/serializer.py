@@ -1,4 +1,5 @@
 from .models import Recurso, RED, Metadata, Fase
+
 from rest_framework import  serializers
 
 class MetadataSerializer(serializers.ModelSerializer):
@@ -30,5 +31,8 @@ class FaseSerializer(serializers.ModelSerializer):
 class REDSerializer(serializers.ModelSerializer):
     fase = MetadataSerializer(many=True, read_only=True)
     class Meta:
-        model=RED
-        fields=('codigo','nombre','fecha_inicio','fecha_cierre','fecha_creacion','porcentaje_avance','tipo','fase')
+        model = RED
+        fields = ('id_conectate', 'nombre', 'nombre_corto', 'descripcion', 'fecha_inicio',
+                  'fecha_cierre', 'fecha_creacion', 'porcentaje_avance', 'tipo', 'solicitante', 'proyecto_conectate', 'horas_estimadas',
+                  'horas_trabajadas','fase')
+
