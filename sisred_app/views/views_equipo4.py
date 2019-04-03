@@ -37,7 +37,7 @@ class RedDetSerializer(serializers.ModelSerializer):
         model = RED
         fields = ('id_conectate', 'nombre', 'descripcion', 'recursos')
 
-def getRedDetaiRecursos(request):
+def getRedDetailRecursos(request):
     data = RED.objects.all()
     if request.method == 'GET':
         serializer = RedDetSerializer(data, many=True)
