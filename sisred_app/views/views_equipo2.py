@@ -52,7 +52,7 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
     rol = RolSerializer()
     class Meta:
         model = RolAsignado
-        fields = ('fecha_inicio', 'fecha_fin', 'red', 'rol', 'usuario')
+        fields = ('red', 'rol', 'usuario')
 
 
 @csrf_exempt
