@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import RED, ProyectoConectate, ProyectoRED, Version, Comentario, Metadata, Notificacion, Recurso, Rol, RolAsignado, \
     Perfil, SubproductoRED, Propiedad, Fase
 
+
 # Register your models here.
 admin.site.register(RED)
 admin.site.register(Fase)
