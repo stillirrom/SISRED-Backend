@@ -24,8 +24,8 @@ class ResorceSerializer(serializers.ModelSerializer):
         model = Recurso
         fields = '__all__'
 
-def getRecurso(request):
-    data = Recurso.objects.all()
+def getRecurso(request, id):
+    data = Recurso.objects.filter(id=id)
     if request.method == 'GET':
         serializer = ResorceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
@@ -37,8 +37,8 @@ class RedDetSerializer(serializers.ModelSerializer):
         model = RED
         fields = ('id_conectate', 'nombre', 'descripcion', 'recursos')
 
-def getRedDetailRecursos(request):
-    data = RED.objects.all()
+def getRedDetailRecursos(request, id):
+    data = RED.objects.filter(id=id)
     if request.method == 'GET':
         serializer = RedDetSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
@@ -179,27 +179,39 @@ Return: información del proyecto y una lista de los reds relacionados con su in
 def get_reds_relacionados(request, id):
     if request.method == 'GET':
 
-        proyectoConectate_model = ProyectoConectate.objects.get(pk=id)
-        reds_relacionados = []
-        rol_model = Rol.objects.filter(nombre='Productor').first()
-        reds_models = RED.objects.filter(proyecto_conectate=proyectoConectate_model)
+        proyectoConectate_model = ProyectoConectate.objects.filter(pk=id).first()
 
-        for red in reds_models:
-            rolAsignado_model = RolAsignado.objects.filter(red=red).filter(rol=rol_model).first()
+        if proyectoConectate_model != None:
+            reds_relacionados = []
+            rol_model = Rol.objects.filter(nombre='Asesor').first()
 
-            if rolAsignado_model != None:
-                perfil_model = Perfil.objects.get(pk=rolAsignado_model.usuario.id)
-                usuario_model = User.objects.get(pk=perfil_model.usuario.id)
-                nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
+            if rol_model != None:
+                reds_models = RED.objects.filter(proyecto_conectate=proyectoConectate_model)
 
-            reds_relacionados.append(
-                {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto, "tipo": red.tipo,
-                 "productor": nombreUsuario})
-        respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
-                     "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
+                for red in reds_models:
+                    rolAsignado_model = RolAsignado.objects.filter(red=red).filter(rol=rol_model).first()
 
-        return JsonResponse(respuesta, safe=False)
+                    if rolAsignado_model != None:
+                        perfil_model = Perfil.objects.get(pk=rolAsignado_model.usuario.id)
+                        usuario_model = User.objects.get(pk=perfil_model.usuario.id)
+                        nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
 
+                    reds_relacionados.append(
+                        {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
+                         "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
+                         "asesor": nombreUsuario})
+                respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
+                             "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
+
+                return JsonResponse(respuesta, safe=False)
+
+            return HttpResponseBadRequest(
+                content='No existe Rol Asesor'
+            )
+
+        return HttpResponseBadRequest(
+            content='No existe el proyecto conectate con id ' + str(id)
+        )
 """
 Servicio para actualizar o editar un registros del modelo RED (PUT)
 Parametros: request (en el body se agregan los atributos del modelo de RED en formato json)
@@ -451,4 +463,6 @@ def sisred_remove(request):
                 arrayMessages.insert(count, 'Proyecto RED ' + id_conectate + ' No Existe en SISRED')
 
         return HttpResponse(json.dumps(arrayMessages), content_type="application/json")
+
+
 
