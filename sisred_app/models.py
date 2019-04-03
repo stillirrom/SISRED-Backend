@@ -7,11 +7,12 @@ from django.contrib.auth.models import User
 class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
     estado = models.IntegerField()
 
     def __str__(self):
-        return "Usuario: " + self.id_conectate
+        return "Usuario: " + self.usuario.first_name
 
 
 class Notificacion(models.Model):
@@ -44,17 +45,41 @@ class Recurso(models.Model):
     def __str__(self):
         return "Recurso: " + self.nombre
 
+    @property
+    def getAutor(self):
+        return self.autor.usuario.first_name + " "  + self.autor.usuario.last_name
+
+    @property
+    def getResponsableModificacion(self):
+        return self.autor.usuario.first_name + " " + self.autor.usuario.last_name
+
 
 class ProyectoConectate(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     codigo = models.CharField(max_length=50)
-    fecha_inicio = models.DateField(null=True)
-    fecha_fin = models.DateField(null=True)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
 
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
+
+
+class Fase(models.Model):
+    id_conectate = models.CharField(max_length=50)
+    nombre_fase = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Fase: ' + self.nombre_fase
+
+
+class Estado(models.Model):
+    id_conectate = models.CharField(unique=True, max_length=50)
+    nombre_estado = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Estado: ' + self.nombre_estado
 
 
 class RED(models.Model):
@@ -73,6 +98,7 @@ class RED(models.Model):
     metadata = models.ManyToManyField(Metadata, blank=True)
     horas_estimadas = models.IntegerField(blank=True, null=True)
     horas_trabajadas = models.IntegerField(blank=True, null=True)
+    fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return 'Red: ' + self.id_conectate
@@ -93,14 +119,6 @@ class ProyectoRED(models.Model):
 
     def __str__(self):
         return "Proyecto RED: " + self.nombre
-
-
-class Estado(models.Model):
-    id_conectate = models.CharField(max_length=50)
-    nombre_estado = models.CharField(max_length=50)
-
-    def __str__(self):
-        return 'Estado: ' + self.nombre_estado
 
 
 class HistorialEstados(models.Model):
@@ -137,7 +155,6 @@ class RolAsignado(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
-    estado = models.IntegerField()
 
     def __str__(self):
         return self.usuario.__str__() + " " + self.red.__str__() + " " + self.rol.__str__()
