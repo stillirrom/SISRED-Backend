@@ -20,7 +20,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('recurso/', include('sisred_app.urls')),
+    path('api/', include('sisred_app.urls')),
 ]
 
 
