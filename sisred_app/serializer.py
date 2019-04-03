@@ -1,4 +1,4 @@
-from .models import Recurso, HistorialFase, RED
+from .models import Recurso, RED
 from rest_framework import  serializers
 
 class RecursoSerializer(serializers.ModelSerializer):
@@ -13,8 +13,9 @@ class HistorialFaseSerilaizer(serializers.ModelSerializer):
         fileds = '__all__'
 
 
-class FaseSerializer(serializers.ModelSerializer):
-    red = HistorialFaseSerilaizer(many=True)
+class REDSerializer(serializers.ModelSerializer):
     class Meta:
-        model=HistorialFase
-        fields='__all__'
+        model = RED
+        fields = ('id_conectate', 'nombre', 'nombre_corto', 'descripcion', 'fecha_inicio',
+                  'fecha_cierre', 'fecha_creacion', 'porcentaje_avance', 'tipo', 'solicitante', 'proyecto_conectate', 'horas_estimadas',
+                  'horas_trabajadas')

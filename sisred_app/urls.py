@@ -1,5 +1,5 @@
 from django.urls import path
-from sisred_app.views import views_equipo3
+from sisred_app.views import views_equipo3,views_equipo4
 
 urlpatterns = [
 
@@ -10,4 +10,17 @@ urlpatterns = [
     path('detallered/recursos/', views_equipo3.get_detallered_recursos, name='detallered'),
     path('detallered/proyectos/', views_equipo3.get_detallered_proyectosred, name='detallered'),
     path('reds/asignados/<int:id>', views_equipo3.get_reds_asignados, name='reds_asignados'),
+path('users/', views_equipo4.getAllUser, name='allUsers'),
+    path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),
+    path('users/add/', views_equipo4.postUser, name='addUser'),
+    path('users/update/<int:id>/', views_equipo4.putUser, name='updateUser'),
+    path('users/delete/<int:id>/', views_equipo4.deleteUser, name='deleteUser'),
+    path('reds/relacionados/<int:id>', views_equipo4.get_reds_relacionados, name='reds_relacionados'),
+    path('getRecurso/', views_equipo4.getRecurso, name='getRecurso'),
+    path('getRedDet/', views_equipo4.getRedDet, name='getRedDet'),
+    path('getUserAut/', views_equipo4.getUserAut, name='getUserAut'),
+    path('update_sisred/', views_equipo4.update_sisred, name='update_sisred'),
+    path('reds/', views_equipo4.get_red, name='reds'),
+    path('sisred_create/', views_equipo4.sisred_create, name='sisred_create'),
+    path('sisred_remove/', views_equipo4.sisred_remove, name='sisred_remove'),
 ]
