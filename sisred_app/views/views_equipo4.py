@@ -35,7 +35,7 @@ class RedDetSerializer(serializers.ModelSerializer):
     recursos = ResorceSerializer(many=True)
     class Meta:
         model = RED
-        fields = ('codigo', 'nombre', 'descripcion', 'recursos')
+        fields = ('id_conectate', 'nombre', 'descripcion', 'recursos')
 
 def getRedDet(request):
     data = RED.objects.all()
@@ -258,13 +258,14 @@ def update_sisred(request):
                 code = json_pyConectate['codigo']
                 initDate = json_pyConectate['fecha_inicio']
                 endDate = json_pyConectate['fecha_fin']
+                id_conectatePC = json_pyConectate['id_conectate']
                 print("endDate", endDate)
 
                 try:
                     proyecto_conectate = ProyectoConectate.objects.get(id=updateRed.proyecto_conectate.id)
                 except ProyectoConectate.DoesNotExist:
                     proyectoConectate = None
-                    proyecto_conectate = ProyectoConectate.objects.create(nombre=namep, nombre_corto=nameShort, codigo=code,
+                    proyecto_conectate = ProyectoConectate.objects.create( id_conectate=id_conectatePC, nombre=namep, nombre_corto=nameShort, codigo=code,
                                                                   fecha_inicio=initDate, fecha_fin=endDate),
 
                 updateRed.proyecto_conectate = proyecto_conectate
@@ -377,13 +378,14 @@ def sisred_create(request):
                 code = json_pyConectate['codigo']
                 initDate = json_pyConectate['fecha_inicio']
                 endDate = json_pyConectate['fecha_fin']
+                id_conectatePC = json_pyConectate['id_conectate']
 
                 # Verifico si el proyecto conectate no existe en la base de datos
                 try:
-                    proyecto_conectate = ProyectoConectate.objects.filter(nombre=name).first()
+                    proyecto_conectate = ProyectoConectate.objects.filter(id_conectate=id_conectatePC).first()
                     print(proyecto_conectate.nombre)
                 except AttributeError:
-                    proyecto_conectate = ProyectoConectate.objects.create(nombre=name, nombre_corto=nameShort,
+                    proyecto_conectate = ProyectoConectate.objects.create(id_conectate=id_conectatePC, nombre=name, nombre_corto=nameShort,
                                                                           codigo=code, fecha_inicio=initDate,
                                                                           fecha_fin=endDate)
 
