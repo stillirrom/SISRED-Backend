@@ -1,5 +1,5 @@
 from django.urls import path
-from sisred_app.vistas import views_equipo3
+from sisred_app.views import views_equipo3
 
 urlpatterns = [
 
