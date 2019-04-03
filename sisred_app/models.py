@@ -4,11 +4,10 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-
-
 class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
     estado = models.IntegerField()
 
@@ -39,34 +38,65 @@ class Recurso(models.Model):
     fecha_ultima_modificacion = models.DateField(default=datetime.date.today)
     tipo = models.CharField(max_length=50)
     descripcion = models.TextField()
-    metadata = models.ManyToManyField(Metadata)
+    metadata = models.ManyToManyField(Metadata,blank=True)
     autor = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_autor')
     usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_ultima_modificacion')
 
     def __str__(self):
         return "Recurso: " + self.nombre
 
+    @property
+    def getAutor(self):
+        return self.autor.usuario.first_name + " "  + self.autor.usuario.last_name
+
+    @property
+    def getResponsableModificacion(self):
+        return self.autor.usuario.first_name + " " + self.autor.usuario.last_name
+
 
 class ProyectoConectate(models.Model):
+    id_conectate = models.CharField(unique=True, max_length=50)
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     codigo = models.CharField(max_length=50)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
 
-
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
 
+class Fase(models.Model):
+    id_conectate = models.CharField(max_length=50)
+    nombre_fase = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Fase: ' + self.nombre_fase
+
+
+class Fase(models.Model):
+    id_conectate = models.CharField(max_length=50)
+    nombre_fase = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Fase: ' + self.nombre_fase
+
+
+class Estado(models.Model):
+    id_conectate = models.CharField(unique=True, max_length=50)
+    nombre_estado = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Estado: ' + self.nombre_estado
+
 
 class RED(models.Model):
-    id_conectate = models.CharField(unique=True, max_length=50, default="")
+    id_conectate = models.CharField(unique=True, max_length=50)
     nombre = models.CharField(max_length=200)
     nombre_corto = models.CharField(max_length=50, blank=True, null=True)
     descripcion = models.TextField()
     fecha_inicio = models.DateField(blank=True, null=True)
     fecha_cierre = models.DateField(blank=True, null=True)
-    fecha_creacion = models.DateField(default=datetime.date.today)
+    fecha_creacion = models.DateField(default=datetime.date.today, null=True)
     porcentaje_avance = models.IntegerField(blank=True, null=True)
     tipo = models.CharField(max_length=50)
     solicitante = models.CharField(max_length=50)
@@ -75,6 +105,7 @@ class RED(models.Model):
     metadata = models.ManyToManyField(Metadata, blank=True)
     horas_estimadas = models.IntegerField(blank=True, null=True)
     horas_trabajadas = models.IntegerField(blank=True, null=True)
+    fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return 'Red: ' + self.id_conectate
@@ -95,14 +126,6 @@ class ProyectoRED(models.Model):
 
     def __str__(self):
         return "Proyecto RED: " + self.nombre
-
-
-class Estado(models.Model):
-    id_conectate = models.CharField(unique=True, max_length=50)
-    nombre_estado = models.CharField(max_length=50)
-
-    def __str__(self):
-        return 'Estado: ' + self.nombre_estado
 
 
 class HistorialEstados(models.Model):
@@ -129,7 +152,7 @@ class Rol(models.Model):
     nombre = models.CharField(max_length=100)
 
     def __str__(self):
-        return "Rol: " + self.nombre
+        return "Rol: " + self.id_conectate
 
 
 class RolAsignado(models.Model):
