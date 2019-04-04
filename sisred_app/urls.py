@@ -34,4 +34,7 @@ urlpatterns = [
     path('reds/', views_equipo4.get_red, name='reds'),
     path('sisred_create/', views_equipo4.sisred_create, name='sisred_create'),
     path('sisred_remove/', views_equipo4.sisred_remove, name='sisred_remove'),
+    path('asignaciones/add/', views_equipo4.postRolAsignado, name='addRolAsignado'),
+    path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
+    path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
 ]
