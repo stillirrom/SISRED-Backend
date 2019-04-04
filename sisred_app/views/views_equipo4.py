@@ -3,20 +3,20 @@ from psycopg2._psycopg import IntegrityError, DatabaseError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from sisred_app.serializer import REDSerializer
-
 from sisred_app.models import *
 from django.core.serializers import *
 from rest_framework import serializers
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
 import json
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
 )
 
-from django.core.exceptions import ObjectDoesNotExist
+
 """
-Vista para ver recursos asociados al RED (GET)
-Se usan archivos sereializer para import de los modelos con los campos filtrados
+Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
+Se usan archivos serializer para import de los modelos con los campos filtrados
 """
 
 class ResorceSerializer(serializers.ModelSerializer):
@@ -30,6 +30,10 @@ def getRecurso(request, id):
         serializer = ResorceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
 
+"""
+Vista para ver recursos asociados al RED (GET)
+Se usan archivos serializer para import de los modelos con los campos filtrados
+"""
 
 class RedDetSerializer(serializers.ModelSerializer):
     recursos = ResorceSerializer(many=True)
@@ -42,6 +46,11 @@ def getRedDetailRecursos(request, id):
     if request.method == 'GET':
         serializer = RedDetSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
+
+"""
+Vista para ver que usuario esta autenticado en el sistema SISRED (GET)
+Se usan archivos serializer para import de los modelos con los campos filtrados
+"""
 
 class UserAutSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,6 +69,7 @@ Return: El usuario creado con su id en formato Json
 @csrf_exempt
 def postUser(request):
     if request.method == 'POST':
+        user_model = None
         try:
             json_user = json.loads(request.body)
             username = json_user['username']
@@ -83,6 +93,8 @@ def postUser(request):
                 content='El campo ' + str(e) + ' es requerido.'
             )
         except Exception as ex:
+            if(user_model.id > 0):
+                User.objects.filter(id=user_model.id).delete()
             return HttpResponseBadRequest(
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
@@ -137,17 +149,28 @@ Return: Lista de los usuarios con sus perfiles en formato Json
 @csrf_exempt
 def getAllUser(request):
     try:
+        usersAll = []
         users = User.objects.filter(is_superuser=False)
-        datosSerializados = ""
         for user in users:
             perfil = Perfil.objects.get(usuario=user)
-            datosSerializados += serialize("json", [user, perfil])
-        return HttpResponse(datosSerializados)
+            estado = ""
+            if(perfil.estado == 0 ):
+                estado = "Eliminado"
+            elif perfil.estado == 1:
+                estado = "Vigente"
+            else:
+                estado = "Inactivo"
+            usersAll.append({"id":user.id, "username": user.username, "email":user.email,
+                             "first_name":user.first_name, "lastname":user.last_name, "password":user.password,
+                             "id_conectate": perfil.id_conectate, "numero_identificacion":perfil.numero_identificacion,
+                             "estado":estado})
+        return JsonResponse(usersAll, safe=False)
     except Exception as ex:
         return HttpResponseBadRequest(
             content='BAD_REQUEST: ' + str(ex),
             status=HTTP_400_BAD_REQUEST
         )
+
 
 """
 Vista para consultar el usuario por id (GET)
@@ -463,6 +486,4 @@ def sisred_remove(request):
                 arrayMessages.insert(count, 'Proyecto RED ' + id_conectate + ' No Existe en SISRED')
 
         return HttpResponse(json.dumps(arrayMessages), content_type="application/json")
-
-
 
