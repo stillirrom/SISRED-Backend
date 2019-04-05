@@ -219,10 +219,16 @@ def get_reds_relacionados(request, id):
                         usuario_model = User.objects.get(pk=perfil_model.usuario.id)
                         nombreUsuario = usuario_model.first_name + " " + usuario_model.last_name
 
-                    reds_relacionados.append(
-                        {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
-                         "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
-                         "asesor": nombreUsuario})
+                        reds_relacionados.append(
+                            {"idRed": red.pk, "nombreRed": red.nombre, "nombreCortoRed": red.nombre_corto,
+                             "fechaCreacion": red.fecha_creacion, "tipo": red.tipo,
+                             "asesor": nombreUsuario})
+                        
+                    else:
+                        return HttpResponseBadRequest(
+                            content='No existe Rol Asesor asignado al red' + str(red.id)
+                        )
+
                 respuesta = {"nombreProyecto": proyectoConectate_model.nombre,
                              "nombreCortoProyecto": proyectoConectate_model.nombre_corto, "redsRelacionados": reds_relacionados}
 
