@@ -1,8 +1,10 @@
+from django.shortcuts import get_object_or_404,get_list_or_404
 from django.core.serializers import serialize
 from rest_framework import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
-from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol
+from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
+from django.db.models import Q
 from django.contrib.auth.models import User
 
 @csrf_exempt
@@ -19,6 +21,22 @@ def getRecurso(request):
 def getRED(request):
     vLstObjects = list(RED.objects.all())
     return HttpResponse(serialize('json', vLstObjects), content_type="application/json")
+
+@csrf_exempt
+def marcarVersion(request,id):
+    if request.method == 'POST':
+        version = get_object_or_404(Version, id=id)
+
+        otherVersions = get_list_or_404(Version, red_id = version.red_id)
+        for v in otherVersions:
+            v.es_final=False
+            v.save()
+
+        version.es_final = True
+        version.save()
+        return JsonResponse(str(id), safe=False)    
+    return HttpResponseNotFound()     
+    
 
 
 class UserSerializer(serializers.ModelSerializer):
