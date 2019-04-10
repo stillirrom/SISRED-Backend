@@ -10,3 +10,5 @@ sisred_app/migrations/
 *.sqlite3
 
 \env
+
+sisred_app/views/__pycache__/

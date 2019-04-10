@@ -65,13 +65,6 @@ class ProyectoConectate(models.Model):
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
 
-class Fase(models.Model):
-    id_conectate = models.CharField(max_length=50)
-    nombre_fase = models.CharField(max_length=50)
-
-    def __str__(self):
-        return 'Fase: ' + self.nombre_fase
-
 
 class Fase(models.Model):
     id_conectate = models.CharField(max_length=50)
