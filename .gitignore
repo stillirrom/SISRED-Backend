@@ -12,3 +12,5 @@ sisred_app/migrations/
 \env
 
 sisred_app/views/__pycache__/
+
+__pycache__/
