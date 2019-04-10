@@ -39,4 +39,5 @@ urlpatterns = [
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
 
     path('versiones/<int:id>/marcar', views_equipo2.marcarVersion, name='marcarVersionFinal'),
+    path('buscarReds', views_equipo2.buscarRed, name='reds'),
 ]

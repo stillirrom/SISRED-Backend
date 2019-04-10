@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404,get_list_or_404
+from django.core import serializers
 from django.core.serializers import serialize
 from rest_framework import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
@@ -6,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
 from django.db.models import Q
 from django.contrib.auth.models import User
+from datetime import datetime
 
 @csrf_exempt
 def getProyectosRED(request):
@@ -37,6 +39,25 @@ def marcarVersion(request,id):
         return JsonResponse(str(id), safe=False)    
     return HttpResponseNotFound()     
     
+def buscarRed(request):
+    if request.method == 'GET':
+        fstart = request.GET.get("fstart")
+        fend = request.GET.get("fend")
+        text = request.GET.get("text")
+        
+        q = RED.objects.filter() 
+
+        if text:
+            q = q.filter(Q(nombre__contains=text) | Q(nombre_corto__contains=text)  | Q(descripcion__contains=text) | Q(metadata__tag=text))
+        
+        if fend:
+            q = q.filter(fecha_cierre__lte = fend)
+        
+        if fstart:
+            q = q.filter(fecha_inicio__gte = fstart)
+
+        return JsonResponse(list(q.values()),safe=False)
+    return HttpResponseNotFound()     
 
 
 class UserSerializer(serializers.ModelSerializer):
