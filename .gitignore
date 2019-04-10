@@ -14,3 +14,5 @@ sisred_app/migrations/
 sisred_app/views/__pycache__/
 
 __pycache__/
+
+.DS_Store
