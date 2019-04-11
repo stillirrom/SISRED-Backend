@@ -24,7 +24,7 @@ def getRED(request):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name')
+        fields = ('username', 'first_name', 'last_name', 'email')
 
 
 class PerfilSerializer(serializers.ModelSerializer):
@@ -56,6 +56,7 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
 
 
 class VersionSerializer(serializers.ModelSerializer):
+    creado_por = PerfilSerializer()
     class Meta:
         model = Version
         fields= '__all__'
@@ -70,7 +71,6 @@ def getAsignaciones(request):
 
 @csrf_exempt
 def getVersionesRED(request, id):
-    red = RED.objects.get(pk=id)
-    data = Version.objects.filter(red=red).order_by('numero')
+    data = Version.objects.filter(red_id=id).order_by('numero')
     serializer = VersionSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
