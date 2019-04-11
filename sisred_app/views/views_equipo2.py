@@ -1,4 +1,5 @@
 from django.core.serializers import serialize
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -71,6 +72,7 @@ def getAsignaciones(request):
 
 @csrf_exempt
 def getVersionesRED(request, id):
-    data = Version.objects.filter(red_id=id).order_by('numero')
+    red = get_object_or_404(RED, pk=id)
+    data = Version.objects.filter(red=red).order_by('numero')
     serializer = VersionSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)

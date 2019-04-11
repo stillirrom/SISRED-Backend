@@ -50,3 +50,8 @@ class ListarVersionesTestCase(TestCase):
         self.assertEqual(data[1]['creado_por']['estado'], 1)
         self.assertEqual(data[0]['creado_por']['usuario']['username'], 'test')
         self.assertEqual(data[1]['creado_por']['usuario']['username'], 'test')
+
+    def test_404_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk+1)+'/versiones/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 404)
