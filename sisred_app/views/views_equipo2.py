@@ -1,7 +1,6 @@
 from django.core.serializers import serialize
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
 from django.contrib.auth.models import User
@@ -72,7 +71,10 @@ def getAsignaciones(request):
 
 @csrf_exempt
 def getVersionesRED(request, id):
-    red = get_object_or_404(RED, pk=id)
+    try:
+        red = RED.objects.get(pk=id)
+    except:
+        raise Http404('No existe un RED con id '+str(id))
     data = Version.objects.filter(red=red).order_by('numero')
     serializer = VersionSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
