@@ -2,7 +2,7 @@ from django.core.serializers import serialize
 from rest_framework import serializers
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol
+from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
 from django.contrib.auth.models import User
 
 @csrf_exempt
@@ -55,8 +55,22 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
         fields = ('red', 'rol', 'usuario')
 
 
+class VersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Version
+        fields= '__all__'
+
+
 @csrf_exempt
 def getAsignaciones(request):
     data = list(RolAsignado.objects.all())
     serializer = RolAsignadoSerializer(data, many=True)
+    return JsonResponse({'context': serializer.data}, safe=True)
+
+
+@csrf_exempt
+def getVersionesRED(request, id):
+    red = RED.objects.get(pk=id)
+    data = Version.objects.filter(red=red).order_by('numero')
+    serializer = VersionSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
