@@ -640,4 +640,30 @@ def deleteRolAsignado(request, id):
         except Exception as ex:
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
+        
+'''Vista para cambiar fase de un red (PUT)
+Parametros: request, id del red, id de la fase'''
+@csrf_exempt
+def putCambiarFaseRed(request, idRed, idFase):
+    if request.method == 'PUT':
+        try:
+            red = RED.objects.get(id_conectate=idRed)
+            fase = Fase.objects.get(id_conectate=idFase)
 
+            red.fase = fase
+
+            red.save()
+            return HttpResponse(status=200)
+        except ObjectDoesNotExist as e:
+            if (e.__class__ == Fase.DoesNotExist):
+                error = 'No existe la fase con id ' + str(idFase)
+            else:
+                error = 'No existe el red con id ' + str(idRed)
+            return HttpResponseBadRequest(
+                content=error
+            )
+        except Exception as ex:
+            return HttpResponseBadRequest(
+                content='BAD_REQUEST: ' + str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )

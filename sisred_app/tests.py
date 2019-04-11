@@ -35,12 +35,12 @@ class sisRedTestCase(TestCase):
             fase=fase,
         );
 
-        fase = Fase.objects.create(
+        fase2 = Fase.objects.create(
             id_conectate='3',
             nombre_fase='preproduccion',
         )
 
-        response = self.client.put('/api/red/' + str(red.id_conectate) + '/cambiarfase/' + str(fase.id_conectate),
+        response = self.client.put('/api/red/' + str(red.id_conectate) + '/cambiarfase/' + str(fase2.id_conectate) + '/',
                                content_type='application/json')
 
         print("response",response.status_code)
