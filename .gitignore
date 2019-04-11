@@ -5,8 +5,9 @@ sisred/__pycache__/
 
 sisred_app/__pycache__/
 
-sisred_app/migrations/
+*/__pycache__/
 
 *.sqlite3
 
 \env
+__pycache__/
