@@ -34,8 +34,7 @@ def marcarVersion(request,id):
 
         version.es_final = True
         version.save()
-        return JsonResponse(str(id), safe=False)    
-    return HttpResponseNotFound()     
+        return JsonResponse(str(id), safe=False)
     
 
 
