@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
-from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados, Version
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
@@ -114,3 +114,12 @@ def get_reds_asignados(request, id):
             reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
         respuesta = {"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
+
+@csrf_exempt
+def get_version(request):
+    if request.method == 'GET':
+        id = request.GET['id']
+        version = Version.objects.get(pk=id)
+        red = version.red
+        return HttpResponse(serializers.serialize("json", [red, version]))
+
