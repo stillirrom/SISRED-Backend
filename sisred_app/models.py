@@ -10,6 +10,7 @@ class Perfil(models.Model):
     tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
     estado = models.IntegerField()
+    estado_sisred = models.IntegerField(default=0)
 
     def __str__(self):
         return "Usuario: " + self.usuario.first_name
