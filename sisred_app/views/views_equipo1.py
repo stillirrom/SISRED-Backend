@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import  status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
@@ -94,3 +95,27 @@ def fase_byid(request,id):
         print(red)
         serializer = REDSerializer(red, many=True)
         return Response(serializer.data)
+
+
+#Autor:         Adriana Vargas
+#Fecha:         2019-04-11
+#Parametros:    request -> Datos de la solicitud
+#               numero_identificacion -> número de identificación del usuario
+#Descripcion:   Permite consultar la información de un usuario con su número de identificación
+
+@api_view(['GET', 'POST'])
+def getUserByIdentification(request, numero_identificacion):
+    if request.method == 'GET':
+        usuario_perfil = []
+
+        try:
+            perfil = Perfil.objects.get(numero_identificacion=numero_identificacion)
+        except Perfil.DoesNotExist:
+            raise NotFound(detail="Error 404, User not found", code=404)
+
+        usuario = User.objects.get(username=perfil.usuario)
+
+        usuario_perfil.append({"username": usuario.username, "email": usuario.email,
+                         "first_name": usuario.first_name, "lastname": usuario.last_name, "numero_identificacion": perfil.numero_identificacion,
+                         "estado": perfil.estado})
+        return Response(usuario_perfil)

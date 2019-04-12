@@ -16,4 +16,5 @@ class SisredTestCase(TestCase):
 
         response = self.client.get('/api/habilitar-usuario/' + str(profile1.numero_identificacion))
         current_data = json.loads(response.content)
-        self.assertEqual(current_data['username'], 'test1')
+
+        self.assertEqual(current_data[0]['username'], 'test1')
