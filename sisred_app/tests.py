@@ -16,7 +16,7 @@ class MetadadaRecursoTestCase(TestCase):
                                                  fecha_creacion='2019-04-11',
                                                  fecha_ultima_modificacion='2019-04-11', tipo='jpg',
                                                  descripcion='descripcion1', autor=perfil, usuario_ultima_modificacion=perfil)
-        url = '/addMetadataRecurso/' + str(recurso.id)
+        url = 'api/addMetadataRecurso/' + str(recurso.id) + '/'
 
         response = self.client.post(url, json.dumps(
             {"tag": "metadata1"}), content_type='application/json')
