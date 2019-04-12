@@ -641,3 +641,44 @@ def deleteRolAsignado(request, id):
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
 
+
+"""
+Vista para Crear SISREDs
+Parametros: request
+Return: Lista en JSON indicando los codigos de REDs que fueron creados
+        y los que no fueron creados
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def add_metadata_recurso(request,id):
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        print(json_data)
+        recurso = Recurso.objects.filter(id=id).first()
+
+        stringTag=json_data['tag']
+
+        tag = Metadata.objects.filter(tag=stringTag).first()
+
+        if tag == None:
+            tag = Metadata.objects.create(tag=stringTag)
+
+        print(tag)
+
+        metadata = Metadata.objects.get(tag=tag.tag).recurso_set.all()
+
+        print(metadata)
+
+        if metadata.exists():
+            return HttpResponse("ya existe el Tag" + tag.tag + " para el recurso " + recurso.nombre, status=400)
+        else:
+            recurso.metadata.add(tag)
+            recurso.save()
+            return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
+
+
+
+
+
+
