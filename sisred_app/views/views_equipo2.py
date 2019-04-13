@@ -77,10 +77,10 @@ class RedSerializer_v(serializers.ModelSerializer):
 
 class VersionSerializer_v(serializers.ModelSerializer):
     red = RedSerializer_v()
-    creadoPor = PerfilSerializer()
+    creado_por = PerfilSerializer()
     class Meta:
         model = Version
-        fields = ('numero', 'imagen', 'creadoPor', 'fecha_creacion', 'red')
+        fields = ('numero', 'imagen', 'creado_por', 'fecha_creacion', 'red')
 
 
 @csrf_exempt

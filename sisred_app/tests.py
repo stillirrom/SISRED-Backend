@@ -15,7 +15,7 @@ class VersionTestCase(TestCase):
                                                     fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
         self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
                                       tipo='video', solicitante='', proyecto_conectate=proyecto)
-        self.version = Version.objects.create(numero=1, red=self.red, creadoPor=perfil, fecha_creacion='2019-03-20',
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
                                               imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
 
         url = '/api/versiones/'+str(self.version.pk)+'/'
@@ -31,9 +31,9 @@ class VersionTestCase(TestCase):
                                                     fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
         self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
                                       tipo='video', solicitante='', proyecto_conectate=proyecto)
-        self.version = Version.objects.create(numero=1, red=self.red, creadoPor=perfil, fecha_creacion='2019-03-20',
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
                                               imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
-        self.version2 = Version.objects.create(numero=2, red=self.red, creadoPor=perfil, fecha_creacion='2019-03-20',
+        self.version2 = Version.objects.create(numero=2, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
                                               imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
 
         url = '/api/versiones/' + str(self.version2.pk) + '/'
@@ -49,7 +49,7 @@ class VersionTestCase(TestCase):
                                                     fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
         self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
                                       tipo='video', solicitante='', proyecto_conectate=proyecto)
-        self.version = Version.objects.create(numero=1, red=self.red, creadoPor=perfil, fecha_creacion='2019-03-20',
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
                                               imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
 
         url = '/api/versiones/' + str(self.version.pk) + '/'
@@ -69,7 +69,7 @@ class VersionTestCase(TestCase):
 
         self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
                                       tipo='video', solicitante='', proyecto_conectate=proyecto)
-        self.version = Version.objects.create(numero=1, red=self.red, creadoPor=perfil, fecha_creacion='2019-03-20',
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
                                               imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
 
         self.version.recursos.set([recurso1,recurso2])
@@ -90,7 +90,7 @@ class VersionTestCase(TestCase):
 
         self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
                                       tipo='video', solicitante='', proyecto_conectate=proyecto)
-        self.version = Version.objects.create(numero=1, red=self.red, creadoPor=perfil, fecha_creacion='2019-03-20',
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
                                               imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
 
         self.version.recursos.set([recurso1,recurso2])
