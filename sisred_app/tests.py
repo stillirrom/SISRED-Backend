@@ -35,7 +35,7 @@ class RR02TestCase(TestCase):
         version = Version.objects.create(numero=1, imagen='prueba', red=red, id=1)
         user_model = User.objects.create_user(username='user1', password='1234ABC*', first_name='Usuario',
                                               last_name='uno', email='user1@coquito.com')
-        perfil = Perfil.objects.create(id_conectate='1', usuario = user_model, estado=1)
+        perfil = Perfil.objects.create(id_conectate='1', usuario=user_model, estado=1)
         recurso = version.recursos.create(nombre='prueba', archivo='prueba', thumbnail='prueba', fecha_creacion=fecha_inicio,
                                           fecha_ultima_modificacion=fecha_inicio, tipo='prueba', descripcion='prueba',
                                           autor=perfil, usuario_ultima_modificacion=perfil)
