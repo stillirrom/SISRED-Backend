@@ -25,7 +25,7 @@ def getRED(request):
 @csrf_exempt
 def marcarVersion(request,id):
     if request.method == 'POST':
-        version = get_object_or_404(Version, numero=id)
+        version = get_object_or_404(Version, id=id)
 
         otherVersions = get_list_or_404(Version, red_id = version.red_id)
         for v in otherVersions:
