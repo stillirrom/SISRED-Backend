@@ -8,6 +8,7 @@ from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Ro
 from django.db.models import Q
 from django.contrib.auth.models import User
 from datetime import datetime
+import json
 
 @csrf_exempt
 def getProyectosRED(request):
@@ -58,6 +59,51 @@ def buscarRed(request):
 
         return JsonResponse(list(q.values()),safe=False)
     return HttpResponseNotFound()     
+
+def versiones(request):
+    if request.method == 'POST':
+        data = jsonUser = json.loads(request.body)
+        es_final = False
+        
+        imagen = data['imagen']
+        archivos = data['archivos']
+        redId = data['redId']
+        fecha_creacion = datetime.now()
+
+        idRecursos = data['recursos']
+
+        red = get_object_or_404(RED, id = redId)
+        
+        oldVersions = Version.objects.filter(red__id = redId).values()
+        
+        numero = 1
+        print("old: " + str(len(oldVersions)))
+        if len(oldVersions) > 0:
+            numero = max((v.numero for v in oldVersions)) + 1 
+        
+        print("nuuuuumero:" + str(numero))
+        recursos =  Recurso.objects.filter(id__in = idRecursos)
+        
+        #creadoPor = traer el objeto del request
+
+        version = Version.objects.create(
+            es_final = es_final,
+            imagen = imagen,
+            archivos=archivos,
+            red=red,
+            numero=numero,
+            #creadoPor=creadoPor,
+            fecha_creacion=fecha_creacion
+        )
+        #falta agregar los recursos a la version
+        version.recursos.set(recursos)
+        #
+        version.save()   
+        #falta retornar con el serilizer
+        #y quitar que sea un vector para que solo retorne el objero
+
+        return HttpResponse(serialize('json',[version]))
+    return HttpResponseNotFound()   
 
 
 class UserSerializer(serializers.ModelSerializer):
