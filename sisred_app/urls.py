@@ -21,6 +21,9 @@ urlpatterns = [
     path('getRecurso/', views_equipo2.getRecurso),
     path('getRED/', views_equipo2.getRED),
     path('asignaciones/', views_equipo2.getAsignaciones),
+    path('versiones/<int:id>/', views_equipo2.getVerVersion),
+    path('versiones/<int:id>/recursos/', views_equipo2.getVerVersionR),
+
     path('users/', views_equipo4.getAllUser, name='allUsers'),
     path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),
     path('users/add/', views_equipo4.postUser, name='addUser'),

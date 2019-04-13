@@ -2,8 +2,10 @@ from django.core.serializers import serialize
 from rest_framework import serializers
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol
+from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+from sisred_app.serializer import RecursoSerializer
 
 @csrf_exempt
 def getProyectosRED(request):
@@ -60,3 +62,48 @@ def getAsignaciones(request):
     data = list(RolAsignado.objects.all())
     serializer = RolAsignadoSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
+
+
+class ProyectoSerializer_v(serializers.ModelSerializer):
+    class Meta:
+        model = ProyectoConectate
+        fields = ('nombre',)
+
+class RedSerializer_v(serializers.ModelSerializer):
+    proyecto_conectate = ProyectoSerializer_v()
+    class Meta:
+        model = RED
+        fields = ('nombre', 'proyecto_conectate')
+
+class VersionSerializer_v(serializers.ModelSerializer):
+    red = RedSerializer_v()
+    creadoPor = PerfilSerializer()
+    class Meta:
+        model = Version
+        fields = ('numero', 'imagen', 'creadoPor', 'fecha_creacion', 'red')
+
+
+@csrf_exempt
+def getVerVersion(request, id):
+    version = get_object_or_404(Version, id=id)
+
+    serializer = VersionSerializer_v(version, many=False)
+    return JsonResponse(serializer.data, safe=True)
+
+
+
+
+
+@csrf_exempt
+def getVerVersionR(request, id):
+    version = get_object_or_404(Version, id=id)
+
+    serializer = RecursoSerializer(version.recursos, many=True)
+    return JsonResponse({'context':serializer.data}, safe=True)
+
+
+
+
+
+
+
