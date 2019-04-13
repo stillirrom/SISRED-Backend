@@ -115,6 +115,8 @@ def get_reds_asignados(request, id):
         respuesta = {"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
 
+
+#Metodo para obtener los datos de una version dado su id y el RED asociado
 @csrf_exempt
 def get_version(request):
     if request.method == 'GET':
@@ -122,4 +124,15 @@ def get_version(request):
         version = Version.objects.get(pk=id)
         red = version.red
         return HttpResponse(serializers.serialize("json", [red, version]))
+
+
+#Metodo para obtener dado el id de una version, sus recursos
+@csrf_exempt
+def get_recursos_by_version(request):
+    if request.method == 'GET':
+        id = request.GET['id']
+        version = Version.objects.get(pk=id)
+        recursos = Recurso.objects.filter(version=version)
+        return HttpResponse(serializers.serialize("json", recursos))
+
 
