@@ -24,5 +24,5 @@ class loginTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(current_data['token'])
         self.assertEqual(id_conectate, current_data['idConectate'])
-        self.assertEqual(id_conectate, current_data['firstName'])
-        self.assertEqual(id_conectate, current_data['lastName'])
+        self.assertEqual(first_name, current_data['firstName'])
+        self.assertEqual(last_name, current_data['lastName'])

@@ -662,5 +662,4 @@ def login(request):
                         status=HTTP_400_BAD_REQUEST)
     token, _ = Token.objects.get_or_create(user=user)
     perfil = Perfil.objects.filter(usuario=user).first()
-    print(perfil.id_conectate)
-    return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate},status=HTTP_200_OK)
+    return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate, 'firstName':user.first_name, 'lastName':user.last_name}, status=HTTP_200_OK)
