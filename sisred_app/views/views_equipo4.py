@@ -9,10 +9,10 @@ from rest_framework import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 import json
-from rest_framework.status import (
-    HTTP_400_BAD_REQUEST,
-)
-
+from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK)
+from rest_framework.response import Response
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
@@ -641,3 +641,24 @@ def deleteRolAsignado(request, id):
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
 
+"""
+Vista para validar autenticación de un usuario (LogIn)
+Parametros: request
+Return: En caso que no se diligencien datos Por favor ingrese un usuario y password
+Return: En caso que el usuario no haga match con el password Credenciales Invalidas
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def login(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+    if username is None or password is None:
+        return Response({'error': 'Por favor ingrese un usuario y password'},
+                        status=HTTP_400_BAD_REQUEST)
+    user = authenticate(username=username, password=password)
+    if user==None:
+        return Response({'error': 'Credenciales invalidas'},
+                        status=HTTP_400_BAD_REQUEST)
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({'token': token.key, 'username': user.username},status=HTTP_200_OK)

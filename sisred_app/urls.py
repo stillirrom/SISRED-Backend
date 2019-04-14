@@ -23,6 +23,7 @@ urlpatterns = [
     path('asignaciones/', views_equipo2.getAsignaciones),
     path('users/', views_equipo4.getAllUser, name='allUsers'),
     path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),
+    path('login/', views_equipo4.login, name='login'),
     path('users/add/', views_equipo4.postUser, name='addUser'),
     path('users/update/<int:id>/', views_equipo4.putUser, name='updateUser'),
     path('users/delete/<int:id>/', views_equipo4.deleteUser, name='deleteUser'),
