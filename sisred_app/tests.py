@@ -18,10 +18,11 @@ class loginTestCase(TestCase):
         user_profile = Perfil.objects.create(usuario=user_model, id_conectate=id_conectate,
                                              numero_identificacion=numero_identificacion, estado=1)
         user_profile.save()
-
         response = self.client.post('/api/login/', json.dumps({"username": username, "password": password}),
                                     content_type='application/json')
         current_data = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(current_data['token'])
         self.assertEqual(id_conectate, current_data['idConectate'])
+        self.assertEqual(id_conectate, current_data['firstName'])
+        self.assertEqual(id_conectate, current_data['lastName'])
