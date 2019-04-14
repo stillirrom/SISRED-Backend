@@ -26,3 +26,4 @@ class loginTestCase(TestCase):
         self.assertEqual(id_conectate, current_data['idConectate'])
         self.assertEqual(first_name, current_data['firstName'])
         self.assertEqual(last_name, current_data['lastName'])
+        self.assertEqual(numero_identificacion, current_data['numeroIdentificacion'])
