@@ -82,6 +82,7 @@ def get_detallered(request):
         url = 'conectatePrueba.com/'+nombreRed
         status = 'No tiene'
         nombreProject = red.proyecto_conectate.nombre
+        fase = red.fase
         historiales = HistorialEstados.objects.filter(red=red.pk)
 
         if len(historiales) > 1:
@@ -94,8 +95,8 @@ def get_detallered(request):
                     ultimo = hist
                     ultimoDate = actDate
             status = ultimo.estado.nombre_estado
-
-        respuesta = {"nombreRed": nombreRed, "nombreProject":nombreProject, "status":status, "url": url}
+        fase_json = {"idConectate": fase.id_conectate, "nombreFase": fase.nombre_fase}
+        respuesta = {"nombreRed": nombreRed, "nombreProject":nombreProject, "status":status, "url": url, "fase": fase_json}
 
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
