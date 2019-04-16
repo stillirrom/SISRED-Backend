@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpRe
 from psycopg2._psycopg import IntegrityError, DatabaseError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from sisred_app.serializer import REDSerializer
+from sisred_app.serializer import REDSerializer, FaseSerializer
 from sisred_app.models import *
 from django.core.serializers import *
 from rest_framework import serializers
@@ -667,3 +667,14 @@ def putCambiarFaseRed(request, idRed, idFase):
                 content='BAD_REQUEST: ' + str(ex),
                 status=HTTP_400_BAD_REQUEST
             )
+
+"""
+Vista para consultar las fases 
+Parametros: request
+Return: Lista de Fases creados en el sistema
+"""
+def get_fases(request):
+    data = Fase.objects.all()
+    if request.method == 'GET':
+        serializer = FaseSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
