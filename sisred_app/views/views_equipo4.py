@@ -641,3 +641,26 @@ def deleteRolAsignado(request, id):
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
 
+
+"""
+Vista para Agregar Metadata
+Parametros: request,id
+Return: 200 correcto 400 incorrecto
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def add_metadata_recurso(request,id):
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        print(json_data)
+        recurso = Recurso.objects.filter(id=id).first()
+
+        stringTag = json_data['tag']
+
+        tag = Metadata.objects.filter(tag=stringTag).first()
+
+        if tag == None:
+            tag = Metadata.objects.create(tag=stringTag)
+
+            return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
