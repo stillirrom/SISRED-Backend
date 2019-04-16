@@ -46,3 +46,8 @@ class sisRedTestCase(TestCase):
         print("response",response.status_code)
         self.assertEqual(response.status_code, 200)
 
+
+    def test_list_fases(self):
+        url = '/api/fases/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 200)
