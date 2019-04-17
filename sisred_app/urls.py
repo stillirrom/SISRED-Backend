@@ -23,6 +23,7 @@ urlpatterns = [
     path('asignaciones/', views_equipo2.getAsignaciones),
     path('versiones/<int:id>/', views_equipo2.getVerVersion),
     path('versiones/<int:id>/recursos/', views_equipo2.getVerVersionR),
+    path('reds/<int:id>/versiones/', views_equipo2.getVersionesRED),
 
     path('users/', views_equipo4.getAllUser, name='allUsers'),
     path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),
@@ -40,4 +41,7 @@ urlpatterns = [
     path('asignaciones/add/', views_equipo4.postRolAsignado, name='addRolAsignado'),
     path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
+
+    path('versiones/<int:id>/marcar', views_equipo2.marcarVersion, name='marcarVersionFinal'),
+    path('buscarReds', views_equipo2.buscarRed, name='reds'),
 ]
