@@ -16,7 +16,7 @@ class RecursoSerializer(serializers.ModelSerializer):
 class RecursoSerializer_post(serializers.ModelSerializer):
     class Meta:
         model=Recurso
-        fields=('nombre','archivo','thumbnail','tipo','descripcion','autor')
+        fields=('nombre','archivo','thumbnail','tipo','descripcion','autor','idRed')
 
 class RecursoSerializer_put(serializers.ModelSerializer):
     class Meta:

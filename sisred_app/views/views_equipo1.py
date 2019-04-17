@@ -22,11 +22,9 @@ from sisred_app.serializer import RecursoSerializer, FaseSerializer, RecursoSeri
 #   Permite registrar un recurso
 @api_view(['POST'])
 def recurso_post(request):
-    serializer = RecursoSerializer_post(data=request.data)
-    if serializer.is_valid():
-        autor = Perfil.objects.get(id=int(request.data.get("autor")))
-
-        rec = Recurso.objects.create(nombre=request.data.get('nombre'),
+    autor = Perfil.objects.get(id=int(request.data.get("autor")))
+    idRed = request.data.get("idRed")
+    rec = Recurso.objects.create(nombre=request.data.get('nombre'),
                                      archivo=request.data.get('archivo'),
                                      thumbnail=request.data.get('thumbnail'),
                                      descripcion=request.data.get('descripcion'),
@@ -34,10 +32,15 @@ def recurso_post(request):
                                      autor=autor,
                                      usuario_ultima_modificacion=autor
                                      )
-        rec.fecha_creacion=datetime.datetime.now()
-        rec.fecha_ultima_modificacion = datetime.datetime.now()
-        rec.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    rec.fecha_creacion=datetime.datetime.now()
+    rec.fecha_ultima_modificacion = datetime.datetime.now()
+    rec.save()
+    IdRecurso=rec.id
+
+    Red=RED.objects.get(id=idRed)
+    if (Red!=None):
+        Red.recursos.add(rec)
+        return Response(request.data, status=status.HTTP_201_CREATED)
 
 #Autor: Francisco Perneth
 #Fecha: 2019-03-30
