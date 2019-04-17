@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import json
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
-)
+    HTTP_200_OK)
 
 
 """
@@ -650,18 +650,23 @@ def putCambiarFaseRed(request, idRed, idFase):
             red = RED.objects.get(id_conectate=idRed)
             fase = Fase.objects.get(id_conectate=idFase)
 
-            red.fase = fase
+            idActual = int(red.fase.id_conectate)
 
+            print("putCambiarFaseRed", idActual, idFase)
+            if (idFase > (idActual + 1)) | (idFase < (idActual - 1)):
+                error = 'Debe seleccionar una fase consecutiva para poder hacer el cambio'
+                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+
+            red.fase = fase
             red.save()
-            return HttpResponse(status=200)
+
+            return HttpResponse(status=HTTP_200_OK)
         except ObjectDoesNotExist as e:
             if (e.__class__ == Fase.DoesNotExist):
                 error = 'No existe la fase con id ' + str(idFase)
             else:
                 error = 'No existe el red con id ' + str(idRed)
-            return HttpResponseBadRequest(
-                content=error
-            )
+            return HttpResponseBadRequest(content=error,status=HTTP_400_BAD_REQUEST)
         except Exception as ex:
             return HttpResponseBadRequest(
                 content='BAD_REQUEST: ' + str(ex),
