@@ -679,3 +679,13 @@ def getRolAsignadoRED(request, id):
     if request.method == 'GET':
         serializer = RolAsignadoSerializer(rol, many=True)
         return JsonResponse(serializer.data, safe=False)
+
+"""
+Vista hacer cierre de sesión
+Parámetros: request
+Return: Cierra sesión y ademas borra el token de autenticación.
+"""
+def logout(request):
+    request.user.auth_token.delete()
+    request.session.flush()
+    return HttpResponse("Sesión finalizada", status=HTTP_200_OK)
