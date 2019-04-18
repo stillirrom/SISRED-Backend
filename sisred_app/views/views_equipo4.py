@@ -665,3 +665,18 @@ def getTokenVal(request, id):
         else:
             return HttpResponse('Invalid')
 
+"""
+Vista para consultar los reds a los que tiene permiso el usuario actual
+Parámetros: request
+Return: Cierra sesión y ademas borra el token de autenticación.
+"""
+
+def getRolAsignadoRED(request, id):
+    reqUser = request.user.id
+    rol = RolAsignado.objects.filter(red=id).filter(usuario_id=reqUser)
+    if not rol:
+        return HttpResponse("No autorizado", status=HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = RolAsignadoSerializer(rol, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
