@@ -1,11 +1,11 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from psycopg2._psycopg import IntegrityError, DatabaseError
+from sisred_app.serializer import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from sisred_app.serializer import REDSerializer
 from sisred_app.models import *
 from django.core.serializers import *
-from rest_framework import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 import json
@@ -19,27 +19,16 @@ Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
 """
 
-class ResorceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recurso
-        fields = '__all__'
-
 def getRecurso(request, id):
     data = Recurso.objects.filter(id=id)
     if request.method == 'GET':
-        serializer = ResorceSerializer(data, many=True)
+        serializer = ResourceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
 
 """
 Vista para ver recursos asociados al RED (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
 """
-
-class RedDetSerializer(serializers.ModelSerializer):
-    recursos = ResorceSerializer(many=True)
-    class Meta:
-        model = RED
-        fields = ('id_conectate', 'nombre', 'descripcion', 'recursos')
 
 def getRedDetailRecursos(request, id):
     data = RED.objects.filter(id=id)
@@ -51,11 +40,6 @@ def getRedDetailRecursos(request, id):
 Vista para ver que usuario esta autenticado en el sistema SISRED (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
 """
-
-class UserAutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username','email')
 
 def getUserAut(request):
     serializer = UserAutSerializer(request.user)
@@ -653,13 +637,14 @@ Return: En caso que el usuario no haga match con el password Credenciales Invali
 def login(request):
     username = request.data.get("username")
     password = request.data.get("password")
-    if username is None or password is None:
-        return Response({'error': 'Por favor ingrese un usuario y password'},
-                        status=HTTP_400_BAD_REQUEST)
+    if username is "" or password is "":
+        return Response({'error': 'Debe ingresar usuario y contraseña'}, status=HTTP_400_BAD_REQUEST)
     user = authenticate(username=username, password=password)
     if user==None:
-        return Response({'error': 'Credenciales invalidas'},
-                        status=HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Credenciales inválidas'}, status=HTTP_400_BAD_REQUEST)
     token, _ = Token.objects.get_or_create(user=user)
     perfil = Perfil.objects.filter(usuario=user).first()
     return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate, 'firstName':user.first_name, 'lastName':user.last_name, 'numeroIdentificacion': perfil.numero_identificacion}, status=HTTP_200_OK)
+
+
+
