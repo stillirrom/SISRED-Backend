@@ -646,5 +646,22 @@ def login(request):
     perfil = Perfil.objects.filter(usuario=user).first()
     return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate, 'firstName':user.first_name, 'lastName':user.last_name, 'numeroIdentificacion': perfil.numero_identificacion}, status=HTTP_200_OK)
 
-
+"""
+Vista para obtener la validez de un token de usuario
+Parámetros: request
+Return: En caso que no sea válido el token retorna un Invalid
+Return: En caso que el token sea válido retorna un Valid
+"""
+def getTokenVal(request, id):
+    try:
+        tokenUser = Token.objects.get(key=id).user
+    except Token.DoesNotExist:
+        tokenUser = None
+    user = format(tokenUser)
+    reqUser = request.user.username
+    if request.method == 'GET':
+        if user==reqUser:
+            return HttpResponse('Valid')
+        else:
+            return HttpResponse('Invalid')
 
