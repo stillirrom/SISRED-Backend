@@ -652,18 +652,18 @@ Parámetros: request
 Return: En caso que no sea válido el token retorna un Invalid
 Return: En caso que el token sea válido retorna un Valid
 """
-def getTokenVal(request, id):
-    try:
-        tokenUser = Token.objects.get(key=id).user
-    except Token.DoesNotExist:
-        tokenUser = None
-    user = format(tokenUser)
-    reqUser = request.user.username
+def getTokenVal(request):
     if request.method == 'GET':
-        if user==reqUser:
-            return HttpResponse('Valid')
+        token = request.META['HTTP_AUTHORIZATION']
+        token = token.replace('Token ', '')
+        try:
+            TokenStatus = Token.objects.get(key=token).user.is_active
+        except Token.DoesNotExist:
+            TokenStatus = False
+        if TokenStatus==True:
+            return HttpResponse('Valid Token')
         else:
-            return HttpResponse('Invalid')
+            return HttpResponse('Invalid Token')
 
 """
 Vista para consultar los reds a los que tiene permiso el usuario actual
@@ -672,20 +672,39 @@ Return: Cierra sesión y ademas borra el token de autenticación.
 """
 
 def getRolAsignadoRED(request, id):
-    reqUser = request.user.id
-    rol = RolAsignado.objects.filter(red=id).filter(usuario_id=reqUser)
-    if not rol:
-        return HttpResponse("No autorizado", status=HTTP_404_NOT_FOUND)
-    if request.method == 'GET':
-        serializer = RolAsignadoSerializer(rol, many=True)
-        return JsonResponse(serializer.data, safe=False)
+    token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        reqUser = Token.objects.get(key=token).user.id
+        rol = RolAsignado.objects.filter(red=id).filter(usuario_id=reqUser)
+        print(rol)
+        if not rol:
+            return HttpResponse("No autorizado", status=HTTP_400_BAD_REQUEST)
+        if request.method == 'GET':
+            serializer = RolAsignadoSerializer(rol, many=True)
+            return JsonResponse(serializer.data, safe=False)
+    else:
+        return HttpResponse('Invalid Token')
 
 """
 Vista hacer cierre de sesión
 Parámetros: request
-Return: Cierra sesión y ademas borra el token de autenticación.
+Return: Borra el token de autenticación.
+    Token.objects.filter(key=token).delete()
 """
 def logout(request):
-    request.user.auth_token.delete()
-    request.session.flush()
-    return HttpResponse("Sesión finalizada", status=HTTP_200_OK)
+    token =  request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        Token.objects.filter(key=token).delete()
+        return HttpResponse("Sesión finalizada", status=HTTP_200_OK)
+    else:
+        return HttpResponse("Token no existe", status=HTTP_404_NOT_FOUND)
