@@ -645,7 +645,6 @@ def login(request):
     token, _ = Token.objects.get_or_create(user=user)
     perfil = Perfil.objects.filter(usuario=user).first()
     return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate, 'firstName':user.first_name, 'lastName':user.last_name, 'numeroIdentificacion': perfil.numero_identificacion}, status=HTTP_200_OK)
-
 """
 Vista para obtener la validez de un token de usuario
 Parámetros: request
@@ -664,13 +663,11 @@ def getTokenVal(request):
             return HttpResponse('Valid Token')
         else:
             return HttpResponse('Invalid Token')
-
 """
 Vista para consultar los reds a los que tiene permiso el usuario actual
 Parámetros: request
 Return: Cierra sesión y ademas borra el token de autenticación.
 """
-
 def getRolAsignadoRED(request, id):
     token = request.META['HTTP_AUTHORIZATION']
     token = token.replace('Token ', '')
@@ -689,7 +686,6 @@ def getRolAsignadoRED(request, id):
             return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse('Invalid Token')
-
 """
 Vista hacer cierre de sesión
 Parámetros: request
