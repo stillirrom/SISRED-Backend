@@ -72,7 +72,7 @@ def postUser(request):
         user_model = None
         try:
             json_user = json.loads(request.body)
-            username = json_user['username']
+            username = json_user['email']
             first_name = json_user['first_name']
             last_name = json_user['last_name']
             password = json_user['password']
@@ -121,6 +121,7 @@ def putUser(request, id):
             user.first_name = first_name
             user.last_name = last_name
             user.email = email
+            user.username = email
             perfil.id_conectate = id_conectate
             perfil.numero_identificacion = numero_identificacion
 
