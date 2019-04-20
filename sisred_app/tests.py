@@ -3,6 +3,8 @@ from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso
 from django.contrib.auth.models import User
 import datetime
 import json
+from django.forms.models import model_to_dict
+
 
 # Create your tests here.
 class sisred_appTestCase(TestCase):
@@ -267,44 +269,85 @@ class sisred_appTestCase(TestCase):
         userModel = User.objects.create_user(username="testImagen", password="testImagen", first_name="testImagen", last_name="testImagen",email="testImagen@test.com")
         perfil = Perfil.objects.create(usuario=userModel,estado=0)
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
-        
+
         red = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="test", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
 
         r1= Recurso.objects.create( nombre = "mi recurso", archivo = "c:/miArchivo.txt",thumbnail = "c:/miArchivo.txt", tipo="txt",descripcion="",autor=perfil,usuario_ultima_modificacion=perfil)
-        
+
 
         url = "/api/versiones/"
 
+
         response =  self.client.post(url, json.dumps(
             {
-                "imagen":"img.png", 
-                "archivos":"carpeta/", 
+                "imagen":"img.png",
+                "archivos":"carpeta/",
                 "redId": red.id,
-                "recursos":[r1.id], 
+                "recursos":[r1.id],
+                "creado_por":userModel.username,
+
             }), content_type='application/json')
+
+        version = json.loads(response.content)
+        print(version)
 
         self.assertEqual(response.status_code , 200)
 
-        def testCrearVersionHappyPath(self):
-            fecha = datetime.datetime.now()
-            userModel = User.objects.create_user(username="testImagen", password="testImagen", first_name="testImagen", last_name="testImagen",email="testImagen@test.com")
-            perfil = Perfil.objects.create(usuario=userModel,estado=0)
-            proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
-            
-            red = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="test", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+    def testCrearVersionHappyPath2(self):
+        fecha = datetime.datetime.now()
+        userModel = User.objects.create_user(username="testImagen", password="testImagen", first_name="testImagen", last_name="testImagen",email="testImagen@test.com")
+        perfil = Perfil.objects.create(usuario=userModel,estado=0)
+        proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
 
-            r1= Recurso.objects.create( nombre = "mi recurso", archivo = "c:/miArchivo.txt",thumbnail = "c:/miArchivo.txt", tipo="txt",descripcion="",autor=perfil,usuario_ultima_modificacion=perfil)
-            
-            Version.objects.create(numero=1,archivos="aaa",red=red)
+        red = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="test", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
 
-            url = "/api/versiones/"
+        r1= Recurso.objects.create( nombre = "mi recurso", archivo = "c:/miArchivo.txt",thumbnail = "c:/miArchivo.txt", tipo="txt",descripcion="",autor=perfil,usuario_ultima_modificacion=perfil)
+        r2= Recurso.objects.create( nombre = "mi recurso2", archivo = "c:/miArchivo2.txt",thumbnail = "c:/miArchivo2.txt", tipo="txt2",descripcion="",autor=perfil,usuario_ultima_modificacion=perfil)
 
-            response =  self.client.post(url, json.dumps(
-                {
-                    "imagen":"img.png", 
-                    "archivos":"carpeta/", 
-                    "redId": red.id,
-                    "recursos":[r1.id], 
-                }), content_type='application/json')
 
-            self.assertEqual(response.status_code , 200)
+        url = "/api/versiones/"
+
+
+        response =  self.client.post(url, json.dumps(
+            {
+                "imagen":"img.png",
+                "archivos":"carpeta/",
+                "redId": red.id,
+                "recursos":[r1.id, r2.id],
+                "creado_por":userModel.username,
+
+            }), content_type='application/json')
+
+        version = json.loads(response.content)
+
+        self.assertEqual(response.status_code , 200)
+        self.assertEqual(len(version['recursos']),2)
+
+    def testCrearVersionHappyPath3(self):
+        fecha = datetime.datetime.now()
+        userModel = User.objects.create_user(username="testImagen", password="testImagen", first_name="testImagen", last_name="testImagen",email="testImagen@test.com")
+        perfil = Perfil.objects.create(usuario=userModel,estado=0)
+        proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
+
+        red = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="test", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+
+        r1= Recurso.objects.create( nombre = "mi recurso", archivo = "c:/miArchivo.txt",thumbnail = "c:/miArchivo.txt", tipo="txt",descripcion="",autor=perfil,usuario_ultima_modificacion=perfil)
+
+        Version.objects.create(numero=1,archivos="aaa",red=red)
+        url = "/api/versiones/"
+
+
+        response =  self.client.post(url, json.dumps(
+            {
+                "imagen":"img.png",
+                "archivos":"carpeta/",
+                "redId": red.id,
+                "recursos":[r1.id],
+                "creado_por":userModel.username,
+
+            }), content_type='application/json')
+
+        version = json.loads(response.content)
+
+        self.assertEqual(response.status_code , 200)
+        self.assertEqual(version['numero'],2)

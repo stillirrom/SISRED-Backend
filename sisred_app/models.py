@@ -141,11 +141,11 @@ class Version(models.Model):
     archivos = models.CharField(max_length=200)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso, blank=True)
-    creadoPor = models.ForeignKey(Perfil, on_delete=models.CASCADE, null=True)
+    creado_por = models.ForeignKey(Perfil, on_delete=models.CASCADE, null=True)
     fecha_creacion = models.DateField(default=datetime.date.today, null=True)
 
     def __str__(self):
-        return 'Version: ' + self.numero
+        return 'Version: ' + str(self.numero)
 
 
 class Rol(models.Model):

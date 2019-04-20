@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
 from django.db.models import Q
 from django.contrib.auth.models import User
-from datetime import datetime
+import datetime
 import json
 
 @csrf_exempt
@@ -58,52 +58,7 @@ def buscarRed(request):
             q = q.filter(fecha_inicio__gte = fstart)
 
         return JsonResponse(list(q.values()),safe=False)
-    return HttpResponseNotFound()     
-
-def versiones(request):
-    if request.method == 'POST':
-        data = jsonUser = json.loads(request.body)
-        es_final = False
-        
-        imagen = data['imagen']
-        archivos = data['archivos']
-        redId = data['redId']
-        fecha_creacion = datetime.now()
-
-        idRecursos = data['recursos']
-
-        red = get_object_or_404(RED, id = redId)
-        
-        oldVersions = Version.objects.filter(red__id = redId).values()
-        
-        numero = 1
-        print("old: " + str(len(oldVersions)))
-        if len(oldVersions) > 0:
-            numero = max((v.numero for v in oldVersions)) + 1 
-        
-        print("nuuuuumero:" + str(numero))
-        recursos =  Recurso.objects.filter(id__in = idRecursos)
-        
-        #creadoPor = traer el objeto del request
-
-        version = Version.objects.create(
-            es_final = es_final,
-            imagen = imagen,
-            archivos=archivos,
-            red=red,
-            numero=numero,
-            #creadoPor=creadoPor,
-            fecha_creacion=fecha_creacion
-        )
-        #falta agregar los recursos a la version
-        version.recursos.set(recursos)
-        #
-        version.save()   
-        #falta retornar con el serilizer
-        #y quitar que sea un vector para que solo retorne el objero
-
-        return HttpResponse(serialize('json',[version]))
-    return HttpResponseNotFound()   
+    return HttpResponseNotFound()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -139,9 +94,60 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
         model = RolAsignado
         fields = ('red', 'rol', 'usuario')
 
+class VersionSerializer(serializers.ModelSerializer):
+    creado_por = PerfilSerializer()
+    class Meta:
+        model = Version
+        fields= '__all__'
+
 
 @csrf_exempt
 def getAsignaciones(request):
     data = list(RolAsignado.objects.all())
     serializer = RolAsignadoSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
+
+@csrf_exempt
+def versiones(request):
+    if request.method == 'POST':
+        data = jsonUser = json.loads(request.body)
+        es_final = False
+
+        imagen = data['imagen']
+        archivos = data['archivos']
+        redId = data['redId']
+        fecha_creacion = datetime.date.today()
+        idRecursos = data['recursos']
+
+        red = get_object_or_404(RED, id=redId)
+
+        oldVersions = Version.objects.filter(red__id=redId)
+
+        numero = 1
+
+        if len(oldVersions) > 0:
+            numero = max((v.numero for v in oldVersions)) + 1
+
+
+        recursos = Recurso.objects.filter(id__in=idRecursos)
+
+
+        creado_por=Perfil.objects.get(usuario__username=data['creado_por'])
+
+        version = Version.objects.create(
+            es_final=es_final,
+            imagen=imagen,
+            archivos=archivos,
+            red=red,
+            numero=numero,
+            creado_por=creado_por,
+            fecha_creacion=fecha_creacion,
+        )
+
+        version.recursos.set(recursos)
+        version.save()
+
+        serializer=VersionSerializer(version, many=False)
+
+        return JsonResponse(serializer.data, safe=True)
+    return HttpResponseNotFound()
