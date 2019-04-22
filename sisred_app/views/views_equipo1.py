@@ -8,7 +8,7 @@ import datetime
 
 
 from sisred_app.models import Recurso, RED, Perfil
-from sisred_app.serializer import RecursoSerializer, FaseSerializer, RecursoSerializer_post, RecursoSerializer_put, \
+from sisred_app.serializer import RecursoSerializer, RecursoSerializer_put, \
     REDSerializer
 
 
@@ -137,3 +137,29 @@ def getUserByIdentification(request, numero_identificacion):
                                "estado": perfil.estado, "estado_sisred": perfil.estado_sisred})
 
         return Response(usuario_perfil)
+
+@api_view(['GET', 'PUT'])
+def getREDByIdentification(request, id_conectate):
+    reds=[]
+    try:
+        red = RED.objects.get(id_conectate=id_conectate)
+    except RED.DoesNotExist:
+        raise NotFound(detail="Error 404, User not found", code=404)
+
+    if request.method == 'GET':
+        serializer = REDSerializer(red, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+
+        red.listo=True
+        red.save()
+        reds.append({"nombre": red.nombre, "nombre_corto": red.nombre_corto,
+                    "descripcion": red.descripcion, "fecha_inicio": red.fecha_inicio,
+                    "fecha_cierre": red.fecha_cierre,
+                    "fecha_creacion": red.fecha_creacion, "porcentaje_avance": red.porcentaje_avance,
+                    "tipo": red.tipo, "solicitante": red.solicitante,
+                    "horas_estimadas": red.horas_estimadas, "horas_trabajadas": red.horas_trabajadas,
+                    "proyecto_conectate_id": red.proyecto_conectate_id,
+                    "listo": True})
+        return Response(reds)
