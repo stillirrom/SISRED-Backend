@@ -99,6 +99,7 @@ class RED(models.Model):
     horas_estimadas = models.IntegerField(blank=True, null=True)
     horas_trabajadas = models.IntegerField(blank=True, null=True)
     fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
+    listo = models.BooleanField( blank=True, null=True ,default=False)
 
     def __str__(self):
         return 'Red: ' + self.id_conectate
