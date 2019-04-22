@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 from django.contrib.auth.models import User
 
+
 # Create your models here.
 class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
@@ -153,7 +154,7 @@ class Version(models.Model):
     fecha_creacion = models.DateField(default=datetime.date.today, null=True)
 
     def __str__(self):
-        return 'Version: ' + str(self.numero)
+        return 'Version: ' + self.numero
 
 
 class Rol(models.Model):
