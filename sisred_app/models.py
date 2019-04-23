@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
+    #tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
     estado = models.IntegerField()
 
@@ -175,6 +175,29 @@ class Comentario(models.Model):
     def __str__(self):
         return 'Comentario: ' + self.contenido
 
+class ComentarioVideo(models.Model):
+    version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
+    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
+    seg_ini = models.IntegerField(blank=True, null=True)
+    seg_fin = models.IntegerField(blank=True, null=True)
+    x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    y1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    x2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    y2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+
+    def __str__(self):
+        return 'ComentarioVideo: ' + self.contenido
+
+
+class ComentarioVideoEsp(models.Model):
+    contenido = models.TextField()
+    usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    fecha_creacion = models.DateField(blank=True, null=True)
+    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=False, blank=False)
+
+
+    def __str__(self):
+        return 'ComentarioVideoEsp: ' + self.contenido
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)

@@ -1,12 +1,17 @@
+import decimal
+
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
-from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados
+
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados, ComentarioVideo, ComentarioVideoEsp
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
+
+
 # Create your views here.
 
 # Metodo para agregar un proyecto RED
@@ -25,6 +30,7 @@ def post_proyecto_red(request):
         nuevo_proyecto_red.save()
         return HttpResponse(serializers.serialize("json", [nuevo_proyecto_red]))
 
+
 # Metodo para obtener detalle de las personas asignadas al RED
 @csrf_exempt
 def get_detallered_personas(request):
@@ -34,10 +40,11 @@ def get_detallered_personas(request):
         respuesta = []
         for persona in personas:
             usuario = persona.usuario.usuario
-            nombre= usuario.first_name + " " + usuario.last_name
+            nombre = usuario.first_name + " " + usuario.last_name
             rol = persona.rol.nombre
             respuesta.append({"name": nombre, "rol": rol})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
+
 
 # Metodo para obtener detalle de proyectos RED
 @csrf_exempt
@@ -47,8 +54,10 @@ def get_detallered_proyectosred(request):
         proyectos = ProyectoRED.objects.filter(red=red)
         respuesta = []
         for pro in proyectos:
-            respuesta.append({"id": pro.pk, "name": pro.nombre, "autor": pro.autor, "typeFile": pro.tipo, "createdDate": red.fecha_creacion.strftime('%Y/%m/%d'),"description":pro.descripcion})
+            respuesta.append({"id": pro.pk, "name": pro.nombre, "autor": pro.autor, "typeFile": pro.tipo,
+                              "createdDate": red.fecha_creacion.strftime('%Y/%m/%d'), "description": pro.descripcion})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
+
 
 # Metodo para obtener detalle de los metadatas del RED
 @csrf_exempt
@@ -61,6 +70,7 @@ def get_detallered_metadata(request):
             respuesta.append({"id": met.pk, "tag": met.tag})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
+
 # Metodo para obtener detalle de los recursos asociados al RED
 @csrf_exempt
 def get_detallered_recursos(request):
@@ -72,6 +82,7 @@ def get_detallered_recursos(request):
             respuesta.append({"id": re.pk, "name": re.nombre, "typeFormat": re.tipo})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
+
 # Metodo para obtener detalle del RED
 @csrf_exempt
 def get_detallered(request):
@@ -79,15 +90,15 @@ def get_detallered(request):
         red = request.GET['RED']
         red = RED.objects.get(id=red)
         nombreRed = red.nombre
-        url = 'conectatePrueba.com/'+nombreRed
+        url = 'conectatePrueba.com/' + nombreRed
         status = 'No tiene'
         nombreProject = red.proyecto_conectate.nombre
         historiales = HistorialEstados.objects.filter(red=red.pk)
 
         if len(historiales) > 1:
             ultimo = historiales[0]
-            ultimoDate = datetime.date(datetime(1800,1,1))
-            for hist in historiales :
+            ultimoDate = datetime.date(datetime(1800, 1, 1))
+            for hist in historiales:
                 datAct = hist.fecha_cambio
                 actDate = hist.fecha_cambio
                 if datAct > ultimoDate:
@@ -95,9 +106,10 @@ def get_detallered(request):
                     ultimoDate = actDate
             status = ultimo.estado.nombre_estado
 
-        respuesta = {"nombreRed": nombreRed, "nombreProject":nombreProject, "status":status, "url": url}
+        respuesta = {"nombreRed": nombreRed, "nombreProject": nombreProject, "status": status, "url": url}
 
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
+
 
 # Metodo para obtener los REDs asignados
 @csrf_exempt
@@ -114,3 +126,34 @@ def get_reds_asignados(request, id):
             reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
         respuesta = {"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
+
+
+# Metodo para obtener comentarios del recurso video
+@csrf_exempt
+def get_comentarios_video(request, id):
+    if request.method == 'GET':
+        recurso = Recurso.objects.get(pk=id)
+        comentariosVideos = ComentarioVideo.objects.filter(recurso=recurso)
+        respuesta = []
+        for comment in comentariosVideos:
+            rangeEsp = {"start": comment.seg_ini, "stop": comment.seg_fin}
+            shape = None if (comment.x1 or comment.x2 or comment.y1 or comment.y2) is None else {
+                "x1": decimal.Decimal(comment.x1), "y1": decimal.Decimal(comment.y1), "x2": decimal.Decimal(comment.x2),
+                "y2": decimal.Decimal(comment.y2)}
+            comentariosEsp = ComentarioVideoEsp.objects.filter(comentario_video=comment)
+            comentEsp = []
+            for comEsp in comentariosEsp:
+                usuario = comEsp.usuario.usuario
+                nombreUsuario = usuario.first_name + " " + usuario.last_name
+                idUsuario = usuario.pk
+                metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y/%m/%d'), "user_id": idUsuario,
+                             "user_name": nombreUsuario}
+                comentEsp.append({"id": comEsp.pk, "meta": metaVideo, "body": comEsp.contenido})
+            respuesta.append({"id": comment.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+        return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
+
+
+def decimal_default(obj):
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    raise TypeError
