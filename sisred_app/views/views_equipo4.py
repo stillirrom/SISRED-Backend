@@ -730,6 +730,7 @@ def getRolAsignadoRED(request, id):
             return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponse('Invalid Token')
+
 """
 Vista hacer cierre de sesión
 Parámetros: request
