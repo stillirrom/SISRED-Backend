@@ -145,8 +145,13 @@ def versiones(request):
             fecha_creacion=fecha_creacion,
         )
 
+        newrecursos=[]
+        for i in recursos:
+            aei = Recurso.objects.create(nombre=i.nombre, archivo=i.archivo,thumbnail=i.thumbnail, fecha_creacion=i.fecha_creacion, fecha_ultima_modificacion=i.fecha_ultima_modificacion, tipo=i.tipo, descripcion=i.descripcion, autor=i.autor, usuario_ultima_modificacion=i.usuario_ultima_modificacion)
+            aei.metadata.set(i.metadata.all())
+            newrecursos.append(aei)
 
-        version.recursos.set(recursos)
+        version.recursos.set(newrecursos)
         version.save()
 
         serializer=VersionSerializer(version, many=False)

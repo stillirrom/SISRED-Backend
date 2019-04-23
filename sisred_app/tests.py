@@ -288,8 +288,7 @@ class sisred_appTestCase(TestCase):
 
             }), content_type='application/json')
 
-        version = json.loads(response.content)
-        print(version)
+        #version = json.loads(response.content)
 
         self.assertEqual(response.status_code , 200)
 
