@@ -14,10 +14,15 @@ class Perfil(models.Model):
     def __str__(self):
         return "Usuario: " + self.usuario.first_name
 
+class NotificacionTipo(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
 
 class Notificacion(models.Model):
     mensaje = models.TextField()
     fecha = models.DateField(default=datetime.date.today)
+    visto = models.BooleanField(default=False)
+    tipo_notificacion = models.ForeignKey(NotificacionTipo, on_delete=models.CASCADE, related_name='notificacion_tipo')
 
     def __str__(self):
         return 'Notificacion: ' + self.mensaje
