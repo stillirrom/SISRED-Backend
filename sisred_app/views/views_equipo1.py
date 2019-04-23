@@ -105,7 +105,6 @@ def fase_byid(request,id):
 
 @api_view(['GET', 'PUT'])
 def getUserByIdentification(request, numero_identificacion):
-    usuario_perfil = []
 
     try:
         perfil = Perfil.objects.get(numero_identificacion=numero_identificacion)
@@ -116,21 +115,22 @@ def getUserByIdentification(request, numero_identificacion):
 
     if request.method == 'GET':
 
-        usuario_perfil.append({"username": usuario.username, "email": usuario.email,
-                               "first_name": usuario.first_name, "lastname": usuario.last_name,
-                               "numero_identificacion": perfil.numero_identificacion,
-                               "estado": perfil.estado, "estado_sisred": perfil.estado_sisred})
-
-        return Response(usuario_perfil)
+        return Response(usuarioPerfilJson(perfil, usuario))
 
     elif request.method == 'PUT':
 
         perfil.estado_sisred = 1
         perfil.save()
 
-        usuario_perfil.append({"username": usuario.username, "email": usuario.email,
-                               "first_name": usuario.first_name, "lastname": usuario.last_name,
-                               "numero_identificacion": perfil.numero_identificacion,
-                               "estado": perfil.estado, "estado_sisred": perfil.estado_sisred})
+        return Response(usuarioPerfilJson(perfil, usuario))
 
-        return Response(usuario_perfil)
+def usuarioPerfilJson(perfil, usuario):
+
+    usuario_perfil = []
+
+    usuario_perfil.append({"username": usuario.username, "email": usuario.email,
+                           "first_name": usuario.first_name, "lastname": usuario.last_name,
+                           "numero_identificacion": perfil.numero_identificacion,
+                           "estado": perfil.estado, "estado_sisred": perfil.estado_sisred})
+
+    return usuario_perfil
