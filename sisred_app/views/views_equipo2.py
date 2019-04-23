@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
 from django.db.models import Q
 from django.contrib.auth.models import User
+from sisred_app.serializer import RecursoSerializer
 import datetime
 import json
 
@@ -144,6 +145,7 @@ def versiones(request):
             fecha_creacion=fecha_creacion,
         )
 
+
         version.recursos.set(recursos)
         version.save()
 
@@ -151,3 +153,10 @@ def versiones(request):
 
         return JsonResponse(serializer.data, safe=True)
     return HttpResponseNotFound()
+
+@csrf_exempt
+def getRecursosRed(request, id):
+    red = get_object_or_404(RED, id=id)
+
+    serializer = RecursoSerializer(red.recursos, many=True)
+    return JsonResponse({'context':serializer.data}, safe=True)
