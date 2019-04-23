@@ -3,7 +3,7 @@ from psycopg2._psycopg import IntegrityError, DatabaseError
 from sisred_app.serializer import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from sisred_app.serializer import REDSerializer
+from sisred_app.serializer import REDSerializer, FaseSerializer
 from sisred_app.models import *
 from django.core.serializers import *
 from django.views.decorators.csrf import csrf_exempt
@@ -56,7 +56,7 @@ def postUser(request):
         user_model = None
         try:
             json_user = json.loads(request.body)
-            username = json_user['username']
+            username = json_user['email']
             first_name = json_user['first_name']
             last_name = json_user['last_name']
             password = json_user['password']
@@ -105,6 +105,7 @@ def putUser(request, id):
             user.first_name = first_name
             user.last_name = last_name
             user.email = email
+            user.username = email
             perfil.id_conectate = id_conectate
             perfil.numero_identificacion = numero_identificacion
 
@@ -624,6 +625,49 @@ def deleteRolAsignado(request, id):
         except Exception as ex:
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
+        
+'''Vista para cambiar fase de un red (PUT)
+Parametros: request, id del red, id de la fase'''
+@csrf_exempt
+def putCambiarFaseRed(request, idRed, idFase):
+    if request.method == 'PUT':
+        try:
+            red = RED.objects.get(id_conectate=idRed)
+            fase = Fase.objects.get(id_conectate=idFase)
+
+            idActual = int(red.fase.id_conectate)
+
+            print("putCambiarFaseRed", idActual, idFase)
+            if (idFase > (idActual + 1)) | (idFase < (idActual - 1)):
+                error = 'Debe seleccionar una fase consecutiva para poder hacer el cambio'
+                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+             
+            red.fase = fase
+            red.save()
+
+            return HttpResponse(status=HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            if (e.__class__ == Fase.DoesNotExist):
+                error = 'No existe la fase con id ' + str(idFase)
+            else:
+                error = 'No existe el red con id ' + str(idRed)
+            return HttpResponseBadRequest(content=error,status=HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return HttpResponseBadRequest(
+                content='BAD_REQUEST: ' + str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )
+
+"""
+Vista para consultar las fases 
+Parametros: request
+Return: Lista de Fases creados en el sistema
+"""
+def get_fases(request):
+    data = Fase.objects.all()
+    if request.method == 'GET':
+        serializer = FaseSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
 """
 Vista para validar autenticación de un usuario (LogIn)
