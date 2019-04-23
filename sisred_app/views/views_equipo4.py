@@ -695,6 +695,9 @@ Parámetros: request
 Return: En caso que no sea válido el token retorna un Invalid
 Return: En caso que el token sea válido retorna un Valid
 """
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
 def getTokenVal(request):
     if request.method == 'GET':
         token = request.META['HTTP_AUTHORIZATION']
@@ -704,14 +707,17 @@ def getTokenVal(request):
         except Token.DoesNotExist:
             TokenStatus = False
         if TokenStatus==True:
-            return HttpResponse('Valid Token')
+            return Response({'mensaje': 'Token valido'}, status=HTTP_200_OK)
         else:
-            return HttpResponse('Invalid Token')
+            return Response({'error': 'Token inválido'}, status=HTTP_400_BAD_REQUEST)
 """
 Vista para consultar los reds a los que tiene permiso el usuario actual
 Parámetros: request
 Return: Cierra sesión y ademas borra el token de autenticación.
 """
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
 def getRolAsignadoRED(request, id):
     token = request.META['HTTP_AUTHORIZATION']
     token = token.replace('Token ', '')
@@ -724,7 +730,7 @@ def getRolAsignadoRED(request, id):
         rol = RolAsignado.objects.filter(red=id).filter(usuario_id=reqUser)
         print(rol)
         if not rol:
-            return HttpResponse("No autorizado", status=HTTP_400_BAD_REQUEST)
+            return Response({'error': 'No autorizado'}, status=HTTP_400_BAD_REQUEST)
         if request.method == 'GET':
             serializer = RolAsignadoSerializer(rol, many=True)
             return JsonResponse(serializer.data, safe=False)
@@ -737,6 +743,9 @@ Parámetros: request
 Return: Borra el token de autenticación.
     Token.objects.filter(key=token).delete()
 """
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
 def logout(request):
     token =  request.META['HTTP_AUTHORIZATION']
     token = token.replace('Token ', '')
@@ -746,6 +755,6 @@ def logout(request):
         TokenStatus = False
     if TokenStatus == True:
         Token.objects.filter(key=token).delete()
-        return HttpResponse("Sesión finalizada", status=HTTP_200_OK)
+        return Response({'mensaje': 'Sesión finalizada'}, status=HTTP_200_OK)
     else:
-        return HttpResponse("Token no existe", status=HTTP_404_NOT_FOUND)
+        return Response({'error': 'Token no existe'}, status=HTTP_404_NOT_FOUND)
