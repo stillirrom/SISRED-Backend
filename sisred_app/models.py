@@ -105,7 +105,9 @@ class RED(models.Model):
     metadata = models.ManyToManyField(Metadata, blank=True)
     horas_estimadas = models.IntegerField(blank=True, null=True)
     horas_trabajadas = models.IntegerField(blank=True, null=True)
+    listo_para_revision = models.BooleanField(default=False, blank=True)
     fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
+
 
     def __str__(self):
         return 'Red: ' + self.id_conectate
@@ -182,10 +184,32 @@ class Comentario(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    fecha_creacion = models.DateField(default=datetime.date.today)
+    cerrado = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return 'Comentario: ' + self.contenido
 
+
+class ComentarioMultimedia(models.Model):
+
+    x1 = models.DecimalField(null=True, blank=True)
+    y1 = models.DecimalField(null=True, blank=True)
+    x2 = models.DecimalField(null=True, blank=True)
+    y2 = models.DecimalField(null=True, blank=True)
+    comentario = models.ForeignKey(Comentario, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return 'x1: ' + self.x1 + ', y1: ' + self.y1 + ', x2: ' + self.x2 + ', y2: ' + self.y2
+
+class ComentarioVideo(models.Model):
+
+    seg_ini = models.IntegerField(null=True, blank=True)
+    seg_fin = models.IntegerField(null=True, blank=True)
+    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return 'Segundo de inicio: ' + self.seg_ini + ' y segundo de fin ' + self.seg_fin
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)
