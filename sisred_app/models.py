@@ -134,13 +134,13 @@ class ProyectoRED(models.Model):
         return "Proyecto RED: " + self.nombre
 
 
-class HistorialEstados(models.Model):
+class HistorialFases(models.Model):
     fecha_cambio = models.DateField(default=datetime.date.today)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
+    fase = models.ForeignKey(Fase, on_delete=models.CASCADE, related_name='historial_fases_red')
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.estado.__str__() + " " + self.red.__str__()
+        return self.fase.__str__() + " " + self.red.__str__()
 
 
 class Version(models.Model):

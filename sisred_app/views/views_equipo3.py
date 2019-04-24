@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
-from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialFases
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
@@ -83,7 +83,7 @@ def get_detallered(request):
         status = 'No tiene'
         nombreProject = red.proyecto_conectate.nombre
         fase = red.fase
-        historiales = HistorialEstados.objects.filter(red=red.pk)
+        """historiales = HistorialEstados.objects.filter(red=red.pk)
 
         if len(historiales) > 1:
             ultimo = historiales[0]
@@ -94,7 +94,7 @@ def get_detallered(request):
                 if datAct > ultimoDate:
                     ultimo = hist
                     ultimoDate = actDate
-            status = ultimo.estado.nombre_estado
+            status = ultimo.estado.nombre_estado"""
         fase_json = {"idConectate": fase.id_conectate, "nombreFase": fase.nombre_fase}
         respuesta = {"nombreRed": nombreRed, "nombreProject":nombreProject, "status":status, "url": url, "fase": fase_json}
 
