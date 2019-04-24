@@ -1,11 +1,17 @@
 from django.test import TestCase
-from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso
+from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso, RolAsignado, Rol
 from django.contrib.auth.models import User
 import datetime
 import json
 
 # Create your tests here.
 class sisred_appTestCase(TestCase):
+
+    def setUp(self):
+        user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
+        self.perfil = Perfil.objects.create(id_conectate='1', usuario=user, estado=1)
+        self.rol = Rol.objects.create(id_conectate='1', nombre='rolPrueba')
+
     def testMarcarComoVersionFinalJustOne(self):
         url1='/api/versiones/'
         url2='/marcar'
@@ -70,14 +76,15 @@ class sisred_appTestCase(TestCase):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
         buscarNombre = "video"
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -89,12 +96,13 @@ class sisred_appTestCase(TestCase):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
         buscarNombre = "video"
 
-        url = f"/api/buscarReds?text={buscarNombre}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -106,36 +114,42 @@ class sisred_appTestCase(TestCase):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
         RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
 
         buscarNombre = "video3"
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
         self.assertEqual(response.status_code , 200)
-        self.assertEqual(len(reds), 2)    
-        self.assertEqual(reds[0]['id'], 1)    
-        self.assertEqual(reds[1]['id'], 3)    
+        self.assertEqual(len(reds), 1)    
+        self.assertEqual(reds[0]['id'], 1)  
 
     def testBuscarRedNameByshortName(self):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red3 = RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='3', estado=1, red=red3, rol=self.rol, usuario=self.perfil)
 
         buscarNombre = "sred"
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -149,15 +163,19 @@ class sisred_appTestCase(TestCase):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red3 = RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='3', estado=1, red=red3, rol=self.rol, usuario=self.perfil)
 
         buscarNombre = "descripcion de video"
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -171,19 +189,23 @@ class sisred_appTestCase(TestCase):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        uno = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="sred", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red3 = RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='3', estado=1, red=red3, rol=self.rol, usuario=self.perfil)
 
         tag = Metadata.objects.create(id = 1,tag="tag1")
 
-        uno.metadata.add(tag)
+        red1.metadata.add(tag)
 
         buscarNombre = "tag1"
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -196,41 +218,51 @@ class sisred_appTestCase(TestCase):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
 
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="test", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="test", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
-        RED.objects.create(id=4, id_conectate="4", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion test de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="test", nombre_corto="vred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="sonido red", nombre_corto="test", descripcion="descripcion de sonido", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red3 = RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+        red4 = RED.objects.create(id=4, id_conectate="4", proyecto_conectate=proyecto, nombre="video3 red", nombre_corto="sred", descripcion="descripcion test de video", fecha_inicio=datetime.datetime.now(),fecha_cierre=datetime.datetime.now())
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='3', estado=1, red=red3, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='4', estado=1, red=red4, rol=self.rol, usuario=self.perfil)
 
         buscarNombre = "test"
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
         
         self.assertEqual(response.status_code , 200)
         self.assertEqual(len(reds), 3)
-        self.assertEqual(reds[0]['id'], 2)    
-        self.assertEqual(reds[1]['id'], 4) 
-        self.assertEqual(reds[2]['id'], 1) 
+        self.assertEqual(reds[0]['id'], 1)    
+        self.assertEqual(reds[1]['id'], 2) 
+        self.assertEqual(reds[2]['id'], 4) 
 
     def testBuscarRedNameByDates(self):
         fecha = datetime.datetime.now()
         
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-01-02','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-12-30','%Y-%m-%d'))
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2018-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'))
-        RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2020-01-01','%Y-%m-%d'))
-        RED.objects.create(id=4, id_conectate="4", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2017-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2017-12-31','%Y-%m-%d'))
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-01-02','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-12-30','%Y-%m-%d'))
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2018-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'))
+        red3 = RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2020-01-01','%Y-%m-%d'))
+        red4 = RED.objects.create(id=4, id_conectate="4", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2017-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2017-12-31','%Y-%m-%d'))
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='3', estado=1, red=red3, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='4', estado=1, red=red4, rol=self.rol, usuario=self.perfil)
 
         buscarNombre = "b"
         fecha_inicio = "2019-01-01"
         fecha_fin = "2019-12-31"
 
-        url = f"/api/buscarReds?fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?fstart={fecha_inicio}&fend={fecha_fin}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -244,15 +276,20 @@ class sisred_appTestCase(TestCase):
         
         proyecto = ProyectoConectate.objects.create(id=3,fecha_inicio=fecha,fecha_fin=fecha)
         #RED.objects.create(id=, proyecto_conectate=proyecto, nombre="", nombre_corto="", descripcion=)
-        RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-01-02','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-12-30','%Y-%m-%d'))
-        RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2018-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'))
-        RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2020-01-01','%Y-%m-%d'))
-        RED.objects.create(id=4, id_conectate="4", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2017-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2017-12-31','%Y-%m-%d'))
+        red1 = RED.objects.create(id=1, id_conectate="1", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-01-02','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-12-30','%Y-%m-%d'))
+        red2 = RED.objects.create(id=2, id_conectate="2", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2018-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'))
+        red3 = RED.objects.create(id=3, id_conectate="3", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2019-06-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2020-01-01','%Y-%m-%d'))
+        red4 = RED.objects.create(id=4, id_conectate="4", proyecto_conectate=proyecto, nombre="a", nombre_corto="a", descripcion="a", fecha_inicio=datetime.datetime.strptime('2017-01-01','%Y-%m-%d'),fecha_cierre=datetime.datetime.strptime('2017-12-31','%Y-%m-%d'))
+
+        RolAsignado.objects.create(id_conectate='1', estado=1, red=red1, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='3', estado=1, red=red3, rol=self.rol, usuario=self.perfil)
+        RolAsignado.objects.create(id_conectate='4', estado=1, red=red4, rol=self.rol, usuario=self.perfil)
 
         buscarNombre = "b"
         fecha_inicio = "2019-01-01"
 
-        url = f"/api/buscarReds?fstart={fecha_inicio}"
+        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?fstart={fecha_inicio}"
 
         response =  self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -264,8 +301,6 @@ class sisred_appTestCase(TestCase):
 
 
 class ListarVersionesTestCase(TestCase):
-
-    red = None
 
     def setUp(self):
         user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
@@ -415,7 +450,7 @@ class VersionTestCase(TestCase):
         self.assertEqual(current_data['context'][0]['tipo'], 'PNG')
         self.assertEqual(current_data['context'][1]['tipo'], 'AVI')
 
-        red = None
+class VersionMarcarTestCase(TestCase):
 
     def setUp(self):
         user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')

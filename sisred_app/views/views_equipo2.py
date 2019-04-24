@@ -42,13 +42,17 @@ def marcarVersion(request,id):
         return JsonResponse(str(id), safe=False)    
     return HttpResponseNotFound()     
     
-def buscarRed(request):
+def buscarRed(request, idUsuario):
     if request.method == 'GET':
         fstart = request.GET.get("fstart")
         fend = request.GET.get("fend")
         text = request.GET.get("text")
         
-        q = RED.objects.filter() 
+        usuario = User.objects.get(pk=idUsuario);
+        perfil = Perfil.objects.get(usuario=usuario);
+        roles_asignado = RolAsignado.objects.filter(usuario=perfil)
+
+        q = RED.objects.filter(rolasignado__in=roles_asignado) 
 
         if text:
             q = q.filter(Q(nombre__contains=text) | Q(nombre_corto__contains=text)  | Q(descripcion__contains=text) | Q(metadata__tag=text))
