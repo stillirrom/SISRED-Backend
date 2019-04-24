@@ -170,7 +170,7 @@ class ComentarioVideo(models.Model):
     seg_fin = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
-        return 'ComentarioVideoEsp: ' + self.contenido
+        return 'ComentarioVideo: [seg_ini: '+self.seg_ini+',seg_fin:'+self.seg_fin+']'
 
 class ComentarioMultimedia(models.Model):
     x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
@@ -180,7 +180,7 @@ class ComentarioMultimedia(models.Model):
     comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return 'ComentarioVideo: ' + self.contenido
+        return 'ComentarioMultimedia:'
 
 class Comentario(models.Model):
     contenido = models.TextField()

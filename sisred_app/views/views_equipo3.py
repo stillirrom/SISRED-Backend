@@ -130,28 +130,48 @@ def get_reds_asignados(request, id):
 
 # Metodo para obtener comentarios del recurso video
 @csrf_exempt
-def get_comentarios_video(request, id):
+def comentarios_video(request, id):
     if request.method == 'GET':
-        recurso = Recurso.objects.get(pk=id)
-        comentariosVideos = ComentarioVideo.objects.filter(recurso=recurso)
         respuesta = []
-        for comment in comentariosVideos:
-            rangeEsp = {"start": comment.seg_ini, "stop": comment.seg_fin}
-            shape = None if (comment.x1 or comment.x2 or comment.y1 or comment.y2) is None else {
-                "x1": decimal.Decimal(comment.x1), "y1": decimal.Decimal(comment.y1), "x2": decimal.Decimal(comment.x2),
-                "y2": decimal.Decimal(comment.y2)}
-            comentariosEsp = ComentarioVideoEsp.objects.filter(comentario_video=comment)
-            comentEsp = []
-            for comEsp in comentariosEsp:
-                usuario = comEsp.usuario.usuario
-                nombreUsuario = usuario.first_name + " " + usuario.last_name
-                idUsuario = usuario.pk
-                metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y/%m/%d'), "user_id": idUsuario,
-                             "user_name": nombreUsuario}
-                comentEsp.append({"id": comEsp.pk, "meta": metaVideo, "body": comEsp.contenido})
-            respuesta.append({"id": comment.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+        try:
+            recurso = Recurso.objects.get(pk=id)
+            comentariosVideos = ComentarioVideo.objects.filter(recurso=recurso)
+            for comment in comentariosVideos:
+                rangeEsp = {"start": comment.seg_ini, "stop": comment.seg_fin}
+                shape = None if (comment.x1 or comment.x2 or comment.y1 or comment.y2) is None else {
+                    "x1": decimal.Decimal(comment.x1), "y1": decimal.Decimal(comment.y1),
+                    "x2": decimal.Decimal(comment.x2),
+                    "y2": decimal.Decimal(comment.y2)}
+                comentariosEsp = ComentarioVideoEsp.objects.filter(comentario_video=comment)
+                comentEsp = []
+                for comEsp in comentariosEsp:
+                    usuario = comEsp.usuario.usuario
+                    nombreUsuario = usuario.first_name + " " + usuario.last_name
+                    idUsuario = usuario.pk
+                    metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y/%m/%d'), "user_id": idUsuario,
+                                 "user_name": nombreUsuario}
+                    comentEsp.append({"id": comEsp.pk, "meta": metaVideo, "body": comEsp.contenido})
+                respuesta.append({"id": comment.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+            return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
+        except Exception as ex:
+            print("No existe el recurso y/o version")
         return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
+    if request.method == 'POST':
+        print("Persistiendo Comentarios Video en BD")
+        commentsDetails = json.loads(request.body)
+        print(commentsDetails)
+        for comment in commentsDetails:
+            idComentario = comment['id']
 
+            #Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
+
+            rangeStart = comment['range']['start']
+            rangeStop = comment['range']['stop']
+            x1 = comment['shape']['x1']
+            y1 = comment['shape']['y1']
+            x2 = comment['shape']['x2']
+            y2 = comment['shape']['y2']
+        return HttpResponse()
 
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
