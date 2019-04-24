@@ -165,39 +165,34 @@ class RolAsignado(models.Model):
     def __str__(self):
         return self.usuario.__str__() + " " + self.red.__str__() + " " + self.rol.__str__()
 
+class ComentarioVideo(models.Model):
+    seg_ini = models.IntegerField(blank=True, null=True)
+    seg_fin = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return 'ComentarioVideoEsp: ' + self.contenido
+
+class ComentarioMultimedia(models.Model):
+    x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    y1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    x2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    y2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
+    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return 'ComentarioVideo: ' + self.contenido
 
 class Comentario(models.Model):
     contenido = models.TextField()
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=False, blank=False)
+    fecha_creacion = models.DateField(blank=True, null=True)
+    cerrado = models.BooleanField()
 
     def __str__(self):
         return 'Comentario: ' + self.contenido
-
-class ComentarioVideo(models.Model):
-    version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
-    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
-    seg_ini = models.IntegerField(blank=True, null=True)
-    seg_fin = models.IntegerField(blank=True, null=True)
-    x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
-    y1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
-    x2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
-    y2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
-
-    def __str__(self):
-        return 'ComentarioVideo: ' + self.contenido
-
-
-class ComentarioVideoEsp(models.Model):
-    contenido = models.TextField()
-    usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
-    fecha_creacion = models.DateField(blank=True, null=True)
-    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=False, blank=False)
-
-
-    def __str__(self):
-        return 'ComentarioVideoEsp: ' + self.contenido
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)
