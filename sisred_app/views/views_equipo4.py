@@ -668,7 +668,7 @@ def get_fases(request):
     if request.method == 'GET':
         serializer = FaseSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
-
+  
 """
 Vista para validar autenticación de un usuario (LogIn)
 Parametros: request
@@ -689,6 +689,7 @@ def login(request):
     token, _ = Token.objects.get_or_create(user=user)
     perfil = Perfil.objects.filter(usuario=user).first()
     return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate, 'firstName':user.first_name, 'lastName':user.last_name, 'numeroIdentificacion': perfil.numero_identificacion}, status=HTTP_200_OK)
+
 """
 Vista para obtener la validez de un token de usuario
 Parámetros: request
@@ -710,6 +711,7 @@ def getTokenVal(request):
             return Response({'mensaje': 'Token valido'}, status=HTTP_200_OK)
         else:
             return Response({'error': 'Token inválido'}, status=HTTP_400_BAD_REQUEST)
+
 """
 Vista para consultar los reds a los que tiene permiso el usuario actual
 Parámetros: request
@@ -758,3 +760,35 @@ def logout(request):
         return Response({'mensaje': 'Sesión finalizada'}, status=HTTP_200_OK)
     else:
         return Response({'error': 'Token no existe'}, status=HTTP_404_NOT_FOUND)
+
+"""
+Vista para Agregar Metadata
+Parametros: request,id
+Return: 200 correcto 400 incorrecto
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def add_metadata_recurso(request,id):
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        print(json_data)
+        recurso = Recurso.objects.filter(id=id).first()
+
+        stringTag = json_data['tag']
+
+        tag = Metadata.objects.filter(tag=stringTag).first()
+
+        if tag == None:
+            tag = Metadata.objects.create(tag=stringTag)
+
+        try:
+            metadata = recurso.metadata.get(tag=tag.tag)
+            print("ya existe")
+            return HttpResponse("ya existe el Tag" + tag.tag + " para el recurso " + recurso.nombre, status=400)
+        except ObjectDoesNotExist:
+            recurso.metadata.add(tag)
+            print("Lista de tags del recurso " + str(recurso.metadata.all()))
+            print("cantidad de metadatas " + str(recurso.metadata.count()))
+            return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
+
