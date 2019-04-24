@@ -13,6 +13,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTT
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from datetime import datetime
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
@@ -644,6 +645,9 @@ def putCambiarFaseRed(request, idRed, idFase):
              
             red.fase = fase
             red.save()
+
+            historialFase = HistorialFases.objects.create(fecha_cambio=datetime.now(), fase=fase, red=red)
+            historialFase.save()
 
             return HttpResponse(status=HTTP_200_OK)
         except ObjectDoesNotExist as e:
