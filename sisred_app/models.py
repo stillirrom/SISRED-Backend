@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class Perfil(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    #tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
+    tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
     estado = models.IntegerField()
 
@@ -170,7 +170,7 @@ class ComentarioVideo(models.Model):
     seg_fin = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
-        return 'ComentarioVideo: [seg_ini: '+self.seg_ini+',seg_fin:'+self.seg_fin+']'
+        return 'ComentarioVideo: [seg_ini: '+str(self.seg_ini)+',seg_fin:'+str(self.seg_fin)+']'
 
 class ComentarioMultimedia(models.Model):
     x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
