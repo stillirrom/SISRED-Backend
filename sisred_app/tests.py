@@ -5,7 +5,6 @@ import datetime
 import json
 from django.forms.models import model_to_dict
 
-
 # Create your tests here.
 class sisred_appTestCase(TestCase):
     def testMarcarComoVersionFinalJustOne(self):
@@ -264,6 +263,7 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(reds[0]['id'], 1)
         self.assertEqual(reds[1]['id'], 3)
 
+class CrearVersion(TestCase):
     def testCrearVersionHappyPath(self):
         fecha = datetime.datetime.now()
         userModel = User.objects.create_user(username="testImagen", password="testImagen", first_name="testImagen", last_name="testImagen",email="testImagen@test.com")
@@ -352,9 +352,9 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(version['numero'],2)
 
     def test_get_recursos_red(self):
-        user = User.objects.create_user(username='test', password='123456', email='test@test.com', first_name='test',
+        user1 = User.objects.create_user(username='test11', password='123456', email='test@test.com', first_name='test',
                                         last_name='T')
-        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user1, estado=1)
         proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
                                                     fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
         recurso1 = Recurso.objects.create(nombre='test', tipo ='PNG', archivo='url', thumbnail='url1', descripcion=' ', autor=perfil, usuario_ultima_modificacion=perfil)
@@ -371,7 +371,86 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(len(current_data['context']), 2)
 
     def test_get_recursos_red1(self):
-        user = User.objects.create_user(username='test', password='123456', email='test@test.com', first_name='test',
+        user1 = User.objects.create_user(username='test1', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user1, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        recurso1 = Recurso.objects.create(nombre='test', tipo='PNG', archivo='url', thumbnail='url1', descripcion=' ',
+                                          autor=perfil, usuario_ultima_modificacion=perfil)
+        recurso2 = Recurso.objects.create(nombre='test2', tipo='AVI', archivo='url2', thumbnail='url3', descripcion=' ',
+                                          autor=perfil, usuario_ultima_modificacion=perfil)
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        self.red.recursos.set([recurso1, recurso2])
+
+        url = '/api/red/' + str(self.red.pk) + '/recursos/'
+        response = self.client.get(url)
+        current_data = json.loads(response.content)
+        self.assertEqual(current_data['context'][0]['nombre'], 'test')
+        self.assertEqual(current_data['context'][1]['nombre'], 'test2')
+        self.assertEqual(current_data['context'][0]['tipo'], 'PNG')
+        self.assertEqual(current_data['context'][1]['tipo'], 'AVI')
+
+
+class VersionTestCase(TestCase):
+
+
+    def test_get_info_version(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+
+        url = '/api/versiones/'+str(self.version.pk)+'/'
+        response = self.client.get(url)
+        current_data = json.loads(response.content)
+        self.assertEqual(current_data['numero'], 1)
+
+    def test_get_info_version2(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+        self.version2 = Version.objects.create(numero=2, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+
+        url = '/api/versiones/' + str(self.version2.pk) + '/'
+        response = self.client.get(url)
+        current_data = json.loads(response.content)
+        self.assertEqual(current_data['numero'], 2)
+
+    def test_get_info_version3(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+
+        url = '/api/versiones/' + str(self.version.pk) + '/'
+        response = self.client.get(url)
+        current_data = json.loads(response.content)
+        self.assertEqual(current_data['numero'], 1)
+        self.assertEqual(current_data['red']['proyecto_conectate']['nombre'],'MISO')
+
+    def test_get_recursos_version(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
                                         last_name='T')
         perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
         proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
@@ -382,12 +461,206 @@ class sisred_appTestCase(TestCase):
         self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
                                       tipo='video', solicitante='', proyecto_conectate=proyecto)
 
-        self.red.recursos.set([recurso1,recurso2])
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
 
-        url = '/api/red/' + str(self.red.pk) + '/recursos/'
+        self.version.recursos.set([recurso1, recurso2])
+
+        url = '/api/versiones/' + str(self.version.pk) + '/recursos/'
+        response = self.client.get(url)
+        current_data = json.loads(response.content)
+        self.assertEqual(len(current_data['context']), 2)
+
+
+    def test_get_recursos_version1(self):
+
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        recurso1 = Recurso.objects.create(nombre='test', tipo ='PNG', archivo='url', thumbnail='url1', descripcion=' ', autor=perfil, usuario_ultima_modificacion=perfil)
+        recurso2 = Recurso.objects.create(nombre='test2', tipo ='AVI', archivo='url2', thumbnail='url3', descripcion=' ', autor=perfil, usuario_ultima_modificacion=perfil)
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+
+        self.version.recursos.set([recurso1,recurso2])
+
+        url = '/api/versiones/' + str(self.version.pk) + '/recursos/'
+
         response = self.client.get(url)
         current_data = json.loads(response.content)
         self.assertEqual(current_data['context'][0]['nombre'], 'test')
         self.assertEqual(current_data['context'][1]['nombre'], 'test2')
         self.assertEqual(current_data['context'][0]['tipo'], 'PNG')
         self.assertEqual(current_data['context'][1]['tipo'], 'AVI')
+
+
+class ListarVersionesTestCase(TestCase):
+
+    red = None
+
+    def setUp(self):
+        user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
+        perfil = Perfil.objects.create(id_conectate='1', usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234', 
+            fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion='la descripcion', 
+            tipo='video', solicitante='', proyecto_conectate=proyecto)
+        Version.objects.create(es_final=False, numero=1, archivos='asd', red=self.red, creado_por=perfil)
+        Version.objects.create(es_final=True, numero=2, archivos='asd2', red=self.red, creado_por=perfil)
+
+    def test_respuesta_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_contar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(len(data), 2)
+
+    def test_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(data[0]['es_final'], False)
+        self.assertEqual(data[1]['es_final'], True)
+        self.assertEqual(data[0]['numero'], 1)
+        self.assertEqual(data[1]['numero'], 2)
+        self.assertEqual(data[0]['archivos'], 'asd')
+        self.assertEqual(data[1]['archivos'], 'asd2')
+
+    def test_creadores_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(data[0]['creado_por']['id_conectate'], '1')
+        self.assertEqual(data[1]['creado_por']['id_conectate'], '1')
+        self.assertEqual(data[0]['creado_por']['estado'], 1)
+        self.assertEqual(data[1]['creado_por']['estado'], 1)
+        self.assertEqual(data[0]['creado_por']['usuario']['username'], 'test')
+        self.assertEqual(data[1]['creado_por']['usuario']['username'], 'test')
+
+    def test_404_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk+1)+'/versiones/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 404)
+
+
+
+    red = None
+
+    def setUp(self):
+        user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
+        perfil = Perfil.objects.create(id_conectate='1', usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234', 
+            fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion='la descripcion', 
+            tipo='video', solicitante='', proyecto_conectate=proyecto)
+        Version.objects.create(es_final=False, numero=1, archivos='asd', red=self.red, creado_por=perfil)
+        Version.objects.create(es_final=True, numero=2, archivos='asd2', red=self.red, creado_por=perfil)
+
+    def test_respuesta_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_contar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(len(data), 2)
+
+    def test_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(data[0]['es_final'], False)
+        self.assertEqual(data[1]['es_final'], True)
+        self.assertEqual(data[0]['numero'], 1)
+        self.assertEqual(data[1]['numero'], 2)
+        self.assertEqual(data[0]['archivos'], 'asd')
+        self.assertEqual(data[1]['archivos'], 'asd2')
+
+    def test_creadores_versiones(self):
+        url = '/api/reds/'+str(self.red.pk)+'/versiones/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(data[0]['creado_por']['id_conectate'], '1')
+        self.assertEqual(data[1]['creado_por']['id_conectate'], '1')
+        self.assertEqual(data[0]['creado_por']['estado'], 1)
+        self.assertEqual(data[1]['creado_por']['estado'], 1)
+        self.assertEqual(data[0]['creado_por']['usuario']['username'], 'test')
+        self.assertEqual(data[1]['creado_por']['usuario']['username'], 'test')
+
+    def test_404_listar_versiones(self):
+        url = '/api/reds/'+str(self.red.pk+1)+'/versiones/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 404)
+		
+    def testMarcarComoVersionFinalJustOne(self):
+        url1='/api/versiones/'
+        url2='/marcar'
+        versionId="1"
+        url = url1+versionId+url2
+
+        fecha = datetime.datetime.now()
+        proyecto = ProyectoConectate.objects.create(id=1,fecha_inicio=fecha,fecha_fin=fecha)
+        red = RED.objects.create(id=1, proyecto_conectate=proyecto)
+        versionMain = Version.objects.create(id=1,es_final=False, numero=1, red=red)
+
+        response =  self.client.post(url, format='json')
+
+        versionMainAfter = Version.objects.get(id=1)
+
+        self.assertEqual(response.status_code , 200)
+        self.assertEqual(versionMainAfter.es_final,True)
+
+    def testMarcarComoVersionFinalFirstMark(self):
+        url1='/api/versiones/'
+        url2='/marcar'
+        versionId="2"
+        url = url1+versionId+url2
+
+        fecha = datetime.datetime.now()
+        proyecto = ProyectoConectate.objects.create(id=1,fecha_inicio=fecha,fecha_fin=fecha)
+        red = RED.objects.create(id=1, proyecto_conectate=proyecto)
+        versionMain = Version.objects.create(id=2,es_final=False, numero=2, red=red)
+        versionMain = Version.objects.create(id=1,es_final=False, numero=1, red=red)
+
+        response =  self.client.post(url, format='json')
+
+        versionMainAfter1 = Version.objects.get(id=1)
+        versionMainAfter2 = Version.objects.get(id=2)
+
+        self.assertEqual(response.status_code , 200)
+        self.assertEqual(versionMainAfter1.es_final,False)
+        self.assertEqual(versionMainAfter2.es_final,True)
+
+    def testMarcarComoVersionFinalSecondMark(self):
+        url1='/api/versiones/'
+        url2='/marcar'
+        versionId="2"
+        url = url1+versionId+url2
+
+        fecha = datetime.datetime.now()
+        proyecto = ProyectoConectate.objects.create(id=1,fecha_inicio=fecha,fecha_fin=fecha)
+        red = RED.objects.create(id=1, proyecto_conectate=proyecto)
+        versionMain = Version.objects.create(id=2,es_final=False, numero=2, red=red)
+        versionMain = Version.objects.create(id=1,es_final=True, numero=1, red=red)
+
+        response =  self.client.post(url, format='json')
+
+        versionMainAfter1 = Version.objects.get(id=1)
+        versionMainAfter2 = Version.objects.get(id=2)
+
+        self.assertEqual(response.status_code , 200)
+        self.assertEqual(versionMainAfter1.es_final,False)
+        self.assertEqual(versionMainAfter2.es_final,True)
+

@@ -2,10 +2,10 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from django.core import serializers
 from django.core.serializers import serialize
 from rest_framework import serializers
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
-from django.views.decorators.csrf import csrf_exempt
-from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, Version
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version
 from django.contrib.auth.models import User
 from sisred_app.serializer import RecursoSerializer
 import datetime
@@ -65,7 +65,7 @@ def buscarRed(request):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name')
+        fields = ('username', 'first_name', 'last_name', 'email')
 
 
 class PerfilSerializer(serializers.ModelSerializer):
@@ -102,11 +102,19 @@ class VersionSerializer(serializers.ModelSerializer):
         fields= '__all__'
 
 
+class VersionSerializer(serializers.ModelSerializer):
+    creado_por = PerfilSerializer()
+    class Meta:
+        model = Version
+        fields= '__all__'
+
+
 @csrf_exempt
 def getAsignaciones(request):
     data = list(RolAsignado.objects.all())
     serializer = RolAsignadoSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
+
 
 @csrf_exempt
 def versiones(request):
@@ -165,3 +173,50 @@ def getRecursosRed(request, id):
 
     serializer = RecursoSerializer(red.recursos, many=True)
     return JsonResponse({'context':serializer.data}, safe=True)
+
+
+class ProyectoSerializer_v(serializers.ModelSerializer):
+    class Meta:
+        model = ProyectoConectate
+        fields = ('nombre',)
+
+class RedSerializer_v(serializers.ModelSerializer):
+    proyecto_conectate = ProyectoSerializer_v()
+    class Meta:
+        model = RED
+        fields = ('nombre', 'proyecto_conectate')
+
+class VersionSerializer_v(serializers.ModelSerializer):
+    red = RedSerializer_v()
+    creado_por = PerfilSerializer()
+    class Meta:
+        model = Version
+        fields = ('numero', 'imagen', 'creado_por', 'fecha_creacion', 'red')
+
+
+@csrf_exempt
+def getVerVersion(request, id):
+    version = get_object_or_404(Version, id=id)
+
+    serializer = VersionSerializer_v(version, many=False)
+    return JsonResponse(serializer.data, safe=True)
+
+
+@csrf_exempt
+def getVerVersionR(request, id):
+    version = get_object_or_404(Version, id=id)
+
+    serializer = RecursoSerializer(version.recursos, many=True)
+    return JsonResponse({'context':serializer.data}, safe=True)
+
+
+@csrf_exempt
+def getVersionesRED(request, id):
+    try:
+        red = RED.objects.get(pk=id)
+    except:
+        raise Http404('No existe un RED con id '+str(id))
+    data = Version.objects.filter(red=red).order_by('numero')
+    serializer = VersionSerializer(data, many=True)
+    return JsonResponse({'context': serializer.data}, safe=True)
+

@@ -72,6 +72,15 @@ class Fase(models.Model):
     def __str__(self):
         return 'Fase: ' + self.nombre_fase
 
+
+class Fase(models.Model):
+    id_conectate = models.CharField(max_length=50)
+    nombre_fase = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'Fase: ' + self.nombre_fase
+
+
 class Estado(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     nombre_estado = models.CharField(max_length=50)
@@ -145,7 +154,7 @@ class Version(models.Model):
     fecha_creacion = models.DateField(default=datetime.date.today, null=True)
 
     def __str__(self):
-        return 'Version: ' + str(self.numero)
+        return 'Version: ' + self.numero
 
 
 class Rol(models.Model):
@@ -185,3 +194,4 @@ class Propiedad(models.Model):
 
     def __str__(self):
         return 'Llave: ' + self.llave + ', Valor: ' + self.valor
+
