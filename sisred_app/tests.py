@@ -1,53 +1,48 @@
-from django.core.serializers import json
 from django.test import TestCase
+from .models import Recurso, Perfil, Fase
+from django.contrib.auth.models import User
+import json
+
 
 # Create your tests here.
-from sisred_app.models import RED, Fase, ProyectoConectate
+class MetadadaRecursoTestCase(TestCase):
 
+    def test_add_metadata_recurso_status(self):
+        user = User.objects.create(username='user1', password='1234ABC', first_name='nombre1',
+                                        last_name='apellido1', email='user@uniandes.edu.co')
+        perfil = Perfil.objects.create(id_conectate='1', usuario=user, tipo_identificacion='CC',
+                                        numero_identificacion='1234', estado=1)
+        recurso = Recurso.objects.create(nombre='Recurso1', archivo='archivo1', thumbnail='thumbnail1',
+                                                 fecha_creacion='2019-04-11',
+                                                 fecha_ultima_modificacion='2019-04-11', tipo='jpg',
+                                                 descripcion='descripcion1', autor=perfil, usuario_ultima_modificacion=perfil)
 
-class sisRedTestCase(TestCase):
+        url = '/api/addMetadataRecurso/' + str(recurso.id) + '/'
 
-    def test_cambiar_fase(self):
+        response = self.client.post(url, json.dumps(
+            {"tag": "metadata1"}), content_type='application/json')
 
-        print("test_cambiar_fase")
-        proyecto_conectate = ProyectoConectate.objects.create(id_conectate='2', nombre='namepy',
-                                                              nombre_corto='nameShort',
-                                                              codigo='code', fecha_inicio='1999-12-19',
-                                                              fecha_fin='2001-12-20')
-        fase = Fase.objects.create(
-            id_conectate='2',
-            nombre_fase='produccion',
-        )
-
-        red = RED.objects.create(
-            id_conectate='1',
-            nombre='nombre',
-            nombre_corto='nombre_corto',
-            descripcion='descripcion',
-            fecha_inicio=None,
-            fecha_cierre=None,
-            porcentaje_avance=50,
-            tipo='tipo',
-            solicitante='solicitante',
-            proyecto_conectate=proyecto_conectate,
-            horas_estimadas=8,
-            horas_trabajadas=7,
-            fase=fase,
-        );
-
-        fase2 = Fase.objects.create(
-            id_conectate='3',
-            nombre_fase='preproduccion',
-        )
-
-        response = self.client.put('/api/red/' + str(red.id_conectate) + '/cambiarfase/' + str(fase2.id_conectate) + '/',
-                               content_type='application/json')
-
-        print("response",response.status_code)
         self.assertEqual(response.status_code, 200)
 
 
-    def test_list_fases(self):
-        url = '/api/fases/'
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, 200)
+    def test_add_metadata_existente_recurso(self):
+        user = User.objects.create(username='user1', password='1234ABC', first_name='nombre1',
+                                   last_name='apellido1', email='user@uniandes.edu.co')
+        perfil = Perfil.objects.create(id_conectate='1', usuario=user, tipo_identificacion='CC',
+                                       numero_identificacion='1234', estado=1)
+        recurso = Recurso.objects.create(nombre='Recurso1', archivo='archivo1', thumbnail='thumbnail1',
+                                         fecha_creacion='2019-04-11',
+                                         fecha_ultima_modificacion='2019-04-11', tipo='jpg',
+                                         descripcion='descripcion1', autor=perfil, usuario_ultima_modificacion=perfil)
+
+        url = '/api/addMetadataRecurso/' + str(recurso.id) + '/'
+
+        self.client.post(url, json.dumps(
+            {"tag": "metadata1"}), content_type='application/json')
+
+        self.client.post(url, json.dumps(
+            {"tag": "metadata1"}), content_type='application/json')
+
+        recursoFiltrado = Recurso.objects.filter(pk=recurso.id).first()
+
+        self.assertEqual((recursoFiltrado.metadata).count(), 1)
