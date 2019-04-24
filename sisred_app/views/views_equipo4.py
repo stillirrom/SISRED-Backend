@@ -1,45 +1,34 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from psycopg2._psycopg import IntegrityError, DatabaseError
+from sisred_app.serializer import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from sisred_app.serializer import REDSerializer
+from sisred_app.serializer import REDSerializer, FaseSerializer
 from sisred_app.models import *
 from django.core.serializers import *
-from rest_framework import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 import json
-from rest_framework.status import (
-    HTTP_400_BAD_REQUEST,
-)
-
+from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_200_OK)
+from rest_framework.response import Response
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
 """
 
-class ResorceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recurso
-        fields = '__all__'
-
 def getRecurso(request, id):
     data = Recurso.objects.filter(id=id)
     if request.method == 'GET':
-        serializer = ResorceSerializer(data, many=True)
+        serializer = ResourceSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
 
 """
 Vista para ver recursos asociados al RED (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
 """
-
-class RedDetSerializer(serializers.ModelSerializer):
-    recursos = ResorceSerializer(many=True)
-    class Meta:
-        model = RED
-        fields = ('id_conectate', 'nombre', 'descripcion', 'recursos')
 
 def getRedDetailRecursos(request, id):
     data = RED.objects.filter(id=id)
@@ -51,11 +40,6 @@ def getRedDetailRecursos(request, id):
 Vista para ver que usuario esta autenticado en el sistema SISRED (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
 """
-
-class UserAutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username','email')
 
 def getUserAut(request):
     serializer = UserAutSerializer(request.user)
@@ -72,7 +56,7 @@ def postUser(request):
         user_model = None
         try:
             json_user = json.loads(request.body)
-            username = json_user['username']
+            username = json_user['email']
             first_name = json_user['first_name']
             last_name = json_user['last_name']
             password = json_user['password']
@@ -121,6 +105,7 @@ def putUser(request, id):
             user.first_name = first_name
             user.last_name = last_name
             user.email = email
+            user.username = email
             perfil.id_conectate = id_conectate
             perfil.numero_identificacion = numero_identificacion
 
@@ -640,7 +625,141 @@ def deleteRolAsignado(request, id):
         except Exception as ex:
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
+        
+'''Vista para cambiar fase de un red (PUT)
+Parametros: request, id del red, id de la fase'''
+@csrf_exempt
+def putCambiarFaseRed(request, idRed, idFase):
+    if request.method == 'PUT':
+        try:
+            red = RED.objects.get(id_conectate=idRed)
+            fase = Fase.objects.get(id_conectate=idFase)
 
+            idActual = int(red.fase.id_conectate)
+
+            print("putCambiarFaseRed", idActual, idFase)
+            if (idFase > (idActual + 1)) | (idFase < (idActual - 1)):
+                error = 'Debe seleccionar una fase consecutiva para poder hacer el cambio'
+                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+             
+            red.fase = fase
+            red.save()
+
+            return HttpResponse(status=HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            if (e.__class__ == Fase.DoesNotExist):
+                error = 'No existe la fase con id ' + str(idFase)
+            else:
+                error = 'No existe el red con id ' + str(idRed)
+            return HttpResponseBadRequest(content=error,status=HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return HttpResponseBadRequest(
+                content='BAD_REQUEST: ' + str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )
+
+"""
+Vista para consultar las fases 
+Parametros: request
+Return: Lista de Fases creados en el sistema
+"""
+def get_fases(request):
+    data = Fase.objects.all()
+    if request.method == 'GET':
+        serializer = FaseSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
+  
+"""
+Vista para validar autenticación de un usuario (LogIn)
+Parametros: request
+Return: En caso que no se diligencien datos Por favor ingrese un usuario y password
+Return: En caso que el usuario no haga match con el password Credenciales Invalidas
+"""
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def login(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+    if username is "" or password is "":
+        return Response({'error': 'Debe ingresar usuario y contraseña'}, status=HTTP_400_BAD_REQUEST)
+    user = authenticate(username=username, password=password)
+    if user==None:
+        return Response({'error': 'Credenciales inválidas'}, status=HTTP_400_BAD_REQUEST)
+    token, _ = Token.objects.get_or_create(user=user)
+    perfil = Perfil.objects.filter(usuario=user).first()
+    return Response({'token': token.key, 'username': user.username, 'idConectate': perfil.id_conectate, 'firstName':user.first_name, 'lastName':user.last_name, 'numeroIdentificacion': perfil.numero_identificacion}, status=HTTP_200_OK)
+
+"""
+Vista para obtener la validez de un token de usuario
+Parámetros: request
+Return: En caso que no sea válido el token retorna un Invalid
+Return: En caso que el token sea válido retorna un Valid
+"""
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def getTokenVal(request):
+    if request.method == 'GET':
+        token = request.META['HTTP_AUTHORIZATION']
+        token = token.replace('Token ', '')
+        try:
+            TokenStatus = Token.objects.get(key=token).user.is_active
+        except Token.DoesNotExist:
+            TokenStatus = False
+        if TokenStatus==True:
+            return Response({'mensaje': 'Token valido'}, status=HTTP_200_OK)
+        else:
+            return Response({'error': 'Token inválido'}, status=HTTP_400_BAD_REQUEST)
+
+"""
+Vista para consultar los reds a los que tiene permiso el usuario actual
+Parámetros: request
+Return: Cierra sesión y ademas borra el token de autenticación.
+"""
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def getRolAsignadoRED(request, id):
+    token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        reqUser = Token.objects.get(key=token).user.id
+        rol = RolAsignado.objects.filter(red=id).filter(usuario_id=reqUser)
+        print(rol)
+        if not rol:
+            return Response({'error': 'No autorizado'}, status=HTTP_400_BAD_REQUEST)
+        if request.method == 'GET':
+            serializer = RolAsignadoSerializer(rol, many=True)
+            return JsonResponse(serializer.data, safe=False)
+    else:
+        return HttpResponse('Invalid Token')
+
+"""
+Vista hacer cierre de sesión
+Parámetros: request
+Return: Borra el token de autenticación.
+    Token.objects.filter(key=token).delete()
+"""
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def logout(request):
+    token =  request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        Token.objects.filter(key=token).delete()
+        return Response({'mensaje': 'Sesión finalizada'}, status=HTTP_200_OK)
+    else:
+        return Response({'error': 'Token no existe'}, status=HTTP_404_NOT_FOUND)
 
 """
 Vista para Agregar Metadata
@@ -672,3 +791,4 @@ def add_metadata_recurso(request,id):
             print("Lista de tags del recurso " + str(recurso.metadata.all()))
             print("cantidad de metadatas " + str(recurso.metadata.count()))
             return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
+
