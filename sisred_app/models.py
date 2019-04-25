@@ -161,7 +161,7 @@ class Version(models.Model):
     fecha_creacion = models.DateField(default=datetime.date.today, null=True)
 
     def __str__(self):
-        return 'Version: ' + self.numero
+        return 'Version: ' + str(self.numero)
 
 
 class Rol(models.Model):
@@ -205,7 +205,7 @@ class ComentarioMultimedia(models.Model):
     comentario = models.ForeignKey(Comentario, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'x1: ' + self.x1 + ', y1: ' + self.y1 + ', x2: ' + self.x2 + ', y2: ' + self.y2
+        return 'x1: ' + str(self.x1) + ', y1: ' + str(self.y1) + ', x2: ' + str(self.x2) + ', y2: ' + str(self.y2)
 
 class ComentarioVideo(models.Model):
 
@@ -214,7 +214,7 @@ class ComentarioVideo(models.Model):
     comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Segundo de inicio: ' + self.seg_ini + ' y segundo de fin ' + self.seg_fin
+        return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)
