@@ -143,7 +143,7 @@ class Version(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Version: ' + self.numero
+        return 'Version: ' + self.numero.__str__()
 
 
 class Rol(models.Model):
@@ -170,7 +170,7 @@ class ComentarioVideo(models.Model):
     seg_fin = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
-        return 'ComentarioVideo: [seg_ini: '+str(self.seg_ini)+',seg_fin:'+str(self.seg_fin)+']'
+        return 'ComentarioVideo: [seg_ini: '+self.seg_ini.__str__() +',seg_fin:'+ self.seg_fin.__str__()+']'
 
 class ComentarioMultimedia(models.Model):
     x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
@@ -180,7 +180,7 @@ class ComentarioMultimedia(models.Model):
     comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return 'ComentarioMultimedia:'
+        return 'ComentarioMultimedia: ' + self.pk.__str__()
 
 class Comentario(models.Model):
     contenido = models.TextField()

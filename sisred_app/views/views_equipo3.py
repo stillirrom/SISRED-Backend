@@ -5,7 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
 
-from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados, ComentarioVideo, ComentarioVideoEsp
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, \
+    HistorialEstados, ComentarioVideo, Comentario, ComentarioMultimedia, Version
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
@@ -133,28 +134,40 @@ def get_reds_asignados(request, id):
 def comentarios_video(request, id):
     if request.method == 'GET':
         respuesta = []
+        multimedias=[]
         try:
             recurso = Recurso.objects.get(pk=id)
-            comentariosVideos = ComentarioVideo.objects.filter(recurso=recurso)
-            for comment in comentariosVideos:
-                rangeEsp = {"start": comment.seg_ini, "stop": comment.seg_fin}
-                shape = None if (comment.x1 or comment.x2 or comment.y1 or comment.y2) is None else {
-                    "x1": decimal.Decimal(comment.x1), "y1": decimal.Decimal(comment.y1),
-                    "x2": decimal.Decimal(comment.x2),
-                    "y2": decimal.Decimal(comment.y2)}
-                comentariosEsp = ComentarioVideoEsp.objects.filter(comentario_video=comment)
+
+            comentarios = Comentario.objects.filter(recurso=recurso)
+
+            for comentario in comentarios:
+                if comentario.comentario_multimedia not in multimedias:
+                    multimedias.append(comentario.comentario_multimedia)
+
+            for multimedia in multimedias:
+                comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
+
+                comentariosVideo = ComentarioVideo.objects.get(pk=multimedia.comentario_video.pk)
+                rangeEsp = {"start": comentariosVideo.seg_ini, "stop": comentariosVideo.seg_fin}
+
+                shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
+                             "x1": decimal.Decimal(multimedia.x1),
+                             "y1": decimal.Decimal(multimedia.y1),
+                             "x2": decimal.Decimal(multimedia.x2),
+                             "y2": decimal.Decimal(multimedia.y2)}
+
                 comentEsp = []
-                for comEsp in comentariosEsp:
+                for comEsp in comentarios:
                     usuario = comEsp.usuario.usuario
                     nombreUsuario = usuario.first_name + " " + usuario.last_name
                     idUsuario = usuario.pk
                     metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y/%m/%d'), "user_id": idUsuario,
                                  "user_name": nombreUsuario}
                     comentEsp.append({"id": comEsp.pk, "meta": metaVideo, "body": comEsp.contenido})
-                respuesta.append({"id": comment.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+                respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
         except Exception as ex:
-            print("No existe el recurso y/o version")
+            print("No existe el recurso")
         return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
     if request.method == 'POST':
         print("Persistiendo Comentarios Video en BD")
