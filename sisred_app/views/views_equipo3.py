@@ -148,7 +148,7 @@ def comentarios_video(request, id):
                 comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
 
                 comentariosVideo = ComentarioVideo.objects.get(pk=multimedia.comentario_video.pk)
-                rangeEsp = {"start": comentariosVideo.seg_ini, "stop": comentariosVideo.seg_fin}
+                rangeEsp = {"start": comentariosVideo.seg_ini, "end": comentariosVideo.seg_fin}
 
                 shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
                              "x1": decimal.Decimal(multimedia.x1),
