@@ -782,13 +782,19 @@ def add_metadata_recurso(request,id):
         if tag == None:
             tag = Metadata.objects.create(tag=stringTag)
 
-        try:
-            metadata = recurso.metadata.get(tag=tag.tag)
-            print("ya existe")
-            return HttpResponse("ya existe el Tag" + tag.tag + " para el recurso " + recurso.nombre, status=400)
-        except ObjectDoesNotExist:
-            recurso.metadata.add(tag)
-            print("Lista de tags del recurso " + str(recurso.metadata.all()))
-            print("cantidad de metadatas " + str(recurso.metadata.count()))
-            return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
+            metadata = recurso.metadata.filter(tag=tag.tag).first()
+
+            if metadata != None:
+                print("ya existe")
+                return Response({'mensaje': "ya existe el Tag " + tag.tag + " para el recurso " + recurso.nombre},
+                                status=HTTP_400_BAD_REQUEST)
+            else:
+                recurso.metadata.add(tag)
+                print("Lista de tags del recurso " + str(recurso.metadata.all()))
+                print("cantidad de metadatas " + str(recurso.metadata.count()))
+                return Response(
+                    {'mensaje': "Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre},
+                    status=HTTP_200_OK)
+
+
 
