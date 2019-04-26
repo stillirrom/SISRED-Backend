@@ -10,17 +10,30 @@ class Perfil(models.Model):
     tipo_identificacion = models.CharField(max_length=50, blank=True, null=True)
     numero_identificacion = models.CharField(max_length=50, blank=True, null=True)
     estado = models.IntegerField()
+    estado_sisred = models.IntegerField(default=0)
 
     def __str__(self):
         return "Usuario: " + self.usuario.first_name
 
 
+class TipoNotificacion(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return "tipoNotificacion: " + self.tipoNotificacion.name
+
+
 class Notificacion(models.Model):
     mensaje = models.TextField()
     fecha = models.DateField(default=datetime.date.today)
+    tipo = models.ForeignKey(TipoNotificacion, on_delete=models.CASCADE, related_name='tipo_notificacion')
 
     def __str__(self):
         return 'Notificacion: ' + self.mensaje
+
+
+
+
 
 
 class Metadata(models.Model):
@@ -73,14 +86,6 @@ class Fase(models.Model):
         return 'Fase: ' + self.nombre_fase
 
 
-class Fase(models.Model):
-    id_conectate = models.CharField(max_length=50)
-    nombre_fase = models.CharField(max_length=50)
-
-    def __str__(self):
-        return 'Fase: ' + self.nombre_fase
-
-
 class Estado(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
     nombre_estado = models.CharField(max_length=50)
@@ -105,7 +110,9 @@ class RED(models.Model):
     metadata = models.ManyToManyField(Metadata, blank=True)
     horas_estimadas = models.IntegerField(blank=True, null=True)
     horas_trabajadas = models.IntegerField(blank=True, null=True)
+    listo_para_revision = models.BooleanField(default=False, blank=True)
     fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
+
 
     def __str__(self):
         return 'Red: ' + self.id_conectate
@@ -154,7 +161,7 @@ class Version(models.Model):
     fecha_creacion = models.DateField(default=datetime.date.today, null=True)
 
     def __str__(self):
-        return 'Version: ' + self.numero
+        return 'Version: ' + str(self.numero)
 
 
 class Rol(models.Model):
@@ -182,10 +189,33 @@ class Comentario(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    fecha_creacion = models.DateField(default=datetime.date.today)
+    cerrado = models.BooleanField(default=False, blank=True)
+    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return 'Comentario: ' + self.contenido
 
+
+class ComentarioMultimedia(models.Model):
+
+    x1 = models.DecimalField(null=True, blank=True)
+    y1 = models.DecimalField(null=True, blank=True)
+    x2 = models.DecimalField(null=True, blank=True)
+    y2 = models.DecimalField(null=True, blank=True)
+    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return 'x1: ' + str(self.x1) + ', y1: ' + str(self.y1) + ', x2: ' + str(self.x2) + ', y2: ' + str(self.y2)
+
+class ComentarioVideo(models.Model):
+
+    seg_ini = models.IntegerField(null=True, blank=True)
+    seg_fin = models.IntegerField(null=True, blank=True)
+    
+
+    def __str__(self):
+        return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)
@@ -194,4 +224,3 @@ class Propiedad(models.Model):
 
     def __str__(self):
         return 'Llave: ' + self.llave + ', Valor: ' + self.valor
-

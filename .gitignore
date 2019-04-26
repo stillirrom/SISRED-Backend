@@ -12,4 +12,4 @@ sisred_app/__pycache__/
 \env
 __pycache__/
 
-sisred_app/migrations/
+sisred_app/migrations/__pycache__/
