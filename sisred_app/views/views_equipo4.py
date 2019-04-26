@@ -815,19 +815,15 @@ def buscar_recurso(request):
         q=Recurso.objects.filter()
 
         if name:
-            print('entro name')
-            result = q.filter(Q(nombre__contains=name))
-            print(result.values())
+            q = q.filter(Q(nombre__contains=name))
 
         if fechaDesde and not fechaHasta:
-            print('entro fechaDesde')
-            result=q.filter(Q(fecha_creacion__gte=fechaDesde))
+            q=q.filter(Q(fecha_creacion__gte=fechaDesde))
 
         if fechaDesde and fechaHasta:
-            print('entro fecha')
-            result = q.filter(Q(fecha_creacion__gte=fechaDesde),Q(fecha_creacion__lte=fechaHasta))
-            print(result.values())
+            q = q.filter(Q(fecha_creacion__gte=fechaDesde),Q(fecha_creacion__lte=fechaHasta))
 
-        return JsonResponse(list(result.values()), safe=False)
+        return JsonResponse(list(q.values()), safe=False)
+
     return HttpResponseNotFound()
 
