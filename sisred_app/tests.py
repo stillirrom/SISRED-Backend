@@ -156,3 +156,46 @@ class sisRedTestCase(TestCase):
         current_data = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(current_data), 1)
+
+    def test_numero_notificaciones_no_vistas(self):
+        user = User.objects.create(username='user1', password='1234ABC', first_name='nombre1',
+                                   last_name='apellido1', email='user@uniandes.edu.co')
+        perfil = Perfil.objects.create(id_conectate=1,usuario=user,numero_identificacion='123',tipo_identificacion='CC',estado='1')
+        proyecto_conectate = ProyectoConectate.objects.create(id_conectate='2', nombre='namepy',
+                                                              nombre_corto='nameShort',
+                                                              codigo='code', fecha_inicio='1999-12-19',
+                                                              fecha_fin='2001-12-20')
+        fase = Fase.objects.create(
+            id_conectate='2',
+            nombre_fase='produccion',
+        )
+
+        red = RED.objects.create(
+            id_conectate='1',
+            nombre='nombre',
+            nombre_corto='nombre_corto',
+            descripcion='descripcion',
+            fecha_inicio=None,
+            fecha_cierre=None,
+            porcentaje_avance=50,
+            tipo='tipo',
+            solicitante='solicitante',
+            proyecto_conectate=proyecto_conectate,
+            horas_estimadas=8,
+            horas_trabajadas=7,
+            fase=fase,
+        );
+        rol = Rol.objects.create(id_conectate=1, nombre='Productor')
+        tipoNotificacion = NotificacionTipo.objects.create(nombre='ASIGNAR_RED',descripcion='El red fue asignado.')
+        notificacion = Notificacion.objects.create(mensaje='prueba',fecha='2019-01-26',visto=False,tipo_notificacion=tipoNotificacion)
+        notificacion2 = Notificacion.objects.create(mensaje='prueba2',fecha='2019-01-26',visto=True,tipo_notificacion=tipoNotificacion)
+
+        rolAsignado = RolAsignado.objects.create(id_conectate=1,estado=1,red=red,rol=rol,usuario=perfil)
+        rolAsignado.notificaciones.add(notificacion)
+        rolAsignado.notificaciones.add(notificacion2)
+        url = '/api/notificaciones/' + str(perfil.id_conectate) + '/novistos/'
+
+        response = self.client.get(url, format='json')
+        current_data = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(current_data, 1)
