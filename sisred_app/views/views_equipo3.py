@@ -146,18 +146,14 @@ def get_comentarios_video(request, id):
         multimedias=[]
         try:
             recurso = Recurso.objects.get(pk=id)
-            print(recurso)
             comentarios = Comentario.objects.filter(recurso=recurso)
-            print(comentarios)
             for comentario in comentarios:
                 if comentario.comentario_multimedia not in multimedias:
                     multimedias.append(comentario.comentario_multimedia)
-            print(multimedias)
             for multimedia in multimedias:
                 comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
-                print(comentarios)
                 comentariosVideo = ComentarioVideo.objects.get(comentario_multimedia=multimedia.pk)
-                rangeEsp = {"start": comentariosVideo.seg_ini, "stop": comentariosVideo.seg_fin}
+                rangeEsp = {"start": comentariosVideo.seg_ini, "end": comentariosVideo.seg_fin}
 
                 shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
                              "x1": decimal.Decimal(multimedia.x1),
@@ -174,8 +170,6 @@ def get_comentarios_video(request, id):
                                  "user_name": nombreUsuario}
                     comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido})
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
-                print("------------------ Comments Response -------- ")
-                print(json.dumps(respuesta, default=decimal_default))
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
         except Exception as ex:
             print(ex)
@@ -268,6 +262,21 @@ def post_comentarios_video(request, idVersion, idRecurso):
                     print(ex)
 
         return HttpResponse()
+
+# Metodo para obtener la url del recurso video
+@csrf_exempt
+def get_url_recurso_video(request, id):
+    if request.method == 'GET':
+        print("Obteniendo url del recurso con ID " + str(id))
+        respuesta = []
+        try:
+            recurso = Recurso.objects.get(pk=id)
+            respuesta.append({"url": recurso.archivo})
+            return HttpResponse(json.dumps(respuesta), content_type="application/json")
+        except Exception as ex:
+            print(ex)
+            print("ERROR OBTENIENDO LA URL DEL VIDEO " + str(ex))
+        return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
 
 def decimal_default(obj):
