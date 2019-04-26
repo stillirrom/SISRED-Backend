@@ -19,7 +19,7 @@ class BuscarRecursoTestCase(TestCase):
 
         buscarNombre = "Recurso1"
 
-        url = '/api/buscarRecurso/?name={buscarNombre}/'
+        url = f'/api/buscarRecurso/?name={buscarNombre}'
 
         response =  self.client.get(url, format='json')
 

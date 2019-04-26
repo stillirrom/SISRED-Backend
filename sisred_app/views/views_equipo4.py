@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from datetime import datetime
+from django.db.models import Q
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
@@ -795,4 +796,28 @@ def add_metadata_recurso(request,id):
             print("Lista de tags del recurso " + str(recurso.metadata.all()))
             print("cantidad de metadatas " + str(recurso.metadata.count()))
             return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
+
+
+"""
+Vista buscar recursos
+Parametros: request
+Return: 200 correcto 400 incorrecto
+"""
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def buscar_recurso(request):
+    if request.method=='GET':
+        name=request.GET.get("name")
+        print(name)
+
+        q=Recurso.objects.filter()
+        print(q.values())
+
+        if name:
+            result = q.filter(Q(nombre__contains=name))
+            print(result.values())
+
+            return JsonResponse(list(result.values()), safe=False)
+        return HttpResponseNotFound()
 

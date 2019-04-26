@@ -43,5 +43,7 @@ urlpatterns = [
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
     path('red/<int:idRed>/cambiarfase/<int:idFase>/', views_equipo4.putCambiarFaseRed, name='putCambiarFaseRed'),
     path('fases/', views_equipo4.get_fases, name='fases'),
-    path('addMetadataRecurso/<int:id>/', views_equipo4.add_metadata_recurso, name='addMetadataRecurso')
+    path('addMetadataRecurso/<int:id>/', views_equipo4.add_metadata_recurso, name='addMetadataRecurso'),
+    path('buscarRecurso/', views_equipo4.buscar_recurso, name='recursos')
+
 ]
