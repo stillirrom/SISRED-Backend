@@ -38,5 +38,7 @@ urlpatterns = [
     path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
 
-    path('comentarios/video/<int:id>', views_equipo3.comentarios_video, name='comentarios')
+    path('comentarios/video/<int:id>', views_equipo3.get_comentarios_video, name='comentarios'),
+    path('comentarios/video/<int:idVersion>/<int:idRecurso>', views_equipo3.post_comentarios_video, name='agregarComentarios')
+
 ]

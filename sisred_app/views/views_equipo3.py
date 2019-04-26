@@ -131,7 +131,7 @@ def get_reds_asignados(request, id):
 
 # Metodo para obtener comentarios del recurso video
 @csrf_exempt
-def comentarios_video(request, id):
+def get_comentarios_video(request, id):
     if request.method == 'GET':
         respuesta = []
         multimedias=[]
@@ -169,14 +169,21 @@ def comentarios_video(request, id):
         except Exception as ex:
             print("No existe el recurso")
         return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
+
+# Metodo para agregar comentarios del recurso video
+@csrf_exempt
+def post_comentarios_video(request, idVersion, idRecurso):
     if request.method == 'POST':
         print("Persistiendo Comentarios Video en BD")
         commentsDetails = json.loads(request.body)
         print(commentsDetails)
         for comment in commentsDetails:
             idComentario = comment['id']
-
-            #Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
+            # Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
+            try:
+                comentario = ComentarioMultimedia.objects.get(pk=idComentario)
+            except Exception as ex:
+                print("No existe el comentario para el ID " + str(idComentario))
 
             rangeStart = comment['range']['start']
             rangeStop = comment['range']['stop']
@@ -185,6 +192,7 @@ def comentarios_video(request, id):
             x2 = comment['shape']['x2']
             y2 = comment['shape']['y2']
         return HttpResponse()
+
 
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
