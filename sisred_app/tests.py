@@ -12,12 +12,12 @@ class BuscarRecursoTestCase(TestCase):
                                    last_name='apellido1', email='user@uniandes.edu.co')
         perfil = Perfil.objects.create(id_conectate='1', usuario=user, tipo_identificacion='CC',
                                        numero_identificacion='1234', estado=1)
-        recurso = Recurso.objects.create(nombre='Recurso1', archivo='archivo1', thumbnail='thumbnail1',
+        recurso = Recurso.objects.create(nombre='Recurso5', archivo='archivo1', thumbnail='thumbnail1',
                                          fecha_creacion='2019-04-25',
                                          fecha_ultima_modificacion='2019-04-25', tipo='jpg',
                                          descripcion='descripcion1', autor=perfil, usuario_ultima_modificacion=perfil)
 
-        buscarNombre = "Recurso1"
+        buscarNombre = "Recurso5"
 
         url = f'/api/buscarRecurso/?name={buscarNombre}'
 
@@ -44,7 +44,7 @@ class BuscarRecursoTestCase(TestCase):
                                           fecha_ultima_modificacion='2019-03-25', tipo='jpg',
                                           descripcion='descripcion3', autor=perfil, usuario_ultima_modificacion=perfil)
 
-        buscarNombre = "Recurso1"
+        buscarNombre = ""
         fecha_desde = "2019-01-01"
         fecha_hasta = "2019-02-28"
 

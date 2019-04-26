@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound
 from psycopg2._psycopg import IntegrityError, DatabaseError
 from sisred_app.serializer import *
 from rest_framework.decorators import api_view, permission_classes
@@ -809,15 +809,25 @@ Return: 200 correcto 400 incorrecto
 def buscar_recurso(request):
     if request.method=='GET':
         name=request.GET.get("name")
-        print(name)
+        fechaDesde=request.GET.get ("fdesde")
+        fechaHasta = request.GET.get("fhasta")
 
         q=Recurso.objects.filter()
-        print(q.values())
 
         if name:
+            print('entro name')
             result = q.filter(Q(nombre__contains=name))
             print(result.values())
 
-            return JsonResponse(list(result.values()), safe=False)
-        return HttpResponseNotFound()
+        if fechaDesde and not fechaHasta:
+            print('entro fechaDesde')
+            result=q.filter(Q(fecha_creacion__gte=fechaDesde))
+
+        if fechaDesde and fechaHasta:
+            print('entro fecha')
+            result = q.filter(Q(fecha_creacion__gte=fechaDesde),Q(fecha_creacion__lte=fechaHasta))
+            print(result.values())
+
+        return JsonResponse(list(result.values()), safe=False)
+    return HttpResponseNotFound()
 
