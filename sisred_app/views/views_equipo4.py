@@ -822,7 +822,7 @@ def getNotificacionesPorUsuario(request, idUsuario):
         for rol in roles:
             for notificacion in rol.notificaciones.all():
                 tipoNotificacion = NotificacionTipo.objects.get(nombre=notificacion.tipo_notificacion.nombre)
-                notificaciones.append({"mensaje": tipoNotificacion.descripcion, "idRed": rol.red.id, "nombreRed": rol.red.nombre_corto, "tipo": tipoNotificacion.nombre, "visto": notificacion.visto})
+                notificaciones.append({"id": notificacion.id, "mensaje": tipoNotificacion.descripcion, "idRed": rol.red.id, "nombreRed": rol.red.nombre_corto, "tipo": tipoNotificacion.nombre, "visto": notificacion.visto})
 
         return JsonResponse(notificaciones, safe=False)
 
