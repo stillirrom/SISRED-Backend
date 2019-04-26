@@ -6,12 +6,11 @@ from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 import datetime
 
+from rest_framework.utils import json
 
-from sisred_app.models import Recurso, RED, Perfil
+from sisred_app.models import Recurso, RED, Perfil, Comentario
 from sisred_app.serializer import RecursoSerializer, FaseSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-    REDSerializer
-
-
+    REDSerializer, CloseCommentOpenSerializer_post
 
 
 #Autor: Francisco Perneth

@@ -171,6 +171,8 @@ class Comentario(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    fecha_creacion = models.DateField(default=datetime.date.today)
+    cerrado = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return 'Comentario: ' + self.contenido

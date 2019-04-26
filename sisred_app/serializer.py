@@ -1,4 +1,4 @@
-from .models import Recurso, RED, Metadata, Fase
+from .models import Recurso, RED, Metadata, Fase, Comentario
 
 from rest_framework import  serializers
 
@@ -36,3 +36,7 @@ class REDSerializer(serializers.ModelSerializer):
                   'fecha_cierre', 'fecha_creacion', 'porcentaje_avance', 'tipo', 'solicitante', 'proyecto_conectate', 'horas_estimadas',
                   'horas_trabajadas','fase')
 
+class CloseCommentOpenSerializer_post(serializers.ModelSerializer):
+    class Meta:
+        model = Comentario
+        fields = ('id','contenido')
