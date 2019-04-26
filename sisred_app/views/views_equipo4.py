@@ -830,3 +830,33 @@ def getNotificacionesNoVistosPorUsuario(request, idUsuario):
                     contador += 1
 
         return JsonResponse(contador, safe=False)
+
+"""
+Vista para actualizar una notificacion a visto
+Parametros: request, id de la notificacion
+Return: mensaje cambio exitoso
+"""
+@csrf_exempt
+def putNotification(request, id_notification):
+    print("UpdateNotificaction")
+
+    if request.method == 'PUT':
+        error = ''
+        try:
+            print("NotificationId",id_notification)
+            notificacion = Notificacion.objects.filter(pk=id_notification).first()
+            print("notificacion", notificacion)
+
+            if notificacion != None:
+                notificacion.visto = True
+                notificacion.save()
+                mensaje = {"mensaje": 'La notificacion ha sido actualizada'}
+                return HttpResponse(json.dumps(mensaje))
+            else:
+               error = {"error": 'No hay una notificacion con el ID ' + str(id_notification)}
+               return HttpResponseBadRequest(json.dumps(error))
+
+
+        except Exception as ex:
+            error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presento un error realizando la peticion"}
+            return HttpResponseBadRequest(json.dumps(error))
