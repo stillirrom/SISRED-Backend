@@ -140,17 +140,18 @@ def get_reds_asignados(request, id):
 @csrf_exempt
 def get_comentarios_video(request, id):
     if request.method == 'GET':
+        print("Obteniendo comentarios del ID " + str(id))
         respuesta = []
         multimedias=[]
         try:
             recurso = Recurso.objects.get(pk=id)
-
+            print(recurso)
             comentarios = Comentario.objects.filter(recurso=recurso)
-
+            print(comentarios)
             for comentario in comentarios:
                 if comentario.comentario_multimedia not in multimedias:
                     multimedias.append(comentario.comentario_multimedia)
-
+            print(multimedias)
             for multimedia in multimedias:
                 comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
 
@@ -174,6 +175,7 @@ def get_comentarios_video(request, id):
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
         except Exception as ex:
+            print(ex)
             print("No existe el recurso")
         return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
 
@@ -189,15 +191,48 @@ def post_comentarios_video(request, idVersion, idRecurso):
             # Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
             try:
                 comentario = ComentarioMultimedia.objects.get(pk=idComentario)
+                continue
             except Exception as ex:
+                print(ex)
                 print("No existe el comentario para el ID " + str(idComentario))
 
+
+            commentBody = comment['body']
             rangeStart = comment['range']['start']
             rangeStop = comment['range']['stop']
             x1 = comment['shape']['x1']
             y1 = comment['shape']['y1']
             x2 = comment['shape']['x2']
             y2 = comment['shape']['y2']
+
+            # contenido = models.TextField()
+            # version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
+            # recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
+            # usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+            # comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=False,
+            #                                           blank=False)
+            # fecha_creacion = models.DateField(blank=True, null=True)
+            # cerrado = models.BooleanField()
+            version = Version.objects.get(pk=idVersion)
+            print("Version Data ----")
+            print(version)
+            comentario = Comentario(
+                pk=idComentario,
+                contenido=commentBody,
+                version=version,
+
+
+            )
+            print("Comment Data ----")
+            print(comentario)
+            #     contenido=json_proyecto_red['nombre'],
+            #     tipo=json_proyecto_red['tipo'],
+            #     carpeta=json_proyecto_red['carpeta'],
+            #     descripcion=json_proyecto_red['descripcion'],
+            #     autor=json_proyecto_red['autor'],
+            #     red=red)
+            # nuevo_proyecto_red.save()
+
         return HttpResponse()
 
 
