@@ -40,3 +40,5 @@ class SisredTestCase(TestCase):
         print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
+
+

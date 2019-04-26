@@ -205,7 +205,7 @@ def postComentariosPDF(request):
         print("Persistiendo Comentarios PDF en BD")
         coordenadas = request.data.get("coordenadas")
         contenido = request.data.get("comentario")
-        usuario = Perfil.objects.get(id=int(request.data.get("autor")))
+        usuario = Perfil.objects.get(id=int(request.data.get("usuario")))
         version = Version.objects.get(id=int(request.data.get("version")))
         recurso = Recurso.objects.get(pk=int(request.data.get("recurso")))
         comment = Comentario.objects.create(usuario=usuario, version=version, recurso=recurso,  contenido=contenido)
