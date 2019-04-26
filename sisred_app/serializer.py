@@ -11,7 +11,7 @@ class RecursoSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer(many=True, read_only=True)
     class Meta:
         model=Recurso
-        fields=('nombre','archivo','thumbnail','fecha_creacion','fecha_ultima_modificacion','tipo','descripcion','metadata','autor','usuario_ultima_modificacion','getAutor','getResponsableModificacion')
+        fields=('nombre','id', 'archivo','thumbnail','fecha_creacion','fecha_ultima_modificacion','tipo','descripcion','metadata','autor','usuario_ultima_modificacion','getAutor','getResponsableModificacion')
 
 class RecursoSerializer_post(serializers.ModelSerializer):
     class Meta:
