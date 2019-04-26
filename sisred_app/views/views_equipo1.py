@@ -187,7 +187,7 @@ def putCambiarFaseRed(request1, idRed, idFase):
             print("putCambiarFaseRed", idActual, idFase)
             if (idFase > (idActual + 1)) | (idFase < (idActual - 1)):
                 error = 'Debe seleccionar una fase consecutiva para poder hacer el cambio'
-                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+                return Response(content=error, status=HTTP_400_BAD_REQUEST)
 
             red.fase = fase
             red.save()
@@ -198,7 +198,7 @@ def putCambiarFaseRed(request1, idRed, idFase):
             historialFase = HistorialFases.objects.create(fase=fase, red=red)
             historialFase.save()
 
-            return HttpResponse(status=HTTP_200_OK)
+            return Response("Cambio de fase exitoso", status=HTTP_200_OK)
         except ObjectDoesNotExist as e:
             if (e.__class__ == Fase.DoesNotExist):
                 error = 'No existe la fase con id ' + str(idFase)
