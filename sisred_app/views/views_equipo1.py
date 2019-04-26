@@ -142,7 +142,13 @@ def usuarioPerfilJson(perfil, usuario):
 
     return usuario_perfil
 
-@api_view(['GET', 'PUT'])
+
+#Autor:         Ramiro Vargas
+#Fecha:         2019-04-22
+#Parametros:    id_conectate -> Id del RED
+#Descripcion:   Funcionalidad para actualizar cuando un RED esta listo para revision
+
+@api_view(['PUT'])
 def getREDByIdentification(request, id_conectate):
     reds=[]
     try:
@@ -150,11 +156,7 @@ def getREDByIdentification(request, id_conectate):
     except RED.DoesNotExist:
         raise NotFound(detail="Error 404, User not found", code=404)
 
-    if request.method == 'GET':
-        serializer = REDSerializer(red, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
 
         red.listo=True
         red.save()
