@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 from rest_framework import  status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
@@ -7,7 +8,7 @@ from rest_framework.response import Response
 import datetime
 
 
-from sisred_app.models import Recurso, RED, Perfil
+from sisred_app.models import Recurso, RED, Perfil, Version, Comentario, ComentarioMultimedia, ComentarioPDF
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_put, \
     REDSerializer
 
@@ -163,3 +164,53 @@ def getREDByIdentification(request, id_conectate):
                     "proyecto_conectate_id": red.proyecto_conectate_id,
                     "listo": True})
         return Response(reds)
+
+#Autor:         Alejandro Garcia
+#Fecha:         2019-04-17
+#Parametros:    request -> Datos de la solicitud
+#               id -> id del recurso comentado
+#Descripcion:   Permite consultar los comentarios de una veersion de un RED y crear comentarios nuevos
+@api_view(['GET'])
+def getComentariosPDF(request, id):
+    if request.method == 'GET':
+        response = []
+        try:
+            recurso = Recurso.objects.get(pk=id)
+            comentarios = Comentario.objects.filter(recurso=recurso)
+            rutaPdf = {recurso.archivo}
+            comentarios_multimedia = []
+
+            for comentario in comentarios:
+                comentarios_multimedia.append(ComentarioMultimedia.objects.filter(comentario=comentario))
+
+            for com_multimedia in comentarios_multimedia:
+                comentarios_PDF=ComentarioPDF.objects.filter(comentarios_multimedia=comentarios_multimedia)
+                for comentario_PDF in comentarios_PDF:
+                    coordenadas = {"height": comentario_PDF.height,
+                                   "width": comentario_PDF.width,
+                                   "x1": com_multimedia.x1,
+                                   "y1": com_multimedia.y1,
+                                   "x2": com_multimedia.x2,
+                                   "y2": com_multimedia.y2}
+
+                    c = Comentario.objects.get(pk=com_multimedia.comentario)
+                    response.append({"rutaPdf": rutaPdf, "coordenadas": coordenadas, "comentarios": [c.contenido]})
+            return response;
+        except Exception as ex:
+            raise NotFound(detail="Error 404, User not found", code=404)
+
+@api_view(['POST'])
+def postComentariosPDF(request, id):
+    if request.method == 'POST':
+        print("Persistiendo Comentarios PDF en BD")
+        coordenadas = request.data.get("coordenadas")
+        contenido = request.data.get("comentario")
+        usuario = Perfil.objects.get(id=int(request.data.get("autor")))
+        version = Version.objects.get(id=int(request.data.get("version")))
+        recurso = Recurso.objects.get(pk=id)
+        comment = Comentario.objects.create(usuario=usuario, version=version, recurso=recurso,  contenido=contenido)
+        comment.save()
+        mul_comment = ComentarioMultimedia.objects.create(x1=coordenadas['x1'], x2=coordenadas['x2'], y1=coordenadas['y1'], y2=coordenadas['y2'], comentario=comment)
+        mul_comment.save()
+        pdf_comment = ComentarioPDF.objects.create(height=coordenadas['height'],width=coordenadas['width'], comentario_multimedia=mul_comment)
+        pdf_comment.save()

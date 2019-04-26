@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, Client
 
 # Create your tests here.
-from sisred_app.models import Perfil, RED
+from sisred_app.models import Perfil, RED, Version, Recurso, Comentario, ComentarioMultimedia, ComentarioPDF
 
 
 class SisredTestCase(TestCase):
@@ -40,4 +40,3 @@ class SisredTestCase(TestCase):
         print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
-
