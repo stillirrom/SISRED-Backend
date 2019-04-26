@@ -98,6 +98,7 @@ class RED(models.Model):
     metadata = models.ManyToManyField(Metadata, blank=True)
     horas_estimadas = models.IntegerField(blank=True, null=True)
     horas_trabajadas = models.IntegerField(blank=True, null=True)
+    listo_para_revision = models.BooleanField(default=False, blank=True)
     fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -185,9 +186,9 @@ class Comentario(models.Model):
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
-    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=False, blank=False)
-    fecha_creacion = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    cerrado = models.BooleanField()
+    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=True, blank=True)
+    fecha_creacion = models.DateField(default=datetime.date.today)
+    cerrado = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return 'Comentario: ' + self.contenido
