@@ -195,7 +195,7 @@ class VersionSerializer_v(serializers.ModelSerializer):
     creado_por = PerfilSerializer()
     class Meta:
         model = Version
-        fields = ('numero', 'imagen', 'creado_por', 'fecha_creacion', 'red')
+        fields = '__all__'
 
 
 @csrf_exempt
