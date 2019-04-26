@@ -200,14 +200,14 @@ def getComentariosPDF(request, id):
             raise NotFound(detail="Error 404, User not found", code=404)
 
 @api_view(['POST'])
-def postComentariosPDF(request, id):
+def postComentariosPDF(request):
     if request.method == 'POST':
         print("Persistiendo Comentarios PDF en BD")
         coordenadas = request.data.get("coordenadas")
         contenido = request.data.get("comentario")
         usuario = Perfil.objects.get(id=int(request.data.get("autor")))
         version = Version.objects.get(id=int(request.data.get("version")))
-        recurso = Recurso.objects.get(pk=id)
+        recurso = Recurso.objects.get(pk=int(request.data.get("recurso")))
         comment = Comentario.objects.create(usuario=usuario, version=version, recurso=recurso,  contenido=contenido)
         comment.save()
         mul_comment = ComentarioMultimedia.objects.create(x1=coordenadas['x1'], x2=coordenadas['x2'], y1=coordenadas['y1'], y2=coordenadas['y2'], comentario=comment)
