@@ -184,6 +184,28 @@ class RolAsignado(models.Model):
         return self.usuario.__str__() + " " + self.red.__str__() + " " + self.rol.__str__()
 
 
+class ComentarioVideo(models.Model):
+
+    seg_ini = models.IntegerField(null=True, blank=True)
+    seg_fin = models.IntegerField(null=True, blank=True)
+    
+
+    def __str__(self):
+        return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
+
+
+class ComentarioMultimedia(models.Model):
+
+    x1 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    y1 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    x2 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    y2 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return 'x1: ' + str(self.x1) + ', y1: ' + str(self.y1) + ', x2: ' + str(self.x2) + ', y2: ' + str(self.y2)
+
+
 class Comentario(models.Model):
     contenido = models.TextField()
     version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
@@ -197,25 +219,6 @@ class Comentario(models.Model):
         return 'Comentario: ' + self.contenido
 
 
-class ComentarioMultimedia(models.Model):
-
-    x1 = models.DecimalField(null=True, blank=True)
-    y1 = models.DecimalField(null=True, blank=True)
-    x2 = models.DecimalField(null=True, blank=True)
-    y2 = models.DecimalField(null=True, blank=True)
-    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return 'x1: ' + str(self.x1) + ', y1: ' + str(self.y1) + ', x2: ' + str(self.x2) + ', y2: ' + str(self.y2)
-
-class ComentarioVideo(models.Model):
-
-    seg_ini = models.IntegerField(null=True, blank=True)
-    seg_fin = models.IntegerField(null=True, blank=True)
-    
-
-    def __str__(self):
-        return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)
