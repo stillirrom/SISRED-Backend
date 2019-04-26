@@ -11,7 +11,8 @@ from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
-
+from django.utils.formats import get_format
+from django.utils.dateparse import parse_date
 
 # Create your views here.
 
@@ -156,7 +157,7 @@ def get_comentarios_video(request, id):
                 comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
                 print(comentarios)
                 comentariosVideo = ComentarioVideo.objects.get(comentario_multimedia=multimedia.pk)
-                rangeEsp = {"start": comentariosVideo.seg_ini, "end": comentariosVideo.seg_fin}
+                rangeEsp = {"start": comentariosVideo.seg_ini, "stop": comentariosVideo.seg_fin}
 
                 shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
                              "x1": decimal.Decimal(multimedia.x1),
@@ -188,25 +189,77 @@ def post_comentarios_video(request, idVersion, idRecurso):
         print("Persistiendo Comentarios Video en BD")
         commentsDetails = json.loads(request.body)
         print(commentsDetails)
-        for comment in commentsDetails:
-            idComentario = comment['id']
+        for commentData in commentsDetails:
+            idMultimedia = commentData['id']
+
+            x1 = commentData['shape']['x1']
+            y1 = commentData['shape']['y1']
+            x2 = commentData['shape']['x2']
+            y2 = commentData['shape']['y2']
+            rangeStart = commentData['range']['start']
+            rangeStop = commentData['range']['stop']
+
             # Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
-            try:
-                comentario = ComentarioMultimedia.objects.get(pk=idComentario)
-                continue
-            except Exception as ex:
-                print(ex)
-                print("No existe el comentario para el ID " + str(idComentario))
 
+            #########  COMENTARIO MULTIMEDIA ###########
+            if (type(idMultimedia) is int): #Ya que la libreria envia unas cadenas
+                comentarioMultimedia = ComentarioMultimedia.objects.filter(pk=idMultimedia)
+            else:
+                comentarioMultimedia = ComentarioMultimedia(
+                    x1=x1,
+                    y1=y1,
+                    x2=x2,
+                    y2=y2
+                )
+                comentarioMultimedia.save()
 
-            #commentBody = comment['body']
-            rangeStart = comment['range']['start']
-            rangeStop = comment['range']['stop']
-            x1 = comment['shape']['x1']
-            y1 = comment['shape']['y1']
-            x2 = comment['shape']['x2']
-            y2 = comment['shape']['y2']
+            print("ComentarioMultimediaData->")
+            print(comentarioMultimedia)
 
+            #########  COMENTARIO VIDEO ###########
+
+            comentarioVideo = ComentarioVideo.objects.filter(seg_ini=rangeStart).filter(seg_fin=rangeStop)
+            print(comentarioVideo)
+            if not comentarioVideo:
+                comentarioVideo = ComentarioVideo(
+                    seg_ini=rangeStart,
+                    seg_fin=rangeStop,
+                    comentario_multimedia=comentarioMultimedia
+                )
+                print("Creando Comentario Video")
+                comentarioVideo.save()
+
+            #########  COMENTARIO  ###########
+            comentarios = commentData['comments']
+            print("Comentarios->")
+            for comment in comentarios:
+                idComentario = comment['id']
+                commentBody = comment['body']
+                userID = comment['meta']['user_id']
+                dateTime = comment['meta']['datetime']
+                print("Validando comentario ID: "+str(idComentario))
+                try:
+                    if (type(idComentario) is int):  # Ya que la libreria envia unas cadenas
+                        comentario = Comentario.objects.get(pk=idComentario)
+                        print("Se ignora ya que existe")
+                        continue
+                    else:
+                        version = Version.objects.get(pk=idVersion)
+                        recurso = Recurso.objects.get(pk=idRecurso)
+                        usuario = Perfil.objects.get(pk=userID)
+
+                        comentario = Comentario(
+                            contenido=commentBody,
+                            version=version,
+                            recurso=recurso,
+                            usuario=usuario,
+                            comentario_multimedia=comentarioMultimedia
+                        )
+                        print(comment)
+                        print(comentario)
+                        comentario.save()
+                except Exception as ex:
+                    print(ex)
             # contenido = models.TextField()
             # version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
             # recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
@@ -215,25 +268,6 @@ def post_comentarios_video(request, idVersion, idRecurso):
             #                                           blank=False)
             # fecha_creacion = models.DateField(blank=True, null=True)
             # cerrado = models.BooleanField()
-            version = Version.objects.get(pk=idVersion)
-            print("Version Data ----")
-            print(version)
-            comentario = Comentario(
-                pk=idComentario,
-                contenido="",
-                version=version,
-
-
-            )
-            print("Comment Data ----")
-            print(comentario)
-            #     contenido=json_proyecto_red['nombre'],
-            #     tipo=json_proyecto_red['tipo'],
-            #     carpeta=json_proyecto_red['carpeta'],
-            #     descripcion=json_proyecto_red['descripcion'],
-            #     autor=json_proyecto_red['autor'],
-            #     red=red)
-            # nuevo_proyecto_red.save()
 
         return HttpResponse()
 
