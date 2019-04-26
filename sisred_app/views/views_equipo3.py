@@ -197,13 +197,19 @@ def post_comentarios_video(request, idVersion, idRecurso):
             x2 = commentData['shape']['x2']
             y2 = commentData['shape']['y2']
             rangeStart = commentData['range']['start']
-            rangeStop = commentData['range']['stop']
+            rangeStop = None
+            try:
+                rangeStop = commentData['range']['stop']
+            except Exception as ex:
+                rangeStop = commentData['range']['end']
 
             # Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
 
             #########  COMENTARIO MULTIMEDIA ###########
             if (type(idMultimedia) is int): #Ya que la libreria envia unas cadenas
                 comentarioMultimedia = ComentarioMultimedia.objects.filter(pk=idMultimedia)
+                if comentarioMultimedia:
+                    comentarioMultimedia = comentarioMultimedia[0]
             else:
                 comentarioMultimedia = ComentarioMultimedia(
                     x1=x1,
