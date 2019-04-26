@@ -186,7 +186,7 @@ class Comentario(models.Model):
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
     comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=False, blank=False)
-    fecha_creacion = models.DateField(blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     cerrado = models.BooleanField()
 
     def __str__(self):

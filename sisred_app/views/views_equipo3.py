@@ -154,8 +154,8 @@ def get_comentarios_video(request, id):
             print(multimedias)
             for multimedia in multimedias:
                 comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
-
-                comentariosVideo = ComentarioVideo.objects.get(pk=multimedia.comentario_video.pk)
+                print(comentarios)
+                comentariosVideo = ComentarioVideo.objects.get(comentario_multimedia=multimedia.pk)
                 rangeEsp = {"start": comentariosVideo.seg_ini, "end": comentariosVideo.seg_fin}
 
                 shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
@@ -169,14 +169,16 @@ def get_comentarios_video(request, id):
                     usuario = comEsp.usuario.usuario
                     nombreUsuario = usuario.first_name + " " + usuario.last_name
                     idUsuario = usuario.pk
-                    metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y/%m/%d'), "user_id": idUsuario,
+                    metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'), "user_id": idUsuario,
                                  "user_name": nombreUsuario}
-                    comentEsp.append({"id": comEsp.pk, "meta": metaVideo, "body": comEsp.contenido})
+                    comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido})
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+                print("------------------ Comments Response -------- ")
+                print(json.dumps(respuesta, default=decimal_default))
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
         except Exception as ex:
             print(ex)
-            print("No existe el recurso")
+            print("ERROR OBTENIENDO LOS COMENTARIOS DEL VIDEO " + str(ex))
         return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
 
 # Metodo para agregar comentarios del recurso video
@@ -197,7 +199,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
                 print("No existe el comentario para el ID " + str(idComentario))
 
 
-            commentBody = comment['body']
+            #commentBody = comment['body']
             rangeStart = comment['range']['start']
             rangeStop = comment['range']['stop']
             x1 = comment['shape']['x1']
@@ -218,7 +220,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
             print(version)
             comentario = Comentario(
                 pk=idComentario,
-                contenido=commentBody,
+                contenido="",
                 version=version,
 
 
