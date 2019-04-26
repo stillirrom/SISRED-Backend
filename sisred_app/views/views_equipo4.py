@@ -860,3 +860,45 @@ def putNotification(request, id_notification):
         except Exception as ex:
             error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presento un error realizando la peticion"}
             return HttpResponseBadRequest(json.dumps(error))
+
+def createNotification(id_red, id_notificationtype):
+
+    print("createNotification")
+    error = ''
+
+    try:
+        print("notificationType:", id_notificationtype,id_red)
+        red = RED.objects.filter(id_conectate=id_red).first()
+
+        if red != None:
+            print("red", red.nombre, id_notificationtype, id_red)
+            rol_asignado = RolAsignado.objects.filter(red=red)
+
+            if rol_asignado:
+
+                for rolAsignado in rol_asignado:
+                    print("rolAsignado", rolAsignado.estado)
+                    rolAsignado.save()
+                    typeNotification = NotificacionTipo.objects.filter(pk=id_notificationtype).first()
+
+                    if typeNotification != None:
+                        print("tipoNotificacion",typeNotification.nombre)
+                        rolAsignado.notificaciones.create(mensaje= typeNotification.nombre, visto=False, tipo_notificacion=typeNotification)
+                        print("notificacion", rolAsignado.notificaciones.all())
+                        rolAsignado.save()
+                    else:
+                        error = {"error": 'No hay un tipo de notificacion asociado a la tabla con el ID' + str(id_notificationtype)}
+                        return error
+
+                mensaje = {"mensaje": 'La notificacion ha sido creada'}
+                return mensaje
+            else:
+                error = {"error": 'No hay un ROL asignado al RED' + id_red}
+                return error
+        else:
+            error = {"error": 'No hay un RED con el id ' + id_red}
+            return error
+
+    except Exception as ex:
+        error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presentó un error realizando la petición"}
+        return error
