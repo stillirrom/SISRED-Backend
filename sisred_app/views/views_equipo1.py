@@ -133,3 +133,21 @@ def getUserByIdentification(request, numero_identificacion):
                                "estado": perfil.estado, "estado_sisred": perfil.estado_sisred})
 
         return Response(usuario_perfil)
+
+#Autor: Oscar Espinel
+#Fecha: 2019-04-15
+#Parametros:
+#    Request -> Datos de la solicitud
+#Descripcion:
+#   Permite cerrar un comentario abierto del recurso
+@api_view(['POST'])
+def closecommentopen_post(request):
+    serializer = CloseCommentOpenSerializer_post(data=request.data)
+    if serializer.is_valid():
+        id = int(request.data.get("id"))
+        ItemComentario = Comentario.objects.filter(id=id).first()
+        if (ItemComentario == None):
+            raise NotFound(detail="Error 404, comentario not found", code=404)
+        ItemComentario.contenido = ItemComentario.contenido + "/*" + request.data.get("contenido")
+        ItemComentario.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
