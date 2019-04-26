@@ -811,6 +811,7 @@ def buscar_recurso(request):
         name=request.GET.get("name")
         fechaDesde=request.GET.get ("fdesde")
         fechaHasta = request.GET.get("fhasta")
+        tag = request.GET.get("text")
 
         q=Recurso.objects.filter()
 
@@ -822,6 +823,10 @@ def buscar_recurso(request):
 
         if fechaDesde and fechaHasta:
             q = q.filter(Q(fecha_creacion__gte=fechaDesde),Q(fecha_creacion__lte=fechaHasta))
+
+        if tag:
+            metadata=Metadata.objects.filter(tag=tag).first()
+            q = q.filter(Q(metadata__exact=metadata))
 
         return JsonResponse(list(q.values()), safe=False)
 
