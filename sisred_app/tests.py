@@ -199,3 +199,18 @@ class sisRedTestCase(TestCase):
         current_data = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(current_data, 1)
+
+    def test_updateNotificaction(self):
+        tipoNotificacion = NotificacionTipo.objects.create(nombre='nombre', descripcion='descripcion')
+        notificationTest = Notificacion.objects.create(mensaje='texto', visto=False,
+                                                       tipo_notificacion=tipoNotificacion)
+
+        response = self.client.put('/api/putNotification/' + str(notificationTest.id) + '/',
+                                   content_type='application/json')
+
+        print("response.content", response.content)
+        dataRsp = json.loads(response.content)
+        print("dataRsp", dataRsp)
+
+        self.assertEqual(dataRsp, {"mensaje": 'La notificacion ha sido actualizada'})
+
