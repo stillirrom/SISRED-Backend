@@ -129,6 +129,13 @@ def get_reds_asignados(request, id):
         return JsonResponse(respuesta, safe=False)
 
 
+
+
+
+
+
+
+
 # Metodo para obtener comentarios del recurso video
 @csrf_exempt
 def comentarios_video(request, id):

@@ -143,8 +143,7 @@ class Version(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Version: ' + self.numero.__str__()
-
+        return 'Version: ' + str(self.numero)
 
 class Rol(models.Model):
     id_conectate = models.CharField(unique=True, max_length=50)
@@ -165,22 +164,21 @@ class RolAsignado(models.Model):
     def __str__(self):
         return self.usuario.__str__() + " " + self.red.__str__() + " " + self.rol.__str__()
 
-class ComentarioVideo(models.Model):
-    seg_ini = models.IntegerField(blank=True, null=True)
-    seg_fin = models.IntegerField(blank=True, null=True)
-
-    def __str__(self):
-        return 'ComentarioVideo: [seg_ini: '+self.seg_ini.__str__() +',seg_fin:'+ self.seg_fin.__str__()+']'
-
 class ComentarioMultimedia(models.Model):
     x1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
     y1 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
     x2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
     y2 = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)
-    comentario_video = models.ForeignKey(ComentarioVideo, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return 'ComentarioMultimedia: ' + self.pk.__str__()
+        return 'x1: ' + str(self.x1) + ', y1: ' + str(self.y1) + ', x2: ' + str(self.x2) + ', y2: ' + str(self.y2)
+
+class ComentarioVideo(models.Model):
+    seg_ini = models.IntegerField(blank=True, null=True)
+    seg_fin = models.IntegerField(blank=True, null=True)
+    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE)
+    def __str__(self):
+        return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
 
 class Comentario(models.Model):
     contenido = models.TextField()
