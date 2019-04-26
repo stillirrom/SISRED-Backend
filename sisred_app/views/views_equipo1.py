@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
 
 from rest_framework.response import Response
+import json
 import datetime
 
 
@@ -175,42 +176,49 @@ def getComentariosPDF(request, id):
     if request.method == 'GET':
         response = []
         try:
-            recurso = Recurso.objects.get(pk=id)
+            recurso = Recurso.objects.get(id=id)
+            print(recurso)
             comentarios = Comentario.objects.filter(recurso=recurso)
-            rutaPdf = {recurso.archivo}
-            comentarios_multimedia = []
-
+            print(comentarios)
             for comentario in comentarios:
-                comentarios_multimedia.append(ComentarioMultimedia.objects.filter(comentario=comentario))
-
-            for com_multimedia in comentarios_multimedia:
-                comentarios_PDF=ComentarioPDF.objects.filter(comentarios_multimedia=comentarios_multimedia)
-                for comentario_PDF in comentarios_PDF:
-                    coordenadas = {"height": comentario_PDF.height,
-                                   "width": comentario_PDF.width,
-                                   "x1": com_multimedia.x1,
-                                   "y1": com_multimedia.y1,
-                                   "x2": com_multimedia.x2,
-                                   "y2": com_multimedia.y2}
-
-                    c = Comentario.objects.get(pk=com_multimedia.comentario)
-                    response.append({"rutaPdf": rutaPdf, "coordenadas": coordenadas, "comentarios": [c.contenido]})
-            return response;
+                comentarios_multimedia = ComentarioMultimedia.objects.filter(comentario=comentario)
+                print(comentarios_multimedia)
+                for com_multimedia in comentarios_multimedia:
+                    comentarios_PDF=ComentarioPDF.objects.filter(comentario_multimedia=com_multimedia)
+                    print(comentarios_PDF)
+                    for comentario_PDF in comentarios_PDF:
+                        coordenadas = {"height": comentario_PDF.height, "width": comentario_PDF.width, "x1": com_multimedia.x1, "y1": com_multimedia.y1,"x2": com_multimedia.x2,"y2": com_multimedia.y2}
+                        response.append({"rutaPdf": recurso.archivo, "coordenadas": coordenadas, "comentario": comentario.contenido})
+            return Response(response)
         except Exception as ex:
-            raise NotFound(detail="Error 404, User not found", code=404)
+            raise NotFound(detail="Error 404, Resource not found", code=404)
 
 @api_view(['POST'])
 def postComentariosPDF(request):
     if request.method == 'POST':
         print("Persistiendo Comentarios PDF en BD")
-        coordenadas = request.data.get("coordenadas")
+        body = json.loads(request.body)
+        print(body)
+        x1 = body["coordenadas"]["x1"]
+        x2 = body["coordenadas"]["x2"]
+        y1 = body["coordenadas"]["y1"]
+        y2 = body["coordenadas"]["y2"]
+        height = body["coordenadas"]["height"]
+        width = body["coordenadas"]["width"]
         contenido = request.data.get("comentario")
         usuario = Perfil.objects.get(id=int(request.data.get("usuario")))
         version = Version.objects.get(id=int(request.data.get("version")))
-        recurso = Recurso.objects.get(pk=int(request.data.get("recurso")))
+        recurso = Recurso.objects.get(id=int(request.data.get("recurso")))
         comment = Comentario.objects.create(usuario=usuario, version=version, recurso=recurso,  contenido=contenido)
         comment.save()
-        mul_comment = ComentarioMultimedia.objects.create(x1=coordenadas['x1'], x2=coordenadas['x2'], y1=coordenadas['y1'], y2=coordenadas['y2'], comentario=comment)
+        recurso.comentario_set.add(comment)
+        mul_comment = ComentarioMultimedia.objects.create(x1=x1, x2=x2, y1=y1, y2=y2, comentario=comment)
         mul_comment.save()
-        pdf_comment = ComentarioPDF.objects.create(height=coordenadas['height'],width=coordenadas['width'], comentario_multimedia=mul_comment)
+        comment.comentariomultimedia_set.add(mul_comment)
+        pdf_comment = ComentarioPDF.objects.create(height=height,width=width, comentario_multimedia=mul_comment)
         pdf_comment.save()
+        mul_comment.comentariopdf_set.add(pdf_comment)
+
+        id=ComentarioPDF.objects.get(id=pdf_comment.id)
+        if (id != None):
+            return Response(request.data, status=status.HTTP_201_CREATED)
