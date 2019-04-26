@@ -812,3 +812,21 @@ def getNotificacionesPorUsuario(request, idUsuario):
                 notificaciones.append({"mensaje": tipoNotificacion.descripcion, "idRed": rol.red.id, "nombreRed": rol.red.nombre_corto, "tipo": tipoNotificacion.nombre, "visto": notificacion.visto})
 
         return JsonResponse(notificaciones, safe=False)
+
+"""
+Vista para consultar el numero de notificaciones no vistas por el usuario
+Parametros: request, id conectate del usuario
+Return: numero de las notificaciones no vistas
+"""
+def getNotificacionesNoVistosPorUsuario(request, idUsuario):
+
+    perfil = Perfil.objects.filter(id_conectate=idUsuario).first()
+    roles = RolAsignado.objects.filter(usuario=perfil)
+    if request.method == 'GET':
+        contador = 0
+        for rol in roles:
+            for notificacion in rol.notificaciones.all():
+                if notificacion.visto == False:
+                    contador += 1
+
+        return JsonResponse(contador, safe=False)
