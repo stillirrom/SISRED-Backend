@@ -154,7 +154,7 @@ def get_comentarios_video(request, id):
             for multimedia in multimedias:
                 comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
 
-                comentariosVideo = ComentarioVideo.objects.get(pk=multimedia.comentario_video.pk)
+                comentariosVideo = ComentarioVideo.objects.get(comentario_multimedia=multimedia.pk)
                 rangeEsp = {"start": comentariosVideo.seg_ini, "end": comentariosVideo.seg_fin}
 
                 shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
@@ -174,7 +174,7 @@ def get_comentarios_video(request, id):
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
         except Exception as ex:
-            print("No existe el recurso")
+            print("ERROR OBTENIENDO LOS COMENTARIOS DEL VIDEO " + str(ex))
         return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
 
 # Metodo para agregar comentarios del recurso video
