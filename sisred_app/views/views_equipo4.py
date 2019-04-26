@@ -626,7 +626,7 @@ def deleteRolAsignado(request, id):
         except Exception as ex:
             error = { "error": "Se presentó un error realizando la petición" + str(ex)}
             return HttpResponseBadRequest(json.dumps(error))
-        
+
 '''Vista para cambiar fase de un red (PUT)
 Parametros: request, id del red, id de la fase'''
 @csrf_exempt
@@ -642,7 +642,7 @@ def putCambiarFaseRed(request, idRed, idFase):
             if (idFase > (idActual + 1)) | (idFase < (idActual - 1)):
                 error = 'Debe seleccionar una fase consecutiva para poder hacer el cambio'
                 return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
-             
+
             red.fase = fase
             red.save()
 
@@ -663,7 +663,7 @@ def putCambiarFaseRed(request, idRed, idFase):
             )
 
 """
-Vista para consultar las fases 
+Vista para consultar las fases
 Parametros: request
 Return: Lista de Fases creados en el sistema
 """
@@ -672,7 +672,7 @@ def get_fases(request):
     if request.method == 'GET':
         serializer = FaseSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
-  
+
 """
 Vista para validar autenticación de un usuario (LogIn)
 Parametros: request
@@ -796,3 +796,19 @@ def add_metadata_recurso(request,id):
             print("cantidad de metadatas " + str(recurso.metadata.count()))
             return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
 
+"""
+Vista para consultar las notificaciones de un usuario
+Parametros: request, id conectate del usuario
+Return: Los roles asignados del usuario
+"""
+def getNotificacionesPorUsuario(request, idUsuario):
+    notificaciones = []
+    perfil = Perfil.objects.filter(id_conectate=idUsuario).first()
+    roles = RolAsignado.objects.filter(usuario=perfil)
+    if request.method == 'GET':
+        for rol in roles:
+            for notificacion in rol.notificaciones.all():
+                tipoNotificacion = NotificacionTipo.objects.get(nombre=notificacion.tipo_notificacion.nombre)
+                notificaciones.append({"mensaje": tipoNotificacion.descripcion, "idRed": rol.red.id, "nombreRed": rol.red.nombre_corto, "tipo": tipoNotificacion.nombre, "visto": notificacion.visto})
+
+        return JsonResponse(notificaciones, safe=False)
