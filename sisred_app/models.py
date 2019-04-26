@@ -194,3 +194,4 @@ class Propiedad(models.Model):
 
     def __str__(self):
         return 'Llave: ' + self.llave + ', Valor: ' + self.valor
+
