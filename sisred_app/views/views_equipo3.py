@@ -260,14 +260,6 @@ def post_comentarios_video(request, idVersion, idRecurso):
                         comentario.save()
                 except Exception as ex:
                     print(ex)
-            # contenido = models.TextField()
-            # version = models.ForeignKey(Version, on_delete=models.CASCADE, null=True, blank=True)
-            # recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
-            # usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
-            # comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=False,
-            #                                           blank=False)
-            # fecha_creacion = models.DateField(blank=True, null=True)
-            # cerrado = models.BooleanField()
 
         return HttpResponse()
 
