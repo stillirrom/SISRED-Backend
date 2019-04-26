@@ -510,9 +510,15 @@ def postRolAsignado(request):
                             rol_asignado = RolAsignado.objects.create(id_conectate=id_conectate, estado=1, red=red,
                                                                       rol=rol, usuario=perfil)
 
-                            for notificacion in notificaciones:
-                                rol_asignado.notificaciones.create(mensaje=notificacion['mensaje'],
-                                                                   fecha=notificacion['fecha'])
+                            result = createNotification(id_red, 1)  # para crear la notificacion
+                            print("notificacion",result)
+
+                            if result != {"mensaje": 'La notificacion ha sido creada'}:
+                                error = 'No fue posible crear la notificacion'
+                                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+                            #for notificacion in notificaciones:
+                             #   rol_asignado.notificaciones.create(mensaje=notificacion['mensaje'],
+                             #                                      fecha=notificacion['fecha'])
 
                             mensaje = {"mensaje": 'El rol asignado ha sido creado'}
                             return HttpResponse(json.dumps(mensaje))
@@ -645,6 +651,13 @@ def putCambiarFaseRed(request, idRed, idFase):
 
             red.fase = fase
             red.save()
+
+            result = createNotification(idRed, 2)  # para crear la notificacion
+            print("notificacion:", result)
+
+            if result != {"mensaje": 'La notificacion ha sido creada'}:
+                error = 'No fue posible crear la notificacion'
+                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
 
             historialFase = HistorialFases.objects.create(fecha_cambio=datetime.now(), fase=fase, red=red)
             historialFase.save()
