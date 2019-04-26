@@ -34,7 +34,7 @@ class SisredTestCase(TestCase):
         user_model1 = User.objects.create_user(username='test1', password='kd8wke-DE34', first_name='test1',
                                                last_name='test1', email='test1@test.com')
 
-        response = self.client.put('/api/red/version/' + str(1))
+        response = self.client.put('/api/red/version/cerrarComentarioAbierto/' + str(1))
         current_data = json.loads(response.content)
 
         self.assertEqual(current_data[0]['comment_closed'], 1)
