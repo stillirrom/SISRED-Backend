@@ -195,7 +195,7 @@ class ComentarioMultimedia(models.Model):
 class ComentarioVideo(models.Model):
     seg_ini = models.IntegerField(blank=True, null=True)
     seg_fin = models.IntegerField(blank=True, null=True)
-    comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE)
+    comentario_multimedia = models.OneToOneField(ComentarioMultimedia, on_delete=models.CASCADE)
 
     def __str__(self):
         return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
@@ -207,7 +207,7 @@ class Comentario(models.Model):
     recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE, null=True, blank=True)
     usuario = models.ForeignKey(Perfil, on_delete=models.CASCADE)
     comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=True, blank=True)
-    id_multimedia = models.CharField(max_length=200, null=True, blank=True) #TEMP ID generado por la libreria evitar duplicados.
+    id_video_libreria = models.CharField(max_length=200, null=True, blank=True)
     fecha_creacion = models.DateField(default=datetime.date.today)
     cerrado = models.BooleanField(default=False, blank=True)
 
