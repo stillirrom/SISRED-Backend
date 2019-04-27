@@ -816,10 +816,10 @@ def buscar_recurso(request):
         q=Recurso.objects.filter()
 
         if name:
-            q = q.filter(Q(nombre__contains=name))
+            q = q.filter(Q(nombre__icontains=name))
 
         if fechaDesde and not fechaHasta:
-            q=q.filter(Q(fecha_creacion__gte=fechaDesde))
+            q=q.filter(Q(fecha_creacion__exact=fechaDesde))
 
         if fechaDesde and fechaHasta:
             q = q.filter(Q(fecha_creacion__gte=fechaDesde),Q(fecha_creacion__lte=fechaHasta))
