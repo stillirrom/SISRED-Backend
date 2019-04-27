@@ -21,6 +21,7 @@ urlpatterns = [
     path('comentarios/video/<int:id>', views_equipo3.get_comentarios_video, name='comentarios'),
     path('comentarios/video/<int:idVersion>/<int:idRecurso>', views_equipo3.post_comentarios_video, name='agregarComentarios'),
     path('comentarios/video/url/<int:id>', views_equipo3.get_url_recurso_video, name='urlRecursoVideo'),
+    path('revisiones/<int:id>', views_equipo3.get_versiones_revision, name='revisiones'),
 
     path('getProyectosRED/', views_equipo2.getProyectosRED),
     path('getRecurso/', views_equipo2.getRecurso),
