@@ -19,7 +19,7 @@ class BuscarRecursoTestCase(TestCase):
 
         buscarNombre = "Recurso5"
 
-        url = f'/api/buscarRecurso/?text={buscarNombre}'
+        url = f'/api/buscarRecurso/?name={buscarNombre}'
 
         response =  self.client.get(url, format='json')
 
@@ -48,7 +48,7 @@ class BuscarRecursoTestCase(TestCase):
         fecha_desde = "2019-01-01"
         fecha_hasta = "2019-02-28"
 
-        url = f'/api/buscarRecurso/?text={buscarNombre}&fdesde={fecha_desde}&fhasta={fecha_hasta}'
+        url = f'/api/buscarRecurso/?name={buscarNombre}&fdesde={fecha_desde}&fhasta={fecha_hasta}'
 
         response = self.client.get(url, format='json')
         recursos = json.loads(response.content)
@@ -77,9 +77,9 @@ class BuscarRecursoTestCase(TestCase):
         tag = Metadata.objects.create(id=1, tag="tag1")
         recurso1.metadata.add(tag)
 
-        buscarNombre = "tag1"
+        metadata = "tag1"
 
-        url = f'/api/buscarRecurso/?text={buscarNombre}'
+        url = f'/api/buscarRecurso/?text={metadata}'
 
         response = self.client.get(url, format='json')
         recursos = json.loads(response.content)
