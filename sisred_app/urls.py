@@ -18,6 +18,9 @@ urlpatterns = [
     path('reds/asignados/<int:id>', views_equipo3.get_reds_asignados, name='reds_asignados'),
     path('get_version/', views_equipo3.get_version, name='version_red'),
     path('get_recursos_by_version/', views_equipo3.get_recursos_by_version, name='version_red'),
+    path('comentarios/video/<int:id>', views_equipo3.get_comentarios_video, name='comentarios'),
+    path('comentarios/video/<int:idVersion>/<int:idRecurso>', views_equipo3.post_comentarios_video, name='agregarComentarios'),
+    path('comentarios/video/url/<int:id>', views_equipo3.get_url_recurso_video, name='urlRecursoVideo'),
 
     path('getProyectosRED/', views_equipo2.getProyectosRED),
     path('getRecurso/', views_equipo2.getRecurso),

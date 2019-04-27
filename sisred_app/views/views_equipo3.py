@@ -1,12 +1,16 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-import json
+import json, decimal
 from django.http import JsonResponse
-from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados, Version
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados, Version, Comentario, ComentarioMultimedia, ComentarioVideo
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
+
+from django.utils.formats import get_format
+from django.utils.dateparse import parse_date
+
 # Create your views here.
 
 # Metodo para agregar un proyecto RED
@@ -135,4 +139,167 @@ def get_recursos_by_version(request):
         recursos = Recurso.objects.filter(version=version)
         return HttpResponse(serializers.serialize("json", recursos))
 
+
+# Metodo para obtener comentarios del recurso video
+@csrf_exempt
+def get_comentarios_video(request, id):
+    if request.method == 'GET':
+        print("Obteniendo comentarios del ID " + str(id))
+        respuesta = []
+        multimedias=[]
+        try:
+            recurso = Recurso.objects.get(pk=id)
+            comentarios = Comentario.objects.filter(recurso=recurso)
+            for comentario in comentarios:
+                if comentario.comentario_multimedia not in multimedias:
+                    multimedias.append(comentario.comentario_multimedia)
+            for multimedia in multimedias:
+                comentarios = Comentario.objects.filter(comentario_multimedia=multimedia)
+                comentariosVideo = ComentarioVideo.objects.get(comentario_multimedia=multimedia.pk)
+                rangeEsp = {"start": comentariosVideo.seg_ini, "end": comentariosVideo.seg_fin}
+
+                shape = None if (multimedia.x1 or multimedia.x2 or multimedia.y1 or multimedia.y2) is None else {
+                             "x1": decimal.Decimal(multimedia.x1),
+                             "y1": decimal.Decimal(multimedia.y1),
+                             "x2": decimal.Decimal(multimedia.x2),
+                             "y2": decimal.Decimal(multimedia.y2)}
+
+                comentEsp = []
+                for comEsp in comentarios:
+                    usuario = comEsp.usuario.usuario
+                    nombreUsuario = usuario.first_name + " " + usuario.last_name
+                    idUsuario = usuario.pk
+                    metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'), "user_id": idUsuario,
+                                 "user_name": nombreUsuario}
+                    comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido})
+                respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+                print(respuesta)
+            return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
+        except Exception as ex:
+            print(ex)
+            print("ERROR OBTENIENDO LOS COMENTARIOS DEL VIDEO " + str(ex))
+        return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
+
+# Metodo para agregar comentarios del recurso video
+@csrf_exempt
+def post_comentarios_video(request, idVersion, idRecurso):
+    if request.method == 'POST':
+        print("Persistiendo Comentarios Video en BD")
+        commentsDetails = json.loads(request.body)
+        print(commentsDetails)
+        for commentData in commentsDetails:
+            idMultimedia = commentData['id']
+
+            x1 = commentData['shape']['x1']
+            y1 = commentData['shape']['y1']
+            x2 = commentData['shape']['x2']
+            y2 = commentData['shape']['y2']
+            rangeStart = commentData['range']['start']
+            rangeStop = None
+            try:
+                rangeStop = commentData['range']['stop']
+            except Exception as ex:
+                rangeStop = commentData['range']['end']
+
+            # Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
+
+            #########  COMENTARIO MULTIMEDIA ###########
+            if (type(idMultimedia) is int): #Ya que la libreria envia unas cadenas
+                comentarioMultimedia = ComentarioMultimedia.objects.filter(pk=idMultimedia)
+                if comentarioMultimedia:
+                    comentarioMultimedia = comentarioMultimedia[0]
+            else:
+                comentarioMultimedia = ComentarioMultimedia(
+                    x1=x1,
+                    y1=y1,
+                    x2=x2,
+                    y2=y2
+                )
+                comentarioMultimedia.save()
+
+            print("ComentarioMultimediaData->")
+            print(comentarioMultimedia)
+
+            #########  COMENTARIO VIDEO ###########
+
+            comentarioVideo = ComentarioVideo.objects.filter(seg_ini=rangeStart).filter(seg_fin=rangeStop).filter(comentario_multimedia=comentarioMultimedia)
+            print(comentarioVideo)
+            if not comentarioVideo:
+                comentarioVideo = ComentarioVideo(
+                    seg_ini=rangeStart,
+                    seg_fin=rangeStop,
+                    comentario_multimedia=comentarioMultimedia
+                )
+                print("Creando Comentario Video")
+                comentarioVideo.save()
+
+            #########  COMENTARIO  ###########
+            comentarios = commentData['comments']
+            print("Comentarios->")
+            for comment in comentarios:
+                idComentario = comment['id']
+                commentBody = comment['body']
+                userID = comment['meta']['user_id']
+                dateTime = comment['meta']['datetime']
+                print("Validando comentario ID: "+str(idComentario))
+                try:
+                    if (isNum(idComentario)):  # Ya que la libreria envia unas cadenas
+                        comentario = Comentario.objects.get(pk=idComentario)
+                        print("Se ignora ya que existe -> "+comentario.contenido)
+                        continue
+                    else:
+                        try:
+                            comentario = Comentario.objects.get(id_multimedia=idComentario)
+                        except Exception as ex:
+                            comentario = None
+                            print("No existe")
+                        if(comentario == None):
+                            print("Creando Nuevo objeto")
+                            version = Version.objects.get(pk=idVersion)
+                            recurso = Recurso.objects.get(pk=idRecurso)
+                            usuario = Perfil.objects.get(pk=userID)
+
+                            comentario = Comentario(
+                                id_multimedia=idComentario,
+                                contenido=commentBody,
+                                version=version,
+                                recurso=recurso,
+                                usuario=usuario,
+                                comentario_multimedia=comentarioMultimedia
+                            )
+                            print(comment)
+                            print(comentario)
+                            comentario.save()
+                except Exception as ex:
+                    print(ex)
+
+        return HttpResponse()
+
+# Metodo para obtener la url del recurso video
+@csrf_exempt
+def get_url_recurso_video(request, id):
+    if request.method == 'GET':
+        print("Obteniendo url del recurso con ID " + str(id))
+        respuesta = []
+        try:
+            recurso = Recurso.objects.get(pk=id)
+            respuesta.append({"url": recurso.archivo})
+            return HttpResponse(json.dumps(respuesta), content_type="application/json")
+        except Exception as ex:
+            print(ex)
+            print("ERROR OBTENIENDO LA URL DEL VIDEO " + str(ex))
+        return HttpResponse(json.dumps(respuesta), content_type="application/json")
+
+
+def decimal_default(obj):
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    raise TypeError
+
+def isNum(data):
+    try:
+        int(data)
+        return True
+    except ValueError:
+        return False
 
