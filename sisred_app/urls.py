@@ -18,6 +18,7 @@ urlpatterns = [
     path('reds/asignados/<int:id>', views_equipo3.get_reds_asignados, name='reds_asignados'),
     path('get_version/', views_equipo3.get_version, name='version_red'),
     path('get_recursos_by_version/', views_equipo3.get_recursos_by_version, name='version_red'),
+    path('revisiones/<int:id>', views_equipo3.get_versiones_revision, name='revision'),
 
     path('getProyectosRED/', views_equipo2.getProyectosRED),
     path('getRecurso/', views_equipo2.getRecurso),
