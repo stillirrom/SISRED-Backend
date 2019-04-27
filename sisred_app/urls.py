@@ -45,5 +45,7 @@ urlpatterns = [
     path('fases/', views_equipo4.get_fases, name='fases'),
     path('addMetadataRecurso/<int:id>/', views_equipo4.add_metadata_recurso, name='addMetadataRecurso'),
     path('buscarRecurso/', views_equipo4.buscar_recurso, name='recursos')
-
+    path('notificaciones/<int:idUsuario>/', views_equipo4.getNotificacionesPorUsuario, name='getNotificacionesPorUsuario'),
+    path('notificaciones/<int:idUsuario>/novistos/', views_equipo4.getNotificacionesNoVistosPorUsuario, name='getNotificacionesNoVistosPorUsuario'),
+    path('putNotification/<int:id_notification>/', views_equipo4.putNotification, name='putNotification')
 ]
