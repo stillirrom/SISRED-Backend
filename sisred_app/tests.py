@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso, RolAsignado, Rol
+from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso, RolAsignado, Rol, ComentarioMultimedia
 from django.contrib.auth.models import User
 import datetime
 import json
@@ -535,6 +535,84 @@ class VersionTestCase(TestCase):
         self.assertEqual(current_data['context'][0]['tipo'], 'PNG')
         self.assertEqual(current_data['context'][1]['tipo'], 'AVI')
 
+class ComentarImagen(TestCase):
+    def testComentarExistente(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        user2 = User.objects.create_user(username='test25', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil2 = Perfil.objects.create(id_conectate=124, usuario=user2, estado=1)
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.recurso = Recurso.objects.create(nombre='test', tipo='PNG', archivo='url', thumbnail='url1', descripcion=' ',
+                                          autor=perfil, usuario_ultima_modificacion=perfil)
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+
+        self.version.recursos.set([self.recurso])
+
+        com_mul=ComentarioMultimedia.objects.create(x1=0,x2=1.1,y1=0,y2=2.2)
+
+        url='/api/versiones/' + str(self.version.pk) + '/recursos/'+str(self.recurso.pk)+'/comentarios/'
+        response = self.client.post(url, json.dumps(
+            {
+                "idTabla": com_mul.id,
+                "usuario": user2.username,
+                "contenido": "hola",
+
+            }), content_type='application/json')
+
+        coment = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(coment['comentario_multimedia']['x1'], '0.00')
+        self.assertEqual(coment['usuario']['usuario']['username'],'test25')
+
+
+    def testCrearComentario(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        user2 = User.objects.create_user(username='test23', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil2 = Perfil.objects.create(id_conectate=125, usuario=user2, estado=1)
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+        self.recurso = Recurso.objects.create(nombre='test', tipo='PNG', archivo='url', thumbnail='url1', descripcion=' ',
+                                          autor=perfil, usuario_ultima_modificacion=perfil)
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        self.version = Version.objects.create(numero=1, red=self.red, creado_por=perfil, fecha_creacion='2019-03-20',
+                                              imagen='https://i.pinimg.com/736x/3e/63/03/3e630381b8e25dda523301dc800c8c1d.jpg')
+
+        self.version.recursos.set([self.recurso])
+
+
+        url='/api/versiones/' + str(self.version.pk) + '/recursos/'+str(self.recurso.pk)+'/comentariosnuevos/'
+        response = self.client.post(url, json.dumps(
+            {
+                "x1":0,
+                "x2":1.1,
+                "y1":0,
+                "y2":2.2,
+                "usuario": user2.username,
+                "contenido": "hola",
+
+            }), content_type='application/json')
+
+        coment = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(coment['comentario_multimedia']['x1'], '0.00')
+        self.assertEqual(coment['usuario']['usuario']['username'],'test23')
+
 
 class ListarVersionesTestCase(TestCase):
 
@@ -700,4 +778,5 @@ class VersionMarcarTestCase(TestCase):
         self.assertEqual(response.status_code , 200)
         self.assertEqual(versionMainAfter1.es_final,False)
         self.assertEqual(versionMainAfter2.es_final,True)
+
 

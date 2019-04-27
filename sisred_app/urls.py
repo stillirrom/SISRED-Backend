@@ -28,6 +28,8 @@ urlpatterns = [
     path('versiones/<int:id>/marcar', views_equipo2.marcarVersion, name='marcarVersion'),
     path('buscarReds/<int:idUsuario>/', views_equipo2.buscarRed, name='reds'),
     path('versiones/', views_equipo2.versiones, name='versiones'),
+    path('versiones/<int:id_v>/recursos/<int:id_r>/comentarios/', views_equipo2.comentarioExistente, name='comentarioExistente'),
+    path('versiones/<int:id_v>/recursos/<int:id_r>/comentariosnuevos/', views_equipo2.comentarioNuevo, name='comentarioNuevo'),
 
     path('users/', views_equipo4.getAllUser, name='allUsers'),
     path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),

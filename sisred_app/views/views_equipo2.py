@@ -5,7 +5,7 @@ from rest_framework import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
-from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version
+from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version, Comentario, ComentarioMultimedia
 from django.contrib.auth.models import User
 from sisred_app.serializer import RecursoSerializer
 import datetime
@@ -147,6 +147,7 @@ def versiones(request):
 
         creado_por=Perfil.objects.get(usuario__username=data['creado_por'])
 
+
         version = Version.objects.create(
             es_final=es_final,
             imagen=imagen,
@@ -224,3 +225,78 @@ def getVersionesRED(request, id):
     serializer = VersionSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
 
+class ComentarioMultimediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComentarioMultimedia
+        fields = '__all__'
+
+class ComentarioSerializer(serializers.ModelSerializer):
+    version=VersionSerializer()
+    recurso=RecursoSerializer()
+    comentario_multimedia=ComentarioMultimediaSerializer()
+    usuario=PerfilSerializer()
+    class Meta:
+        model = Comentario
+        fields = '__all__'
+
+
+@csrf_exempt
+def comentarioExistente(request,id_v, id_r):
+    if request.method == 'POST':
+        data = jsonUser = json.loads(request.body)
+        version = get_object_or_404(Version, id=id_v)
+        recurso = get_object_or_404(Recurso, id=id_r)
+        contenido = data['contenido']
+        fecha_creacion = datetime.date.today()
+        usuario=Perfil.objects.get(usuario__username=data['usuario'])
+        idTabla = data['idTabla']
+
+        comentario_multimedia=ComentarioMultimedia.objects.get(id=idTabla)
+
+        comentario = Comentario.objects.create(
+            contenido=contenido,
+            usuario=usuario,
+            fecha_creacion=fecha_creacion,
+            recurso=recurso,
+            version=version,
+            comentario_multimedia=comentario_multimedia
+        )
+        comentario.save()
+
+        serializer=ComentarioSerializer(comentario, many=False)
+
+        return JsonResponse(serializer.data, safe=True)
+    return HttpResponseNotFound()
+
+
+@csrf_exempt
+def comentarioNuevo(request,id_v, id_r):
+    if request.method == 'POST':
+        data = jsonUser = json.loads(request.body)
+        version = get_object_or_404(Version, id=id_v)
+        recurso = get_object_or_404(Recurso, id=id_r)
+        contenido = data['contenido']
+        fecha_creacion = datetime.date.today()
+        usuario=Perfil.objects.get(usuario__username=data['usuario'])
+        x1=data['x1']
+        x2=data['x2']
+        y1=data['y1']
+        y2=data['y2']
+
+
+        comentario_multimedia=ComentarioMultimedia.objects.create(x1=x1,y1=y1,x2=x2,y2=y2)
+
+        comentario = Comentario.objects.create(
+            contenido=contenido,
+            usuario=usuario,
+            fecha_creacion=fecha_creacion,
+            recurso=recurso,
+            version=version,
+            comentario_multimedia=comentario_multimedia
+        )
+        comentario.save()
+
+        serializer=ComentarioSerializer(comentario, many=False)
+
+        return JsonResponse(serializer.data, safe=True)
+    return HttpResponseNotFound()
