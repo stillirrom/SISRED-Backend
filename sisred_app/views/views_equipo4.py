@@ -13,6 +13,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTT
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from datetime import datetime
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
@@ -546,9 +547,15 @@ def postRolAsignado(request):
                             rol_asignado = RolAsignado.objects.create(id_conectate=id_conectate, estado=1, red=red,
                                                                       rol=rol, usuario=perfil)
 
-                            for notificacion in notificaciones:
-                                rol_asignado.notificaciones.create(mensaje=notificacion['mensaje'],
-                                                                   fecha=notificacion['fecha'])
+                            result = createNotification(id_red, 1)  # para crear la notificacion
+                            print("notificacion",result)
+
+                            if result != {"mensaje": 'La notificacion ha sido creada'}:
+                                error = 'No fue posible crear la notificacion'
+                                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+                            #for notificacion in notificaciones:
+                             #   rol_asignado.notificaciones.create(mensaje=notificacion['mensaje'],
+                             #                                      fecha=notificacion['fecha'])
 
                             mensaje = {"mensaje": 'El rol asignado ha sido creado'}
                             return HttpResponse(json.dumps(mensaje))
@@ -691,6 +698,16 @@ def putCambiarFaseRed(request, idRed, idFase):
             red.fase = fase
             red.save()
 
+            result = createNotification(idRed, 2)  # para crear la notificacion
+            print("notificacion:", result)
+
+            if result != {"mensaje": 'La notificacion ha sido creada'}:
+                error = 'No fue posible crear la notificacion'
+                return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
+
+            historialFase = HistorialFases.objects.create(fecha_cambio=datetime.now(), fase=fase, red=red)
+            historialFase.save()
+
             return HttpResponse(status=HTTP_200_OK)
         except ObjectDoesNotExist as e:
             if (e.__class__ == Fase.DoesNotExist):
@@ -706,7 +723,7 @@ def putCambiarFaseRed(request, idRed, idFase):
 
 
 """
-Vista para consultar las fases 
+Vista para consultar las fases
 Parametros: request
 Return: Lista de Fases creados en el sistema
 """
@@ -717,7 +734,7 @@ def get_fases(request):
     if request.method == 'GET':
         serializer = FaseSerializer(data, many=True)
     return JsonResponse(serializer.data, safe=False)
-
+  
 
 """
 Vista para validar autenticación de un usuario (LogIn)
@@ -863,3 +880,110 @@ def add_metadata_recurso(request, id):
             return Response(
                 {'mensaje': "Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre},
                 status=HTTP_200_OK)
+
+"""
+Vista para consultar las notificaciones de un usuario
+Parametros: request, id conectate del usuario
+Return: Los roles asignados del usuario
+"""
+def getNotificacionesPorUsuario(request, idUsuario):
+    notificaciones = []
+    perfil = Perfil.objects.filter(id_conectate=idUsuario).first()
+    roles = RolAsignado.objects.filter(usuario=perfil)
+    if request.method == 'GET':
+        for rol in roles:
+            for notificacion in rol.notificaciones.all():
+                tipoNotificacion = NotificacionTipo.objects.get(nombre=notificacion.tipo_notificacion.nombre)
+                notificaciones.append({"id": notificacion.id, "mensaje": tipoNotificacion.descripcion, "idRed": rol.red.id, "nombreRed": rol.red.nombre_corto, "tipo": tipoNotificacion.nombre, "visto": notificacion.visto})
+
+        return JsonResponse(notificaciones, safe=False)
+
+"""
+Vista para consultar el numero de notificaciones no vistas por el usuario
+Parametros: request, id conectate del usuario
+Return: numero de las notificaciones no vistas
+"""
+def getNotificacionesNoVistosPorUsuario(request, idUsuario):
+
+    perfil = Perfil.objects.filter(id_conectate=idUsuario).first()
+    roles = RolAsignado.objects.filter(usuario=perfil)
+    if request.method == 'GET':
+        contador = 0
+        for rol in roles:
+            for notificacion in rol.notificaciones.all():
+                if notificacion.visto == False:
+                    contador += 1
+
+        return JsonResponse(contador, safe=False)
+
+"""
+Vista para actualizar una notificacion a visto
+Parametros: request, id de la notificacion
+Return: mensaje cambio exitoso
+"""
+@csrf_exempt
+def putNotification(request, id_notification):
+    print("UpdateNotificaction")
+
+    if request.method == 'PUT':
+        error = ''
+        try:
+            print("NotificationId",id_notification)
+            notificacion = Notificacion.objects.filter(pk=id_notification).first()
+            print("notificacion", notificacion)
+
+            if notificacion != None:
+                notificacion.visto = True
+                notificacion.save()
+                mensaje = {"mensaje": 'La notificacion ha sido actualizada'}
+                return HttpResponse(json.dumps(mensaje))
+            else:
+               error = {"error": 'No hay una notificacion con el ID ' + str(id_notification)}
+               return HttpResponseBadRequest(json.dumps(error))
+
+
+        except Exception as ex:
+            error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presento un error realizando la peticion"}
+            return HttpResponseBadRequest(json.dumps(error))
+
+def createNotification(id_red, id_notificationtype):
+
+    print("createNotification")
+    error = ''
+
+    try:
+        print("notificationType:", id_notificationtype,id_red)
+        red = RED.objects.filter(id_conectate=id_red).first()
+
+        if red != None:
+            print("red", red.nombre, id_notificationtype, id_red)
+            rol_asignado = RolAsignado.objects.filter(red=red)
+
+            if rol_asignado:
+
+                for rolAsignado in rol_asignado:
+                    print("rolAsignado", rolAsignado.estado)
+                    rolAsignado.save()
+                    typeNotification = NotificacionTipo.objects.filter(pk=id_notificationtype).first()
+
+                    if typeNotification != None:
+                        print("tipoNotificacion",typeNotification.nombre)
+                        rolAsignado.notificaciones.create(mensaje= typeNotification.nombre, visto=False, tipo_notificacion=typeNotification)
+                        print("notificacion", rolAsignado.notificaciones.all())
+                        rolAsignado.save()
+                    else:
+                        error = {"error": 'No hay un tipo de notificacion asociado a la tabla con el ID' + str(id_notificationtype)}
+                        return error
+
+                mensaje = {"mensaje": 'La notificacion ha sido creada'}
+                return mensaje
+            else:
+                error = {"error": 'No hay un ROL asignado al RED' + id_red}
+                return error
+        else:
+            error = {"error": 'No hay un RED con el id ' + id_red}
+            return error
+
+    except Exception as ex:
+        error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presentó un error realizando la petición"}
+        return error
