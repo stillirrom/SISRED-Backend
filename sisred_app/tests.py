@@ -639,7 +639,7 @@ class ComentarImagen(TestCase):
         coment3=Comentario.objects.create(contenido='Hola que mas3', version=self.version, recurso=self.recurso, usuario=perfil2, comentario_multimedia=self.com_mul,fecha_creacion='2018-04-10')
 
 
-        url = '/api/versiones/' + str(self.version.pk) + '/recursos/'+str(self.recurso.pk)+'/listacomentarios/'+str(self.com_mul.pk)+'/'
+        url = '/api/versiones/' + str(self.version.pk) + '/recursos/'+str(self.recurso.pk)+'/listacomentarios/'
 
         response = self.client.get(url)
         current_data = json.loads(response.content)

@@ -30,7 +30,7 @@ urlpatterns = [
     path('versiones/', views_equipo2.versiones, name='versiones'),
     path('versiones/<int:id_v>/recursos/<int:id_r>/comentarios/', views_equipo2.comentarioExistente, name='comentarioExistente'),
     path('versiones/<int:id_v>/recursos/<int:id_r>/comentariosnuevos/', views_equipo2.comentarioNuevo, name='comentarioNuevo'),
-    path('versiones/<int:id_v>/recursos/<int:id_r>/listacomentarios/<int:id_cm>/', views_equipo2.getListaComentarios, name='getListaComentarios'),
+    path('versiones/<int:id_v>/recursos/<int:id_r>/listacomentarios/', views_equipo2.getListaComentarios, name='getListaComentarios'),
 
     path('users/', views_equipo4.getAllUser, name='allUsers'),
     path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),
