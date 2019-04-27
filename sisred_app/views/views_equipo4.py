@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest, HttpResponseNotFound
 from psycopg2._psycopg import IntegrityError, DatabaseError
 from sisred_app.serializer import *
 from rest_framework.decorators import api_view, permission_classes
@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from datetime import datetime
+from django.db.models import Q
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
@@ -808,6 +809,40 @@ def add_metadata_recurso(request,id):
             print("Lista de tags del recurso " + str(recurso.metadata.all()))
             print("cantidad de metadatas " + str(recurso.metadata.count()))
             return HttpResponse("Actualizado correctamente el Tag " + tag.tag + " Al recurso " + recurso.nombre,status=200)
+
+"""
+Vista buscar recursos
+Parametros: request
+Return: 200 correcto 400 incorrecto
+"""
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def buscar_recurso(request):
+    if request.method=='GET':
+        name=request.GET.get("name")
+        fechaDesde=request.GET.get ("fdesde")
+        fechaHasta = request.GET.get("fhasta")
+        tag = request.GET.get("text")
+
+        q=Recurso.objects.filter()
+
+        if name:
+            q = q.filter(Q(nombre__icontains=name))
+
+        if fechaDesde and not fechaHasta:
+            q=q.filter(Q(fecha_creacion__exact=fechaDesde))
+
+        if fechaDesde and fechaHasta:
+            q = q.filter(Q(fecha_creacion__gte=fechaDesde),Q(fecha_creacion__lte=fechaHasta))
+
+        if tag:
+            metadata=Metadata.objects.filter(tag=tag).first()
+            q = q.filter(Q(metadata__exact=metadata))
+
+        return JsonResponse(list(q.values()), safe=False)
+
+    return HttpResponseNotFound()
 
 """
 Vista para consultar las notificaciones de un usuario
