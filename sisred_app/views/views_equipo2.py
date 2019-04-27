@@ -248,7 +248,7 @@ def comentarioExistente(request,id_v, id_r):
         recurso = get_object_or_404(Recurso, id=id_r)
         contenido = data['contenido']
         fecha_creacion = datetime.date.today()
-        usuario=Perfil.objects.get(usuario__username=data['usuario'])
+        usuario=Perfil.objects.get(usuario__id=data['usuario'])
         idTabla = data['idTabla']
 
         comentario_multimedia=ComentarioMultimedia.objects.get(id=idTabla)
@@ -277,7 +277,7 @@ def comentarioNuevo(request,id_v, id_r):
         recurso = get_object_or_404(Recurso, id=id_r)
         contenido = data['contenido']
         fecha_creacion = datetime.date.today()
-        usuario=Perfil.objects.get(usuario__username=data['usuario'])
+        usuario=Perfil.objects.get(usuario__id=data['usuario'])
         x1=data['x1']
         x2=data['x2']
         y1=data['y1']
@@ -300,3 +300,17 @@ def comentarioNuevo(request,id_v, id_r):
 
         return JsonResponse(serializer.data, safe=True)
     return HttpResponseNotFound()
+
+@csrf_exempt
+def getListaComentarios(request,id_v, id_r, id_cm):
+    try:
+        version = get_object_or_404(Version, id=id_v)
+        recurso = get_object_or_404(Recurso, id=id_r)
+        comentario_multimedia = get_object_or_404(ComentarioMultimedia, id=id_cm)
+    except:
+        raise Http404('No existe una version con id '+str(id_v)+'No existe un recurso con id '+str(id_r))
+
+    data=Comentario.objects.filter(version=version, recurso=recurso, comentario_multimedia=comentario_multimedia).order_by('-fecha_creacion')
+    serializer=ComentarioSerializer(data, many=True)
+    return JsonResponse({'context': serializer.data}, safe=True)
+
