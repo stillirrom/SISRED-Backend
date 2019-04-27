@@ -104,14 +104,14 @@ def get_detallered(request):
 @csrf_exempt
 def get_reds_asignados(request, id):
     if request.method == 'GET':
-        usuario = User.objects.get(pk=id);
-        nombreUsuario = usuario.first_name + " " + usuario.last_name
-        perfil = Perfil.objects.get(usuario=usuario);
+        perfil = Perfil.objects.get(id_conectate=id)
         reds_asignados = []
         rolesAsignado = RolAsignado.objects.filter(usuario=perfil)
         for rolAsignado in rolesAsignado:
             red = rolAsignado.red
             rol = rolAsignado.rol.nombre
-            reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
-        respuesta = {"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}
+            reds_asignados.append(
+                {"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
+        respuesta = {
+            "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
