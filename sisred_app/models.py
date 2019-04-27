@@ -143,7 +143,7 @@ class Version(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Version: ' + self.numero
+        return 'Version: ' + self.numero.__str__()
 
 
 class Rol(models.Model):
