@@ -170,6 +170,7 @@ def get_comentarios_video(request, id):
                                  "user_name": nombreUsuario}
                     comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido})
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
+                print(respuesta)
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
         except Exception as ex:
             print(ex)
@@ -218,7 +219,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
 
             #########  COMENTARIO VIDEO ###########
 
-            comentarioVideo = ComentarioVideo.objects.filter(seg_ini=rangeStart).filter(seg_fin=rangeStop)
+            comentarioVideo = ComentarioVideo.objects.filter(seg_ini=rangeStart).filter(seg_fin=rangeStop).filter(comentario_multimedia=comentarioMultimedia)
             print(comentarioVideo)
             if not comentarioVideo:
                 comentarioVideo = ComentarioVideo(
@@ -239,25 +240,33 @@ def post_comentarios_video(request, idVersion, idRecurso):
                 dateTime = comment['meta']['datetime']
                 print("Validando comentario ID: "+str(idComentario))
                 try:
-                    if (type(idComentario) is int):  # Ya que la libreria envia unas cadenas
+                    if (isNum(idComentario)):  # Ya que la libreria envia unas cadenas
                         comentario = Comentario.objects.get(pk=idComentario)
-                        print("Se ignora ya que existe")
+                        print("Se ignora ya que existe -> "+comentario.contenido)
                         continue
                     else:
-                        version = Version.objects.get(pk=idVersion)
-                        recurso = Recurso.objects.get(pk=idRecurso)
-                        usuario = Perfil.objects.get(pk=userID)
+                        try:
+                            comentario = Comentario.objects.get(id_multimedia=idComentario)
+                        except Exception as ex:
+                            comentario = None
+                            print("No existe")
+                        if(comentario == None):
+                            print("Creando Nuevo objeto")
+                            version = Version.objects.get(pk=idVersion)
+                            recurso = Recurso.objects.get(pk=idRecurso)
+                            usuario = Perfil.objects.get(pk=userID)
 
-                        comentario = Comentario(
-                            contenido=commentBody,
-                            version=version,
-                            recurso=recurso,
-                            usuario=usuario,
-                            comentario_multimedia=comentarioMultimedia
-                        )
-                        print(comment)
-                        print(comentario)
-                        comentario.save()
+                            comentario = Comentario(
+                                id_multimedia=idComentario,
+                                contenido=commentBody,
+                                version=version,
+                                recurso=recurso,
+                                usuario=usuario,
+                                comentario_multimedia=comentarioMultimedia
+                            )
+                            print(comment)
+                            print(comentario)
+                            comentario.save()
                 except Exception as ex:
                     print(ex)
 
@@ -283,3 +292,10 @@ def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
     raise TypeError
+
+def isNum(data):
+    try:
+        int(data)
+        return True
+    except ValueError:
+        return False
