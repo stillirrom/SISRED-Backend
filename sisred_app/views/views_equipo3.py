@@ -303,3 +303,17 @@ def isNum(data):
     except ValueError:
         return False
 
+
+# Metodo para obtener las notificaciones de un usuario
+@csrf_exempt
+def get_versiones_revision(request, id):
+    if request.method == 'GET':
+        usuario = User.objects.get(pk=id);
+        perfil = Perfil.objects.get(usuario=usuario);
+        rolesAsignados = RolAsignado.objects.filter(usuario=perfil);
+        respuesta = []
+        for rol in rolesAsignados:
+            versiones = Version.objects.filter(red=rol.red)
+            for ver in versiones:
+                respuesta.append({"versionId": ver.pk,"redId": rol.red.pk, "rol": rol.rol.nombre, "red": rol.red.nombre, "fecha": "20-02-2019"})
+    return HttpResponse(json.dumps(respuesta), content_type="application/json")
