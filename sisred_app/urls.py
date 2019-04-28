@@ -21,6 +21,17 @@ urlpatterns = [
     path('getRecurso/', views_equipo2.getRecurso),
     path('getRED/', views_equipo2.getRED),
     path('asignaciones/', views_equipo2.getAsignaciones),
+    path('red/<int:id>/recursos/', views_equipo2.getRecursosRed),
+    path('versiones/<int:id>/', views_equipo2.getVerVersion),
+    path('versiones/<int:id>/recursos/', views_equipo2.getVerVersionR),
+    path('reds/<int:id>/versiones/', views_equipo2.getVersionesRED),
+    path('versiones/<int:id>/marcar', views_equipo2.marcarVersion, name='marcarVersion'),
+    path('buscarReds/<int:idUsuario>/', views_equipo2.buscarRed, name='reds'),
+    path('versiones/', views_equipo2.versiones, name='versiones'),
+    path('versiones/<int:id_v>/recursos/<int:id_r>/comentarios/', views_equipo2.comentarioExistente, name='comentarioExistente'),
+    path('versiones/<int:id_v>/recursos/<int:id_r>/comentariosnuevos/', views_equipo2.comentarioNuevo, name='comentarioNuevo'),
+    path('versiones/<int:id_v>/recursos/<int:id_r>/listacomentarios/', views_equipo2.getListaComentarios, name='getListaComentarios'),
+
     path('users/', views_equipo4.getAllUser, name='allUsers'),
     path('users/<int:id>/', views_equipo4.getUser, name='getUserId'),
     path('users/add/', views_equipo4.postUser, name='addUser'),
@@ -37,4 +48,5 @@ urlpatterns = [
     path('asignaciones/add/', views_equipo4.postRolAsignado, name='addRolAsignado'),
     path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
+
 ]

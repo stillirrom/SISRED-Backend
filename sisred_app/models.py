@@ -20,6 +20,7 @@ class NotificacionTipo(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
 
+
 class Notificacion(models.Model):
     mensaje = models.TextField()
     fecha = models.DateField(default=datetime.date.today)
