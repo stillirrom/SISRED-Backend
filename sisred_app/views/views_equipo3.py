@@ -189,17 +189,17 @@ def post_comentarios_video(request, idVersion, idRecurso):
         print(commentsDetails)
         for commentData in commentsDetails:
             idMultimedia = commentData['id']
-
-            x1 = commentData['shape']['x1']
-            y1 = commentData['shape']['y1']
-            x2 = commentData['shape']['x2']
-            y2 = commentData['shape']['y2']
-            rangeStart = commentData['range']['start']
-            rangeStop = None
-            try:
-                rangeStop = commentData['range']['stop']
-            except Exception as ex:
-                rangeStop = commentData['range']['end']
+            comentarioMultimedia = None
+            commentShape = commentData['shape']
+            x1 = None
+            y1 = None
+            x2 = None
+            y2 = None
+            if (commentShape != None):
+                x1 = commentData['shape']['x1']
+                y1 = commentData['shape']['y1']
+                x2 = commentData['shape']['x2']
+                y2 = commentData['shape']['y2']
 
             # Validar si el ID ya existe (Pues se envian todos los comentarios) - En caso de que si, no se guarda.
 
@@ -216,9 +216,15 @@ def post_comentarios_video(request, idVersion, idRecurso):
                     y2=y2
                 )
                 comentarioMultimedia.save()
-
             print("ComentarioMultimediaData->")
             print(comentarioMultimedia)
+
+            rangeStart = commentData['range']['start']
+            rangeStop = None
+            try:
+                rangeStop = commentData['range']['stop']
+            except Exception as ex:
+                rangeStop = commentData['range']['end']
 
             #########  COMENTARIO VIDEO ###########
 
@@ -249,7 +255,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
                         continue
                     else:
                         try:
-                            comentario = Comentario.objects.get(id_multimedia=idComentario)
+                            comentario = Comentario.objects.get(id_video_libreria=idComentario)
                         except Exception as ex:
                             comentario = None
                             print("No existe")
@@ -260,7 +266,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
                             usuario = Perfil.objects.get(pk=userID)
 
                             comentario = Comentario(
-                                id_multimedia=idComentario,
+                                id_video_libreria=idComentario,
                                 contenido=commentBody,
                                 version=version,
                                 recurso=recurso,
