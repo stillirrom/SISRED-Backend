@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json, decimal
 from django.http import JsonResponse
-from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados, Version, Comentario, ComentarioMultimedia, ComentarioVideo
+from sisred_app.models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, Version, Comentario, ComentarioMultimedia, ComentarioVideo
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
