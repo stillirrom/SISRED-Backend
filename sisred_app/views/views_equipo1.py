@@ -180,6 +180,7 @@ def makeReds(red):
     reds.append({"listo": red.listo})
 
     return reds
+
 #Autor:         Alejandro Garcia
 #Fecha:         2019-04-17
 #Parametros:    request -> Datos de la solicitud
