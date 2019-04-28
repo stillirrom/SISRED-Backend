@@ -41,6 +41,4 @@ urlpatterns = [
     path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
 
-    path('comentarios/pdf/<int:id>/', views_equipo1.getComentariosPDF, name='get_comentarios_pdf'),
-    path('comentarios/pdf/', views_equipo1.postComentariosPDF, name='post_comentarios_pdf'),
 ]
