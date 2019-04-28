@@ -16,6 +16,12 @@ urlpatterns = [
     path('detallered/recursos/', views_equipo3.get_detallered_recursos, name='detallered'),
     path('detallered/proyectos/', views_equipo3.get_detallered_proyectosred, name='detallered'),
     path('reds/asignados/<int:id>', views_equipo3.get_reds_asignados, name='reds_asignados'),
+    path('get_version/', views_equipo3.get_version, name='version_red'),
+    path('get_recursos_by_version/', views_equipo3.get_recursos_by_version, name='version_red'),
+    path('comentarios/video/<int:id>', views_equipo3.get_comentarios_video, name='comentarios'),
+    path('comentarios/video/<int:idVersion>/<int:idRecurso>', views_equipo3.post_comentarios_video, name='agregarComentarios'),
+    path('comentarios/video/url/<int:id>', views_equipo3.get_url_recurso_video, name='urlRecursoVideo'),
+    path('revisiones/<int:id>', views_equipo3.get_versiones_revision, name='revisiones'),
 
     path('getProyectosRED/', views_equipo2.getProyectosRED),
     path('getRecurso/', views_equipo2.getRecurso),
@@ -52,7 +58,7 @@ urlpatterns = [
     path('asignaciones/add/', views_equipo4.postRolAsignado, name='addRolAsignado'),
     path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
-    path('red/<int:idRed>/cambiarfase/<int:idFase>/', views_equipo4.putCambiarFaseRed, name='putCambiarFaseRed'),
+
     path('fases/', views_equipo4.get_fases, name='fases'),
     path('addMetadataRecurso/<int:id>/', views_equipo4.add_metadata_recurso, name='addMetadataRecurso'),
     path('buscarRecurso/', views_equipo4.buscar_recurso, name='recursos'),
