@@ -10,7 +10,6 @@ urlpatterns = [
     path('fase_byid/<int:id>', views_equipo1.fase_byid, name='fase_byid'),
     path('habilitar-usuario/<str:numero_identificacion>', views_equipo1.getUserByIdentification, name='habilitar-usuario'),
     path('habilitar-red/<str:id_conectate>', views_equipo1.getREDByIdentification, name='habilitar-red'),
-    path('red/<int:idRed>/cambiarfase/<int:idFase>/', views_equipo1.putCambiarFaseRed, name='putCambiarFaseRed'),
 
     path('post_proyecto_red/', views_equipo3.post_proyecto_red, name='agregar_proyecto_red'),
     path('detallered/', views_equipo3.get_detallered, name='detallered'),
@@ -61,6 +60,7 @@ urlpatterns = [
     path('asignaciones/add/', views_equipo4.postRolAsignado, name='addRolAsignado'),
     path('asignaciones/update/<int:id>/', views_equipo4.putRolAsignado, name='putRolAsignado'),
     path('asignaciones/delete/<int:id>/', views_equipo4.deleteRolAsignado, name='deleteRolAsignado'),
+    path('red/<int:idRed>/cambiarfase/<int:idFase>/', views_equipo4.putCambiarFaseRed, name='putCambiarFaseRed'),
 
     path('fases/', views_equipo4.get_fases, name='fases'),
     path('addMetadataRecurso/<int:id>/', views_equipo4.add_metadata_recurso, name='addMetadataRecurso'),
