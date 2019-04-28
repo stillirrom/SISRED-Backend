@@ -14,7 +14,7 @@ class Perfil(models.Model):
 
     def __str__(self):
         return "Usuario: " + self.usuario.first_name
-    
+
 
 class NotificacionTipo(models.Model):
     nombre = models.CharField(max_length=100)
