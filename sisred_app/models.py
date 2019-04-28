@@ -16,18 +16,17 @@ class Perfil(models.Model):
         return "Usuario: " + self.usuario.first_name
 
 
-class TipoNotificacion(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return "tipoNotificacion: " + self.tipoNotificacion.name
+class NotificacionTipo(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
 
 
 
 class Notificacion(models.Model):
     mensaje = models.TextField()
     fecha = models.DateField(default=datetime.date.today)
-    tipo = models.ForeignKey(TipoNotificacion, on_delete=models.CASCADE, related_name='tipo_notificacion')
+    visto = models.BooleanField(default=False)
+    tipo_notificacion = models.ForeignKey(NotificacionTipo, on_delete=models.CASCADE, related_name='notificacion_tipo')
 
     def __str__(self):
         return 'Notificacion: ' + self.mensaje
@@ -48,16 +47,17 @@ class Recurso(models.Model):
     fecha_ultima_modificacion = models.DateField(default=datetime.date.today)
     tipo = models.CharField(max_length=50)
     descripcion = models.TextField()
-    metadata = models.ManyToManyField(Metadata,blank=True)
+    metadata = models.ManyToManyField(Metadata, blank=True)
     autor = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_autor')
-    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_ultima_modificacion')
+    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE,
+                                                    related_name='usuario_ultima_modificacion')
 
     def __str__(self):
         return "Recurso: " + self.nombre
 
     @property
     def getAutor(self):
-        return self.autor.usuario.first_name + " "  + self.autor.usuario.last_name
+        return self.autor.usuario.first_name + " " + self.autor.usuario.last_name
 
     @property
     def getResponsableModificacion(self):
@@ -116,7 +116,7 @@ class RED(models.Model):
 
     @property
     def getFase(self):
-            return self.fase.nombre_fase
+        return self.fase.nombre_fase
 
     @property
     def getProyecto(self):
@@ -140,19 +140,19 @@ class ProyectoRED(models.Model):
         return "Proyecto RED: " + self.nombre
 
 
-class HistorialEstados(models.Model):
+class HistorialFases(models.Model):
     fecha_cambio = models.DateField(default=datetime.date.today)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
+    fase = models.ForeignKey(Fase, on_delete=models.CASCADE, related_name='historial_fases_red')
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.estado.__str__() + " " + self.red.__str__()
+        return self.fase.__str__() + " " + self.red.__str__()
 
 
 class Version(models.Model):
     es_final = models.BooleanField(default=False)
     numero = models.IntegerField()
-    imagen = models.CharField(max_length=200,null=True)
+    imagen = models.CharField(max_length=200, null=True)
     archivos = models.CharField(max_length=200)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso, blank=True)
@@ -196,7 +196,7 @@ class ComentarioMultimedia(models.Model):
 class ComentarioVideo(models.Model):
     seg_ini = models.IntegerField(blank=True, null=True)
     seg_fin = models.IntegerField(blank=True, null=True)
-    comentario_multimedia = models.OneToOneField(ComentarioMultimedia, on_delete=models.CASCADE)
+    comentario_multimedia = models.OneToOneField(ComentarioMultimedia, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
