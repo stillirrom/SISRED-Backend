@@ -1,11 +1,17 @@
 
 \.idea/
 
+__pycache__/
+
+*/__pycache__/
+
 sisred/__pycache__/
 
 sisred_app/__pycache__/
 
 sisred_app/migrations/
+
+sisred_app/migrations/__pycache__/
 
 *.sqlite3
 

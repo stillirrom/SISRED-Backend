@@ -32,10 +32,6 @@ class Notificacion(models.Model):
         return 'Notificacion: ' + self.mensaje
 
 
-
-
-
-
 class Metadata(models.Model):
     tag = models.CharField(max_length=50)
 
@@ -51,16 +47,17 @@ class Recurso(models.Model):
     fecha_ultima_modificacion = models.DateField(default=datetime.date.today)
     tipo = models.CharField(max_length=50)
     descripcion = models.TextField()
-    metadata = models.ManyToManyField(Metadata,blank=True)
+    metadata = models.ManyToManyField(Metadata, blank=True)
     autor = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_autor')
-    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='usuario_ultima_modificacion')
+    usuario_ultima_modificacion = models.ForeignKey(Perfil, on_delete=models.CASCADE,
+                                                    related_name='usuario_ultima_modificacion')
 
     def __str__(self):
         return "Recurso: " + self.nombre
 
     @property
     def getAutor(self):
-        return self.autor.usuario.first_name + " "  + self.autor.usuario.last_name
+        return self.autor.usuario.first_name + " " + self.autor.usuario.last_name
 
     @property
     def getResponsableModificacion(self):
@@ -77,6 +74,7 @@ class ProyectoConectate(models.Model):
 
     def __str__(self):
         return 'Proyecto conectate: ' + self.nombre
+
 
 class Fase(models.Model):
     id_conectate = models.CharField(max_length=50)
@@ -113,16 +111,17 @@ class RED(models.Model):
     listo_para_revision = models.BooleanField(default=False, blank=True)
     fase = models.ForeignKey(Fase, on_delete=models.SET_NULL, null=True)
 
-
     def __str__(self):
         return 'Red: ' + self.id_conectate
+
     @property
     def getFase(self):
-            return self.fase.nombre_fase
+        return self.fase.nombre_fase
 
     @property
     def getProyecto(self):
         return self.proyecto_conectate.nombre
+
 
 class SubproductoRED(models.Model):
     red = models.ForeignKey(RED, on_delete=models.CASCADE, related_name='subproductos_del_red')
@@ -153,7 +152,7 @@ class HistorialEstados(models.Model):
 class Version(models.Model):
     es_final = models.BooleanField(default=False)
     numero = models.IntegerField()
-    imagen = models.CharField(max_length=200,null=True)
+    imagen = models.CharField(max_length=200, null=True)
     archivos = models.CharField(max_length=200)
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
     recursos = models.ManyToManyField(Recurso, blank=True)
@@ -197,24 +196,24 @@ class Comentario(models.Model):
 
 
 class ComentarioMultimedia(models.Model):
-
-    x1 = models.DecimalField(null=True, blank=True)
-    y1 = models.DecimalField(null=True, blank=True)
-    x2 = models.DecimalField(null=True, blank=True)
-    y2 = models.DecimalField(null=True, blank=True)
+    x1 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    y1 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    x2 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
+    y2 = models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=10)
     comentario = models.ForeignKey(Comentario, on_delete=models.CASCADE)
 
     def __str__(self):
         return 'x1: ' + str(self.x1) + ', y1: ' + str(self.y1) + ', x2: ' + str(self.x2) + ', y2: ' + str(self.y2)
 
-class ComentarioVideo(models.Model):
 
+class ComentarioVideo(models.Model):
     seg_ini = models.IntegerField(null=True, blank=True)
     seg_fin = models.IntegerField(null=True, blank=True)
     comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE)
 
     def __str__(self):
         return 'Segundo de inicio: ' + str(self.seg_ini) + ' y segundo de fin ' + str(self.seg_fin)
+
 
 class Propiedad(models.Model):
     llave = models.CharField(max_length=200)
