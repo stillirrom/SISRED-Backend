@@ -310,7 +310,7 @@ def isNum(data):
         return False
 
 
-# Metodo para obtener las notificaciones de un usuario
+# Metodo para obtener las versiones asignadas a un usuario
 @csrf_exempt
 def get_versiones_revision(request, id):
     if request.method == 'GET':
@@ -321,5 +321,5 @@ def get_versiones_revision(request, id):
         for rol in rolesAsignados:
             versiones = Version.objects.filter(red=rol.red)
             for ver in versiones:
-                respuesta.append({"versionId": ver.pk,"redId": rol.red.pk, "rol": rol.rol.nombre, "red": rol.red.nombre, "fecha": "20-02-2019"})
+                respuesta.append({"versionId": ver.pk,"redId": rol.red.pk, "rol": rol.rol.nombre, "red": rol.red.nombre, "fecha": ver.date.strftime("%d/%m/%Y")})
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
