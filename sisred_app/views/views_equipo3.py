@@ -233,7 +233,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
             if not comentarioVideo:
                 comentarioVideo = ComentarioVideo(
                     seg_ini=rangeStart,
-                    seg_fin=rangeStop,
+                    seg_fin=rangeStop + 1,
                     comentario_multimedia=comentarioMultimedia
                 )
                 print("Creando Comentario Video")

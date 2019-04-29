@@ -16,6 +16,8 @@ from rest_framework.authtoken.models import Token
 from datetime import datetime
 from django.db.models import Q
 
+from sisred_app.views.views_equipo1 import sincronizarFases
+
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
 Se usan archivos serializer para import de los modelos con los campos filtrados
@@ -698,6 +700,9 @@ def putCambiarFaseRed(request, idRed, idFase):
 
             red.fase = fase
             red.save()
+
+            # Llamado a la funcion de sincronizarFases
+            sincronizarFases(idRed, idActual, idFase)
 
             result = createNotification(idRed, 2)  # para crear la notificacion
             print("notificacion:", result)
