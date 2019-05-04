@@ -1,15 +1,23 @@
+import json
+
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseBadRequest, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import  status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
 
 from rest_framework.response import Response
+import json
 import datetime
+import requests
 
-
-from sisred_app.models import Recurso, RED, Perfil
-from sisred_app.serializer import RecursoSerializer, FaseSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-    REDSerializer
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from sisred_app.models import Recurso, RED, Perfil, Fase, HistorialFases, Version, Comentario, ComentarioMultimedia
+from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
+     REDSerializer
 
 
 
@@ -95,3 +103,95 @@ def fase_byid(request,id):
         print(red)
         serializer = REDSerializer(red, many=True)
         return Response(serializer.data)
+
+
+#Autor:         Adriana Vargas
+#Fecha:         2019-04-11
+#Parametros:    request -> Datos de la solicitud
+#               numero_identificacion -> número de identificación del usuario
+#Descripcion:   Permite consultar la información de un usuario con su número de identificación y actualizar el estado del mismo en sisred
+
+@api_view(['GET', 'PUT'])
+def getUserByIdentification(request, numero_identificacion):
+
+    try:
+        perfil = Perfil.objects.get(numero_identificacion=numero_identificacion)
+    except Perfil.DoesNotExist:
+        raise NotFound(detail="Error 404, User not found", code=404)
+
+    usuario = User.objects.get(username=perfil.usuario)
+
+    if request.method == 'GET':
+
+        return Response(usuarioPerfilJson(perfil, usuario))
+
+    elif request.method == 'PUT':
+
+        perfil.estado_sisred = 1
+        perfil.save()
+
+        return Response(usuarioPerfilJson(perfil, usuario))
+
+def usuarioPerfilJson(perfil, usuario):
+
+    usuario_perfil = []
+
+    usuario_perfil.append({"username": usuario.username, "email": usuario.email,
+                           "first_name": usuario.first_name, "lastname": usuario.last_name,
+                           "numero_identificacion": perfil.numero_identificacion,
+                           "estado": perfil.estado, "estado_sisred": perfil.estado_sisred})
+
+    return usuario_perfil
+
+
+#Autor:         Ramiro Vargas
+#Fecha:         2019-04-22
+#Parametros:    id_conectate -> Id del RED
+#Descripcion:   Funcionalidad para actualizar cuando un RED esta listo para revision
+
+@api_view(['GET','PUT'])
+def getREDByIdentification(request, id_conectate):
+    reds=[]
+    try:
+        red = RED.objects.get(id_conectate=id_conectate)
+    except RED.DoesNotExist:
+        raise NotFound(detail="Error 404, User not found", code=404)
+
+    if request.method == 'PUT':
+
+        red.listo=True
+        red.save()
+        reds.append({"nombre": red.nombre, "nombre_corto": red.nombre_corto,
+                    "descripcion": red.descripcion, "fecha_inicio": red.fecha_inicio,
+                    "fecha_cierre": red.fecha_cierre,
+                    "fecha_creacion": red.fecha_creacion, "porcentaje_avance": red.porcentaje_avance,
+                    "tipo": red.tipo, "solicitante": red.solicitante,
+                    "horas_estimadas": red.horas_estimadas, "horas_trabajadas": red.horas_trabajadas,
+                    "proyecto_conectate_id": red.proyecto_conectate_id,
+                    "listo": True})
+        return Response(reds)
+    if request.method == 'GET':
+        return Response(makeReds(red))
+
+def makeReds(red):
+
+    reds = []
+
+    reds.append({"listo": red.listo})
+
+    return reds
+
+#Autor:         Adriana Vargas
+#Fecha:         2019-04-22
+#Parametros:    idRed -> Id del RED en el sistema de PyS
+#               idActual -> Id de la fase actual del RED
+#               idFase -> Id de la nueva fase del RED
+#Descripcion:   Funcionalidad para sincronizar el cambio de fase con el sistema de PyS
+
+def sincronizarFases(idRed, idActual, idFase):
+    url = 'http://sincronizar-red.mocklab.io/cambioFase'
+    data = {"id_conectate": idRed, "fase_actual": idActual, "nueva_fase": idFase}
+    response = requests.post(url, data=json.dumps(data))
+    print(response)
+
+    return Response(response)

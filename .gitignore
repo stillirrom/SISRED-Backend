@@ -1,12 +1,26 @@
 
 \.idea/
 
+__pycache__/
+
+*/__pycache__/
+
 sisred/__pycache__/
 
 sisred_app/__pycache__/
 
-sisred_app/migrations/
+*/__pycache__/
+
+sisred_app/migrations/__pycache__/
 
 *.sqlite3
 
 \env
+__pycache__/
+sisred_app/views/__pycache__/
+
+__pycache__/
+
+.DS_Store
+/sisred_app/migrations/
+/sisred_app/.DS_Store
