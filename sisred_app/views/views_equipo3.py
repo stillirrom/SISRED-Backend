@@ -320,5 +320,5 @@ def get_versiones_revision(request, id):
         for rol in rolesAsignados:
             versiones = Version.objects.filter(red=rol.red)
             for ver in versiones:
-                respuesta.append({"versionId": ver.pk,"redId": rol.red.pk, "rol": rol.rol.nombre, "red": rol.red.nombre, "fecha": ver.date.strftime("%d/%m/%Y")})
+                respuesta.append({"versionId": ver.pk,"redId": rol.red.pk, "rol": rol.rol.nombre, "red": rol.red.nombre, "fecha": ver.fecha_creacion.strftime("%d/%m/%Y")})
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
