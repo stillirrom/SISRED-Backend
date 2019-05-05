@@ -96,7 +96,7 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -118,7 +118,7 @@ class sisred_appTestCase(TestCase):
         RolAsignado.objects.create(id_conectate='2', estado=1, red=red2, rol=self.rol, usuario=self.perfil)
         buscarNombre = "video"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}"
+        url = f"/api/buscarReds/?text={buscarNombre}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -147,12 +147,12 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(reds), 1)
+        self.assertEqual(len(reds), 2)
         self.assertEqual(reds[0]['id'], 1)
 
     def testBuscarRedNameByshortName(self):
@@ -177,7 +177,7 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -209,7 +209,7 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -245,7 +245,7 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -280,7 +280,7 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "1987-12-28"
         fecha_fin = "3000-12-28"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?text={buscarNombre}&fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -318,7 +318,7 @@ class sisred_appTestCase(TestCase):
         fecha_inicio = "2019-01-01"
         fecha_fin = "2019-12-31"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?fstart={fecha_inicio}&fend={fecha_fin}"
+        url = f"/api/buscarReds/?fstart={fecha_inicio}&fend={fecha_fin}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
@@ -353,7 +353,7 @@ class sisred_appTestCase(TestCase):
         buscarNombre = "b"
         fecha_inicio = "2019-01-01"
 
-        url = f"/api/buscarReds/{self.perfil.usuario.pk}/?fstart={fecha_inicio}"
+        url = f"/api/buscarReds/?fstart={fecha_inicio}"
 
         response = self.client.get(url, format='json')
         reds = json.loads(response.content)
