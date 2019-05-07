@@ -263,7 +263,7 @@ def post_comentarios_video(request, idVersion, idRecurso):
                             print("Creando Nuevo objeto")
                             version = Version.objects.get(pk=idVersion)
                             recurso = Recurso.objects.get(pk=idRecurso)
-                            usuario = Perfil.objects.get(pk=userID)
+                            usuario = Perfil.objects.get(id_conectate=userID)
 
                             comentario = Comentario(
                                 id_video_libreria=idComentario,
