@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 from django.contrib.auth.models import User
+import  math
 
 
 # Create your models here.
@@ -210,9 +211,34 @@ class Comentario(models.Model):
     id_video_libreria = models.CharField(max_length=200, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     cerrado = models.BooleanField(default=False, blank=True)
-
+    resuelto=models.BooleanField(default=False, blank=True)
+    padre = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return 'Comentario: ' + self.contenido
+
+    @property
+    def comentariosHijos(self):
+        return Comentario.objects.filter(padre=self.id)
+
+    @property
+    def comentarioMultimedia(self):
+        return self.comentario_multimedia
+
+    @property
+    def Width(self):
+        return  math.fabs(self.comentario_multimedia.x2 - self.comentario_multimedia.x1)
+
+    @property
+    def Height(self):
+        return math.fabs(self.comentario_multimedia.y2 - self.comentario_multimedia.y1)
+
+    @property
+    def VersionArchivo(self):
+        return self.version.archivos
+
+    @property
+    def UsuarioComentario(self):
+        return self.usuario.usuario.first_name + " " + self.autor.usuario.last_name
 
 
 class Propiedad(models.Model):

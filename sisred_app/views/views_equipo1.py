@@ -16,8 +16,7 @@ import requests
 
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from sisred_app.models import Recurso, RED, Perfil, Fase, HistorialFases, Version, Comentario, ComentarioMultimedia
-from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-     REDSerializer
+from sisred_app.serializer import *
 
 
 
@@ -195,3 +194,18 @@ def sincronizarFases(idRed, idActual, idFase):
     print(response)
 
     return Response(response)
+
+#Autor: Francisco Perneth
+#Fecha: 2019-03-30
+#Parametros:
+#    Request -> Datos de la solicitud
+#    id -> id del recurso para obtener
+#Descripcion:
+#   Permite consultar un recurso mediante su identificador (id)
+@api_view(['GET'])
+def comentarioPDF_get(request,id):
+    comentarios = Comentario.objects.filter(version_id=id, padre=None)
+    if(comentarios==None):
+        raise NotFound(detail="Error 404, recurso not found", code=404)
+    serializer = ComentariosPDFSerializer(comentarios, many=True)
+    return Response(serializer.data)
