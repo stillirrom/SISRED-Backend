@@ -312,6 +312,7 @@ class ProyectoREDSerializer(serializers.ModelSerializer):
         fields= '__all__'
 
 
+#Obtiene la lista de Proyectos RED asociados al RED
 @csrf_exempt
 def getListaProyectosred(request, id):
     try:
