@@ -106,13 +106,6 @@ class VersionSerializer(serializers.ModelSerializer):
         fields= '__all__'
 
 
-class VersionSerializer(serializers.ModelSerializer):
-    creado_por = PerfilSerializer()
-    class Meta:
-        model = Version
-        fields= '__all__'
-
-
 @csrf_exempt
 def getAsignaciones(request):
     data = list(RolAsignado.objects.all())
@@ -312,3 +305,19 @@ def getListaComentarios(request,id_v, id_r):
     serializer=ComentarioSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
 
+
+class ProyectoREDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProyectoRED
+        fields= '__all__'
+
+
+@csrf_exempt
+def getListaProyectosred(request, id):
+    try:
+        red = RED.objects.get(pk=id)
+    except:
+        raise Http404('No existe un RED con id '+str(id))
+    data = ProyectoRED.objects.filter(red=red)
+    serializer = ProyectoREDSerializer(data, many=True)
+    return JsonResponse({'context': serializer.data}, safe=True)

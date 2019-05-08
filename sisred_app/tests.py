@@ -1,6 +1,6 @@
 from django.test import TestCase
 from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso, RolAsignado, Rol, ComentarioMultimedia, \
-    Comentario
+    Comentario, ProyectoRED
 from django.contrib.auth.models import User
 import datetime
 import json
@@ -1241,3 +1241,63 @@ class SisredTestCase(TestCase):
         #print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
+
+class DescargarRED(TestCase):
+    red=None
+    def test_respuesta_listar_proyectos(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        ProyectoRED.objects.create(nombre='illustrator2', tipo='png', autor=perfil.usuario.username, carpeta='/bleh',red=self.red, descripcion='HOLA')
+        ProyectoRED.objects.create(nombre='illustrator', tipo='png', autor=perfil.usuario.username, carpeta='/blah', red=self.red, descripcion='HOLA' )
+
+        url = '/api/reds/' + str(self.red.pk) + '/proyectored/'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_contar_versiones(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        ProyectoRED.objects.create(nombre='illustrator2', tipo='png', autor=perfil.usuario.username, carpeta='/bleh',red=self.red, descripcion='HOLA')
+        ProyectoRED.objects.create(nombre='illustrator', tipo='png', autor=perfil.usuario.username, carpeta='/blah', red=self.red, descripcion='HOLA' )
+
+        url = '/api/reds/' + str(self.red.pk) + '/proyectored/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(len(data), 2)
+
+    def test_listar_proyecto_red(self):
+        user = User.objects.create_user(username='test2', password='123456', email='test@test.com', first_name='test',
+                                        last_name='T')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=user, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='1234',
+                                                    fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
+
+        self.red = RED.objects.create(id_conectate='1', nombre='elRED', descripcion=' ',
+                                      tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        ProyectoRED.objects.create(nombre='illustrator2', tipo='png', autor=perfil.usuario.username, carpeta='/bleh',red=self.red, descripcion='HOLA')
+        ProyectoRED.objects.create(nombre='illustrator', tipo='png', autor=perfil.usuario.username, carpeta='/blah', red=self.red, descripcion='HOLA' )
+
+        url = '/api/reds/' + str(self.red.pk) + '/proyectored/'
+        response = self.client.get(url, format='json')
+        data = json.loads(response.content)['context']
+        self.assertEqual(data[0]['nombre'], 'illustrator')
+        self.assertEqual(data[1]['nombre'], 'illustrator2')
+        self.assertEqual(data[0]['tipo'], 'png')
+        self.assertEqual(data[1]['tipo'], 'png')
+        self.assertEqual(data[0]['carpeta'], '/blah')
+        self.assertEqual(data[1]['carpeta'], '/bleh')
