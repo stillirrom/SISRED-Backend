@@ -1,10 +1,8 @@
 import json
 
 from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import serialize
 from django.http import HttpResponseBadRequest, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import  status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
@@ -14,8 +12,8 @@ import json
 import datetime
 import requests
 
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
-from sisred_app.models import Recurso, RED, Perfil, Fase, HistorialFases, Version, Comentario, ComentarioMultimedia
+from rest_framework.status import HTTP_400_BAD_REQUEST
+from sisred_app.models import Recurso, RED, Perfil, Comentario
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
      REDSerializer
 
@@ -182,7 +180,7 @@ def makeReds(red):
     return reds
 
 #Autor:         Adriana Vargas
-#Fecha:         2019-04-22
+#Fecha:         2019-05-08
 #Parametros:    idRed -> Id del RED en el sistema de PyS
 #               idActual -> Id de la fase actual del RED
 #               idFase -> Id de la nueva fase del RED
@@ -195,3 +193,37 @@ def sincronizarFases(idRed, idActual, idFase):
     print(response)
 
     return Response(response)
+
+
+#Autor:         Adriana Vargas
+#Fecha:         2019-04-22
+#Parametros:    contenido -> Comentario de cierre
+#               fecha -> fecha en que se realizó el comentario
+#               usuario -> Usuario que realizó el comentario
+#               esCierre -> Bandera para identificar si el comentario es de cierre o no
+#Descripcion:   Funcionalidad para almacenar el comentario de cierre en un archivo de PDF
+
+@api_view(['POST'])
+def comentario_cierre_post(request):
+
+    if request.method == 'POST':
+        try:
+            json_comentario = json.loads(request.body)
+            contenido = json_comentario['contenido']
+            usuario = json_comentario['usuario']
+            fecha_creacion = json_comentario['fecha_creacion']
+            esCierre = json_comentario['esCierre']
+            comentario_model = Comentario.objects.create(contenido=contenido, usuario=usuario, fecha_creacion=fecha_creacion, esCierre=esCierre)
+
+            comentario_model.save()
+
+            return HttpResponse(serialize("json", [comentario_model]))
+        except KeyError as e:
+            return HttpResponseBadRequest(
+                content='El campo ' + str(e) + ' es requerido.'
+            )
+        except Exception as ex:
+            return HttpResponseBadRequest(
+                content='BAD_REQUEST: ' + str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )

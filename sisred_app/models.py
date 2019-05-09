@@ -210,6 +210,8 @@ class Comentario(models.Model):
     id_video_libreria = models.CharField(max_length=200, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     cerrado = models.BooleanField(default=False, blank=True)
+    resuelto = models.BooleanField(default=False, blank=True)
+    esCierre = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return 'Comentario: ' + self.contenido
