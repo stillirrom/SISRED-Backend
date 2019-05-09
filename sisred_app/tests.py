@@ -1168,6 +1168,20 @@ class sisRedTestCase(TestCase):
         self.assertEqual(createNotification(red.id_conectate, notificacionTipo.pk),
                          {"mensaje": 'La notificacion ha sido creada'})
 
+    def test_get_historico_asignados_red_status(self):
+
+        fecha = datetime.datetime.now()
+        proyecto = ProyectoConectate.objects.create(id=1, fecha_inicio=fecha, fecha_fin=fecha)
+        red = RED.objects.create(id=1, nombre='pruebaRED', descripcion='prueba',
+                                 tipo='prueba', solicitante='prueba', proyecto_conectate=proyecto)
+
+
+        url = '/getHistoricoAsignacosRed/' + str(red.id)
+
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, 200)
+
 class RR02TestCase(TestCase):
 
     def test_get_version(self):
