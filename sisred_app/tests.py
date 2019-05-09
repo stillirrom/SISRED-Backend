@@ -1176,8 +1176,8 @@ class RR02TestCase(TestCase):
         fecha_inicio = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
         fecha_fin = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
         proyectto_conectate = ProyectoConectate.objects.create(id_conectate='1', nombre='prueba',
-                                                               codigo='prueba', fecha_inicio=fecha_inicio,
-                                                               fecha_fin=fecha_fin)
+                                                               codigo='prueba', fecha_inicio=fecha,
+                                                               fecha_fin=fecha)
         red = RED.objects.create(id_conectate='1', nombre='pruebaRED', descripcion='prueba',
                                  tipo='prueba', solicitante='prueba', proyecto_conectate=proyectto_conectate)
         version = Version.objects.create(numero=1, imagen='prueba', red=red, id=1)
@@ -1191,8 +1191,8 @@ class RR02TestCase(TestCase):
         fecha_inicio = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
         fecha_fin = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
         proyectto_conectate = ProyectoConectate.objects.create(id_conectate='1', nombre='prueba',
-                                                               codigo='prueba', fecha_inicio=fecha_inicio,
-                                                               fecha_fin=fecha_fin)
+                                                               codigo='prueba', fecha_inicio=fecha,
+                                                               fecha_fin=fecha)
         red = RED.objects.create(id_conectate='1', nombre='pruebaRED', descripcion='prueba',
                                  tipo='prueba', solicitante='prueba', proyecto_conectate=proyectto_conectate)
         version = Version.objects.create(numero=1, imagen='prueba', red=red, id=1)
