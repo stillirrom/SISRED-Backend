@@ -1176,7 +1176,7 @@ class sisRedTestCase(TestCase):
                                  tipo='prueba', solicitante='prueba', proyecto_conectate=proyecto)
 
 
-        url = '/getHistoricoAsignacosRed/' + str(red.id)
+        url = '/api/getHistoricoAsignadosRed/' + str(red.id) + '/'
 
         response = self.client.get(url, format='json')
 

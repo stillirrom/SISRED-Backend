@@ -1027,3 +1027,25 @@ def createNotification(id_red, id_notificationtype):
     except Exception as ex:
         error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presentó un error realizando la petición"}
         return error
+
+
+@api_view(["GET"])
+def getHistoricoAsignadosRed(request, id):
+    print(id)
+
+    if request.method == "GET":
+        red = RED.objects.filter(id=id)
+
+        if red != None:
+           return HttpResponse("Successful", status=200)
+        else:
+            return HttpResponse("Bad request", status=400)
+    else:
+        return HttpResponse("Bad request", status=400)
+
+
+
+
+
+
+
