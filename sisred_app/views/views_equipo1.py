@@ -11,13 +11,13 @@ from rest_framework.response import Response
 import json
 import datetime
 import requests
+from datetime import datetime
+from rest_framework.authtoken.models import Token
 
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from sisred_app.models import Recurso, RED, Perfil, Comentario
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-     REDSerializer
-
-
+    REDSerializer, ComentarioCierreSerializer
 
 
 #Autor: Francisco Perneth
@@ -205,19 +205,28 @@ def sincronizarFases(idRed, idActual, idFase):
 
 @api_view(['POST'])
 def comentario_cierre_post(request):
+    '''token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        reqUser = Token.objects.get(key=token).user.id'''
 
-    if request.method == 'POST':
+    reqUser = 1
+
+    serializer = ComentarioCierreSerializer(data=request.data)
+
+    if serializer.is_valid():
+
         try:
-            json_comentario = json.loads(request.body)
-            contenido = json_comentario['contenido']
-            usuario = json_comentario['usuario']
-            fecha_creacion = json_comentario['fecha_creacion']
-            esCierre = json_comentario['esCierre']
-            comentario_model = Comentario.objects.create(contenido=contenido, usuario=usuario, fecha_creacion=fecha_creacion, esCierre=esCierre)
-
+            comentario_model = Comentario.objects.create(contenido=request.data.get('contenido'),
+                                                         usuario=Perfil.objects.get(id_conectate=reqUser),
+                                                         esCierre=request.data.get('esCierre'))
+            comentario_model.fecha_creacion = datetime.datetime.now()
             comentario_model.save()
-
-            return HttpResponse(serialize("json", [comentario_model]))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except KeyError as e:
             return HttpResponseBadRequest(
                 content='El campo ' + str(e) + ' es requerido.'

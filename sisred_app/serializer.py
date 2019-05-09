@@ -74,3 +74,9 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = RolAsignado
         fields = ('rol',)
+
+class ComentarioCierreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comentario
+        fields = ('contenido', 'usuario', 'fecha_creacion', 'esCierre')
