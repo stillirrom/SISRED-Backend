@@ -74,3 +74,15 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = RolAsignado
         fields = ('rol',)
+
+class ComentarioCierreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comentario
+        fields = '__all__'
+
+class VersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = '__all__'
