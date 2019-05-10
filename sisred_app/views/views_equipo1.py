@@ -241,3 +241,26 @@ def comentario_cierre_post(request):
 
         return JsonResponse(serializer.data, safe=True)
     return HttpResponseNotFound()
+
+#Autor:         Adriana Vargas
+#Fecha:         2019-05-09
+#Parametros:    id -> Id de comentario multimedia
+#               cerrado -> Identificador para determinar si el comentario fue cerrado
+#               resuelto -> Identificador para determinar si el comentario fue resuelto
+#Descripcion:   Funcionalidad para actualizar los estados del comentario base una vez ha sido cerrado
+
+@api_view(['PUT'])
+def comentario_cierre_put(request, id):
+        if request.method == 'PUT':
+
+                comentario = json.loads(request.body)
+                comentario_base = Comentario.objects.filter(comentario_multimedia=id).earliest('fecha_creacion')
+
+                comentario_base.cerrado = comentario['cerrado']
+                comentario_base.resuelto = comentario['resuelto']
+                comentario_base.save()
+
+                serializer = ComentarioCierreSerializer(comentario_base, many=False)
+
+                return JsonResponse(serializer.data, safe=True)
+        return HttpResponseNotFound()
