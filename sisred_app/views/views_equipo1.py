@@ -204,8 +204,4 @@ def sincronizarFases(idRed, idActual, idFase):
 #   Permite consultar un recurso mediante su identificador (id)
 @api_view(['GET'])
 def comentarioPDF_get(request,id):
-    comentarios = Comentario.objects.filter(version_id=id, padre=None)
-    if(comentarios==None):
-        raise NotFound(detail="Error 404, recurso not found", code=404)
-    serializer = ComentariosPDFSerializer(comentarios, many=True)
-    return Response(serializer.data)
+    return

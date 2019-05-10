@@ -91,4 +91,4 @@ class ComentariosPDFSerializer(serializers.ModelSerializer):
     comentarioMultimedia=comentarioMultimediaSerializer(many=False)
     class Meta:
         model = Comentario
-        fields = ('contenido','fecha_creacion','cerrado','resuelto','usuario','version','Width','Height','VersionArchivo','UsuarioComentario','comentarioMultimedia','comentariosHijos')
+        fields = ('id','contenido','fecha_creacion','esCierre','resuelto','usuario','version','Width','Height','VersionArchivo','UsuarioComentario','comentarioMultimedia','comentariosHijos')

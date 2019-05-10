@@ -144,6 +144,7 @@ class HistorialFases(models.Model):
     fecha_cambio = models.DateField(default=datetime.date.today)
     fase = models.ForeignKey(Fase, on_delete=models.CASCADE, related_name='historial_fases_red')
     red = models.ForeignKey(RED, on_delete=models.CASCADE)
+    comentario = models.CharField(max_length=500, null=False)
 
     def __str__(self):
         return self.fase.__str__() + " " + self.red.__str__()
@@ -210,15 +211,25 @@ class Comentario(models.Model):
     comentario_multimedia = models.ForeignKey(ComentarioMultimedia, on_delete=models.CASCADE, null=True, blank=True)
     id_video_libreria = models.CharField(max_length=200, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    cerrado = models.BooleanField(default=False, blank=True)
-    resuelto=models.BooleanField(default=False, blank=True)
-    padre = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
+    resuelto = models.BooleanField(default=False, blank=True)
+    esCierre = models.BooleanField(default=False, blank=True)
+
+
     def __str__(self):
         return 'Comentario: ' + self.contenido
 
     @property
+    def EsPadre(self):
+        Comen = Comentario.objects.filter(version=self.version,comentario_multimedia=self.comentario_multimedia).order_by("id").exclude(id=self.id)
+        for item in Comen:
+            if item.id <self.id:
+                return  False
+            else:
+                return  True
+    @property
     def comentariosHijos(self):
-        return Comentario.objects.filter(padre=self.id)
+        Comen=Comentario.objects.filter(version=self.version, comentario_multimedia=self.comentario_multimedia).order_by("id").exclude(id=self.id)
+        return  Comen
 
     @property
     def comentarioMultimedia(self):
