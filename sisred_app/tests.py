@@ -13,6 +13,7 @@ import json
 
 
 # Create your tests here.
+
 class sisred_appTestCase(TestCase):
 
     def setUp(self):
@@ -363,7 +364,6 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(reds[0]['id'], 1)
         self.assertEqual(reds[1]['id'], 3)
 
-
 class CrearVersion(TestCase):
     def testCrearVersionHappyPath(self):
         fecha = datetime.datetime.now()
@@ -610,7 +610,6 @@ class VersionTestCase(TestCase):
         self.assertEqual(current_data['context'][1]['nombre'], 'test2')
         self.assertEqual(current_data['context'][0]['tipo'], 'PNG')
         self.assertEqual(current_data['context'][1]['tipo'], 'AVI')
-
 
 class ComentarImagen(TestCase):
     def testComentarExistente(self):
@@ -929,7 +928,7 @@ class sisRedTestCase(TestCase):
                                                               fecha_fin='2001-12-20')
         fase = Fase.objects.create(
             id_conectate='2',
-            nombre_fase='produccion',
+            nombre_fase='otra-fase',
         )
         red = RED.objects.create(
             id_conectate='1',
@@ -948,12 +947,50 @@ class sisRedTestCase(TestCase):
         )
         fase2 = Fase.objects.create(
             id_conectate='3',
-            nombre_fase='preproduccion',
+            nombre_fase='post-produccion',
+        )
+        rol = Rol.objects.create(
+            id_conectate='1',
+            nombre='nombreROL'
+        )
+        user_model = User.objects.create_user(
+            username='username',
+            password='password'
+        )
+        user_model.first_name = 'first_name'
+        user_model.last_name = 'last_name'
+        user_model.email = 'email'
+        user_profile = Perfil.objects.create(
+            usuario=user_model,
+            id_conectate='1',
+            numero_identificacion='1022',
+            estado=1)
+        rol_asignado = RolAsignado.objects.create(
+            id_conectate='1',
+            estado=1,
+            red=red,
+            rol=rol,
+            usuario=user_profile
+        )
+        tipoNotificacion = NotificacionTipo.objects.create(
+            nombre='nombre',
+            descripcion='descripcion'
+        )
+        tipoNotificacion2 = NotificacionTipo.objects.create(
+            nombre='nombre2',
+            descripcion='descripcion2'
+        )
+        notificationTest = Notificacion.objects.create(
+            mensaje='texto',
+            visto=False,
+            tipo_notificacion=tipoNotificacion2
         )
         response = self.client.put(
             '/api/red/' + str(red.id_conectate)
-            + '/cambiarfase/' + str(fase2.id_conectate) + '/',
+            + '/cambiarfase/' + str(fase2.id_conectate) + '/',json.dumps({"comentario": "finalizo la edicion del recurso"}),
             content_type='application/json')
+
+        print("testcambiarfase:", response.content)
 
         print("response", response.status_code)
         self.assertEqual(response.status_code, 200)
