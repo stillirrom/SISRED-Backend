@@ -297,3 +297,48 @@ def comentario_pdf_get(request,id):
 
     serializer = ComentariosPDFSerializer(filtered, many=True)
     return Response(serializer.data)
+
+#Autor:         Adriana Vargas
+#Fecha:         2019-05-10
+#Parametros:    contenido -> Comentario
+#               version -> Versión a la que pertenece el comentario
+#               usuario -> Usuario que realizó el comentario
+#               comentario_multimedia -> Id de la tabla ComentarioMultimedia
+#               fecha_creacion -> fecha en que se realizó el comentario
+#Descripcion:   Funcionalidad para guardar un comentario en un archivo de PDF
+
+@api_view(['POST'])
+def comentario_pdf_post(request):
+    '''token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        reqUser = Token.objects.get(key=token).user.id'''
+
+    reqUser = 1
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        contenido = data['contenido']
+        version = Version.objects.get(id=data['version'])
+        usuario = Perfil.objects.get(usuario__id=reqUser)
+        comentario_multimedia = ComentarioMultimedia.objects.get(id=data['comentario_multimedia'])
+        fecha_creacion = datetime.now()
+
+        comentario = Comentario.objects.create(
+            contenido=contenido,
+            version=version,
+            usuario=usuario,
+            comentario_multimedia=comentario_multimedia,
+            fecha_creacion=fecha_creacion
+        )
+        comentario.save()
+
+        serializer=comentariosHijosSerializer(comentario, many=False)
+
+        return JsonResponse(serializer.data, safe=True)
+    return HttpResponseNotFound()    

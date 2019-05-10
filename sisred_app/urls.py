@@ -14,6 +14,7 @@ urlpatterns = [
     path('comentario-cierre/base/<int:id>', views_equipo1.comentario_cierre_put, name='comentario-cierre-put'),
     path('comentario-base/<int:id>', views_equipo1.comentario_base_get, name='comentario-base'),
     path('comentario-pdf/<int:id>/', views_equipo1.comentario_pdf_get, name='comentario_pdf_get'),
+    path('comentario-pdf/', views_equipo1.comentario_pdf_post, name='comentario-pdf-post'),
 
     path('post_proyecto_red/', views_equipo3.post_proyecto_red, name='agregar_proyecto_red'),
     path('detallered/', views_equipo3.get_detallered, name='detallered'),
