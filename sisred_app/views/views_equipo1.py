@@ -17,7 +17,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from sisred_app.models import Recurso, RED, Perfil, Comentario
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-    REDSerializer, ComentarioCierreSerializer
+    REDSerializer
 
 
 #Autor: Francisco Perneth
@@ -194,45 +194,3 @@ def sincronizarFases(idRed, idActual, idFase):
 
     return Response(response)
 
-
-#Autor:         Adriana Vargas
-#Fecha:         2019-04-22
-#Parametros:    contenido -> Comentario de cierre
-#               fecha -> fecha en que se realizó el comentario
-#               usuario -> Usuario que realizó el comentario
-#               esCierre -> Bandera para identificar si el comentario es de cierre o no
-#Descripcion:   Funcionalidad para almacenar el comentario de cierre en un archivo de PDF
-
-@api_view(['POST'])
-def comentario_cierre_post(request):
-    '''token = request.META['HTTP_AUTHORIZATION']
-    token = token.replace('Token ', '')
-    try:
-        TokenStatus = Token.objects.get(key=token).user.is_active
-    except Token.DoesNotExist:
-        TokenStatus = False
-    if TokenStatus == True:
-        reqUser = Token.objects.get(key=token).user.id'''
-
-    reqUser = 1
-
-    serializer = ComentarioCierreSerializer(data=request.data)
-
-    if serializer.is_valid():
-
-        try:
-            comentario_model = Comentario.objects.create(contenido=request.data.get('contenido'),
-                                                         usuario=Perfil.objects.get(id_conectate=reqUser),
-                                                         esCierre=request.data.get('esCierre'))
-            comentario_model.fecha_creacion = datetime.datetime.now()
-            comentario_model.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except KeyError as e:
-            return HttpResponseBadRequest(
-                content='El campo ' + str(e) + ' es requerido.'
-            )
-        except Exception as ex:
-            return HttpResponseBadRequest(
-                content='BAD_REQUEST: ' + str(ex),
-                status=HTTP_400_BAD_REQUEST
-            )
