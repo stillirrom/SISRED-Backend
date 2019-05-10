@@ -264,3 +264,18 @@ def comentario_cierre_put(request, id):
 
                 return JsonResponse(serializer.data, safe=True)
         return HttpResponseNotFound()
+
+# Autor:         Adriana Vargas
+# Fecha:         2019-05-09
+# Parametros:    id -> Identificador del comentario multimedia
+# Descripcion:   Funcionalidad para obtener el comentario base a partir de un comentario del hilo
+
+@api_view(['GET'])
+def comentario_base_get(request,id):
+
+    comentario_base = Comentario.objects.filter(comentario_multimedia=id).earliest('fecha_creacion')
+
+    if(comentario_base==None):
+        raise NotFound(detail="Error 404, Comment not found", code=404)
+    serializer = ComentarioCierreSerializer(comentario_base)
+    return Response(serializer.data)
