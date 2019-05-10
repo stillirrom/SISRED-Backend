@@ -287,9 +287,9 @@ class sisred_appTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(reds), 3)
-        self.assertEqual(reds[0]['id'], 1)
-        self.assertEqual(reds[1]['id'], 2)
-        self.assertEqual(reds[2]['id'], 4)
+        self.assertTrue(any(elem['id'] == 1 for elem in reds))
+        self.assertTrue(any(elem['id'] == 2 for elem in reds))
+        self.assertTrue(any(elem['id'] == 4 for elem in reds))
 
     def testBuscarRedNameByDates(self):
         fecha = datetime.datetime.now()
