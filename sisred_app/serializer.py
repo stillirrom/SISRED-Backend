@@ -75,6 +75,24 @@ class RolAsignadoSerializer(serializers.ModelSerializer):
         model = RolAsignado
         fields = ('rol',)
 
+class comentariosHijosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comentario
+        fields = '__all__'
+
+class comentarioMultimediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComentarioMultimedia
+        fields = '__all__'
+
+
+class ComentariosPDFSerializer(serializers.ModelSerializer):
+    comentariosHijos=comentariosHijosSerializer(many=True)
+    comentarioMultimedia=comentarioMultimediaSerializer(many=False)
+    class Meta:
+        model = Comentario
+        fields = ('id','contenido','fecha_creacion','esCierre','resuelto','usuario','version','Width','Height','VersionArchivo','UsuarioComentario','comentarioMultimedia','comentariosHijos')
+
 class ComentarioCierreSerializer(serializers.ModelSerializer):
 
     class Meta:

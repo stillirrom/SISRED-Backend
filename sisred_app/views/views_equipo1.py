@@ -14,10 +14,11 @@ import requests
 from datetime import datetime
 from rest_framework.authtoken.models import Token
 
-from rest_framework.status import HTTP_400_BAD_REQUEST
-from sisred_app.models import Recurso, RED, Perfil, Comentario, Version, ComentarioMultimedia
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from sisred_app.models import Recurso, RED, Perfil, Fase, HistorialFases, Version, Comentario, ComentarioMultimedia
+from sisred_app.serializer import *
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-    REDSerializer, ComentarioCierreSerializer
+    REDSerializer, ComentarioCierreSerializer, comentariosHijosSerializer, comentarioMultimediaSerializer, ComentariosPDFSerializer
 
 
 #Autor: Francisco Perneth
@@ -278,4 +279,22 @@ def comentario_base_get(request,id):
     if(comentario_base==None):
         raise NotFound(detail="Error 404, Comment not found", code=404)
     serializer = ComentarioCierreSerializer(comentario_base)
+    return Response(serializer.data)
+  
+#Autor: Francisco Perneth
+#Fecha: 2019-05-09
+#Parametros:
+#    Request -> Datos de la solicitud
+#    id -> id del recurso para obtener
+#Descripcion:
+#   Permite consultar un recurso mediante su identificador (id)
+
+@api_view(['GET'])
+def comentarioPDF_get(request,id):
+    comentarios = Comentario.objects.filter(version=id).order_by("id")
+    filtered = [x for x in comentarios if x.EsPadre]
+    if(comentarios==None):
+        raise NotFound(detail="Error 404, recurso not found", code=404)
+
+    serializer = ComentariosPDFSerializer(filtered, many=True)
     return Response(serializer.data)
