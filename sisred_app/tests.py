@@ -19,7 +19,7 @@ class sisred_appTestCase(TestCase):
         user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
         self.perfil = Perfil.objects.create(id_conectate='1', usuario=user, estado=1)
         self.rol = Rol.objects.create(id_conectate='1', nombre='rolPrueba')
-
+    """
     def testMarcarComoVersionFinalJustOne(self):
         url1 = '/api/versiones/'
         url2 = '/marcar'
@@ -1240,3 +1240,12 @@ class SisredTestCase(TestCase):
         print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
+    """
+    def testVerAvanceProyectoConectate(self):
+        
+        url = f"/api/proyectoConectate/1/verAvance"
+        
+        response = self.client.get(url)
+
+        #reds = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)

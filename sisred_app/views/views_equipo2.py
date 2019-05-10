@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version, Comentario, ComentarioMultimedia
 from django.contrib.auth.models import User
 from sisred_app.serializer import RecursoSerializer
+from rest_framework.authtoken.models import Token
 import datetime
 import json
 
@@ -311,3 +312,25 @@ def getListaComentarios(request,id_v, id_r):
     serializer=ComentarioSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
 
+@csrf_exempt
+def verAvanceProyectoConectate(request,idProyecto):
+    tokenStatus = getTokenStatus(request)
+    if(not tokenStatus) return HttpResponse('Invalid Token')
+    
+    return JsonResponse(
+        {
+            'totalReds': 0,
+            'alertaReds': 0,
+            'normalReds': 0,
+            'cerradosReds': 0,
+        }, safe=True)
+
+def getTokenStatus(request):
+    token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        tokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        tokenStatus = False
+    
+    return tokenStatus
