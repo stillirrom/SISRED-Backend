@@ -51,7 +51,7 @@ def get_detallered_proyectosred(request):
         proyectos = ProyectoRED.objects.filter(red=red)
         respuesta = []
         for pro in proyectos:
-            respuesta.append({"id": pro.pk, "name": pro.nombre, "autor": pro.autor, "typeFile": pro.tipo, "createdDate": red.fecha_creacion.strftime('%Y/%m/%d'),"description":pro.descripcion})
+            respuesta.append({"id": pro.pk, "name": pro.nombre, "autor": pro.autor, "typeFile": pro.tipo, "createdDate": red.fecha_creacion.strftime('%Y/%m/%d'),"description":pro.descripcion, "carpeta":pro.carpeta})
         return HttpResponse(json.dumps(respuesta), content_type="application/json")
 
 # Metodo para obtener detalle de los metadatas del RED
