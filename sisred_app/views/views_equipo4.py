@@ -1034,22 +1034,22 @@ def getHistoricoAsignadosRed(request, id):
 
     usuarios=[]
     if request.method == "GET":
-        red = RED.objects.filter(id=id).first()
-        roles = RolAsignado.objects.filter(red=red)
+        fase=Fase.objects.get(nombre_fase='cerrado')
+        red = RED.objects.filter(id=id,fase=fase).first()
 
-        for rol in roles:
-            perfilUsuario = User.objects.get(id=rol.usuario.id)
-            #busco el perfil
-            perfil=Perfil.objects.filter(usuario=perfilUsuario).first()
+        if red != None:
+            print(red.nombre)
+            roles = RolAsignado.objects.filter(red=red)
+            for rol in roles:
+                perfilUsuario = User.objects.get(id=rol.usuario.id)
+                #busco el perfil
+                perfil=Perfil.objects.filter(usuario=perfilUsuario).first()
+                usuario = perfil.usuario
+                print(usuario.first_name + ' ' + usuario.last_name)
+                usuarios.append(usuario.first_name + ' ' + usuario.last_name)
 
-            usuario = perfil.usuario
-            print(usuario.first_name + ' ' + usuario.last_name)
-            usuarios.append(usuario.first_name  + ' ' + usuario.last_name)
+        return JsonResponse(usuarios, status=200,safe=False)
 
-        if  len(usuarios) > 0:
-            return JsonResponse(usuarios,status=200,safe=False)
-        else:
-            return HttpResponse("Bad request", status=400)
     else:
         return HttpResponse("Bad request", status=400)
 
