@@ -92,3 +92,15 @@ class ComentariosPDFSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comentario
         fields = ('id','contenido','fecha_creacion','esCierre','resuelto','usuario','version','Width','Height','VersionArchivo','UsuarioComentario','comentarioMultimedia','comentariosHijos')
+
+class ComentarioCierreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comentario
+        fields = '__all__'
+
+class VersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = '__all__'
