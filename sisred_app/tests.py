@@ -1189,8 +1189,8 @@ class sisRedTestCase(TestCase):
         proyecto = ProyectoConectate.objects.create(id=1, fecha_inicio=fecha, fecha_fin=fecha)
         red = RED.objects.create(id=1, nombre='pruebaRED', descripcion='prueba',
                                  tipo='prueba', solicitante='prueba', proyecto_conectate=proyecto)
-        user1 = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com', first_name='Nathalia')
-        user2 = User.objects.create_user(username='test2', password='sihdfnssejkhfse', email='test@test.com', first_name='Fabian')
+        user1 = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com', first_name='Nathalia', last_name='Alvarez')
+        user2 = User.objects.create_user(username='test2', password='sihdfnssejkhfse', email='test@test.com', first_name='Fabian', last_name='Laverde')
         perfil1 = Perfil.objects.create(id_conectate='1', usuario=user1, estado=1)
         perfil2 = Perfil.objects.create(id_conectate='2', usuario=user2, estado=1)
         rol1 = Rol.objects.create(id_conectate='1', nombre='rol1')
@@ -1203,8 +1203,8 @@ class sisRedTestCase(TestCase):
         response = self.client.get(url, format='json')
         usuarios = json.loads(response.content)
         self.assertEqual(len(usuarios), 2)
-        self.assertEqual(usuarios[0]['first_name'], 'Nathalia')
-        self.assertEqual(usuarios[1]['first_name'], 'Fabian')
+        self.assertEqual(usuarios[0], 'Nathalia Alvarez')
+        self.assertEqual(usuarios[1], 'Fabian Laverde')
 
 class RR02TestCase(TestCase):
 

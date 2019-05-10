@@ -1031,13 +1031,23 @@ def createNotification(id_red, id_notificationtype):
 
 @api_view(["GET"])
 def getHistoricoAsignadosRed(request, id):
-    print(id)
 
+    usuarios=[]
     if request.method == "GET":
-        red = RED.objects.filter(id=id)
+        red = RED.objects.filter(id=id).first()
+        roles = RolAsignado.objects.filter(red=red)
 
-        if red != None:
-           return HttpResponse("Successful", status=200)
+        for rol in roles:
+            perfilUsuario = User.objects.get(id=rol.usuario.id)
+            #busco el perfil
+            perfil=Perfil.objects.filter(usuario=perfilUsuario).first()
+
+            usuario = perfil.usuario
+            print(usuario.first_name + ' ' + usuario.last_name)
+            usuarios.append(usuario.first_name  + ' ' + usuario.last_name)
+
+        if  len(usuarios) > 0:
+            return JsonResponse(usuarios,status=200,safe=False)
         else:
             return HttpResponse("Bad request", status=400)
     else:
@@ -1045,7 +1055,11 @@ def getHistoricoAsignadosRed(request, id):
 
 
 
-
+def getRecurso(request, id):
+    data = Recurso.objects.filter(id=id)
+    if request.method == 'GET':
+        serializer = ResourceSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
 
 
