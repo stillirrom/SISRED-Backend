@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.models import User
 from django.core.serializers import serialize
-from django.http import HttpResponseBadRequest, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import  status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
@@ -15,9 +15,9 @@ from datetime import datetime
 from rest_framework.authtoken.models import Token
 
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from sisred_app.models import Recurso, RED, Perfil, Comentario
+from sisred_app.models import Recurso, RED, Perfil, Comentario, Version, ComentarioMultimedia
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-    REDSerializer
+    REDSerializer, ComentarioCierreSerializer
 
 
 #Autor: Francisco Perneth
@@ -194,3 +194,50 @@ def sincronizarFases(idRed, idActual, idFase):
 
     return Response(response)
 
+#Autor:         Adriana Vargas
+#Fecha:         2019-05-09
+#Parametros:    contenido -> Comentario de cierre
+#               version -> Versión a la que pertenece el comentario
+#               usuario -> Usuario que realizó el comentario
+#               comentario_multimedia -> Id de la tabla ComentarioMultimedia
+#               fecha_creacion -> fecha en que se realizó el comentario
+#               esCierre -> Bandera para identificar si el comentario es de cierre o no
+#Descripcion:   Funcionalidad para almacenar el comentario de cierre en un archivo de PDF
+
+@api_view(['POST'])
+def comentario_cierre_post(request):
+    '''token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if TokenStatus == True:
+        reqUser = Token.objects.get(key=token).user.id'''
+
+    reqUser = 1
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        contenido = data['contenido']
+        version = Version.objects.get(id=data['version'])
+        usuario = Perfil.objects.get(usuario__id=reqUser)
+        comentario_multimedia = ComentarioMultimedia.objects.get(id=data['comentario_multimedia'])
+        fecha_creacion = datetime.now()
+        esCierre = data['esCierre']
+
+        comentario = Comentario.objects.create(
+            contenido=contenido,
+            version=version,
+            usuario=usuario,
+            comentario_multimedia=comentario_multimedia,
+            fecha_creacion=fecha_creacion,
+            esCierre=esCierre
+        )
+        comentario.save()
+
+        serializer=ComentarioCierreSerializer(comentario, many=False)
+
+        return JsonResponse(serializer.data, safe=True)
+    return HttpResponseNotFound()
