@@ -123,7 +123,7 @@ class SisredTestCase(TestCase):
 
         self.assertEqual(current_data['contenido'], 'Comentario base de prueba')
 
-    def test_ComentariosPDF(self):
+    def test_comentario_pdf(self):
         user = User.objects.create_user(username='user', password='123456', email='user@user.com',first_name='User test',last_name='User ape')
         perfil = Perfil.objects.create(id_conectate=1, usuario=user, estado=1, estado_sisred=1)
         proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='Project Test', codigo='1234',fecha_inicio='2019-03-20', fecha_fin='2019-04-10')
@@ -132,7 +132,8 @@ class SisredTestCase(TestCase):
         com_mul = ComentarioMultimedia.objects.create(x1=1, y1=5, x2=3, y2=5)
         comentario = Comentario.objects.create(contenido='Comentario test', version=self.version,usuario=perfil, comentario_multimedia=com_mul, esCierre=False,resuelto=False)
         comentario2 = Comentario.objects.create(contenido='Comentario base de prueba 2', version=self.version,usuario=perfil, comentario_multimedia=com_mul, esCierre=False,resuelto=False)
-        response = self.client.get('/api/ComentariosPDF/' + str(comentario.id) + '/')
+        response = self.client.get('/api/comentario-pdf/' + str(comentario.id) + '/')
         current_data = json.loads(response.content)
 
         self.assertEqual(current_data[0]['contenido'], 'Comentario test')
+

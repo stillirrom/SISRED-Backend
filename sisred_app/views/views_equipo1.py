@@ -284,12 +284,12 @@ def comentario_base_get(request,id):
 #Fecha: 2019-05-09
 #Parametros:
 #    Request -> Datos de la solicitud
-#    id -> id del recurso para obtener
+#    id -> id de la version
 #Descripcion:
-#   Permite consultar un recurso mediante su identificador (id)
+#   Permite consultar una version del RED mediante su identificador (id)
 
 @api_view(['GET'])
-def comentarioPDF_get(request,id):
+def comentario_pdf_get(request,id):
     comentarios = Comentario.objects.filter(version=id).order_by("id")
     filtered = [x for x in comentarios if x.EsPadre]
     if(comentarios==None):
