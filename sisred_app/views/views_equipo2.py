@@ -316,7 +316,7 @@ def comentarioNuevo(request,id_v, id_r):
         print("notificacion:", result)
 
         if result != {"mensaje": 'La notificacion ha sido creada'}:
-            return JsonResponse('No fue posible crear la notificacion', safe=True)
+            return JsonResponse({"error":'No fue posible crear la notificacion'}, safe=True)
 
         return JsonResponse(serializer.data, safe=True)
     return HttpResponseNotFound()

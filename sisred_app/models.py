@@ -78,7 +78,6 @@ class ProyectoConectate(models.Model):
 class Fase(models.Model):
     id_conectate = models.CharField(max_length=50)
     nombre_fase = models.CharField(max_length=50)
-    comentario = models.CharField(max_length=300, blank=True, null=True)
 
     def __str__(self):
         return 'Fase: ' + self.nombre_fase

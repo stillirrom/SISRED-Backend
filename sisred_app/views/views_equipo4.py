@@ -711,7 +711,6 @@ def putCambiarFaseRed(request, idRed, idFase):
                     error = 'Debe seleccionar una fase superior para poder hacer el cambio'
                     return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
 
-            fase.comentario = comentario
             red.fase = fase
             red.save()
 
@@ -724,7 +723,7 @@ def putCambiarFaseRed(request, idRed, idFase):
                 error = 'No fue posible crear la notificacion'
                 return HttpResponseBadRequest(content=error, status=HTTP_400_BAD_REQUEST)
 
-            historialFase = HistorialFases.objects.create(fecha_cambio=datetime.now(), fase=fase, red=red)
+            historialFase = HistorialFases.objects.create(fecha_cambio=datetime.now(), fase=fase, red=red, comentario=comentario)
             historialFase.save()
 
             return HttpResponse(status=HTTP_200_OK)
