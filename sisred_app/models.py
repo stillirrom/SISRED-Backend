@@ -1,7 +1,7 @@
 from django.db import models
 import datetime
 from django.contrib.auth.models import User
-
+releaseday      = models.DateField(null=True,blank=True)  
 
 # Create your models here.
 class Perfil(models.Model):

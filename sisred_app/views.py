@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
-from .models import RED, ProyectoRED, RolAsignado, Perfil, Metadata, Recurso, ProyectoConectate, HistorialEstados
+from .models import RED, ProyectoRED, RolAsignado, Perfil, Comentario, Metadata, Recurso, ProyectoConectate, HistorialEstados, Version
 from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.models import User
@@ -114,3 +114,39 @@ def get_reds_asignados(request, id):
             reds_asignados.append({"idRed": red.pk, "nombreRed": red.nombre_corto, "rol": rol})
         respuesta = {"nombreUsuario": nombreUsuario, "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
+
+@csrf_exempt
+def get_comentarios(request,idRecurso):
+        if request.method == 'GET':
+            comentarios = Comentario.objects.filter(recurso=idRecurso);
+            respuesta = []
+            for com in comentarios:
+                respuesta.append(
+                    {"contenido": com.contenido, "recurso": com.recurso_id, "version": com.version_id,"usuario": com.usuario_id})
+            if len(comentarios) == 0:
+                return HttpResponse('no hay registros')
+
+            return HttpResponse(json.dumps(respuesta), content_type="application/json")
+
+
+@csrf_exempt
+def post_comment(request):
+    if request.method == 'POST':
+        json_comentarios = json.loads(request.body)
+        recurso = Recurso.objects.filter(id=json_comentarios['recurso_id']);
+        version = Version.objects.filter(id=json_comentarios['version_id']);
+
+        if len(recurso) ==0:
+            return HttpResponse('El recurso debe existir')
+        else:
+            json_comment = json.loads(request.body)
+            nuevo_comentario = Comentario(
+                contenido=json_comment['contenido'],
+                recurso_id=json_comment['recurso_id'],
+                usuario_id=json_comment['usuario_id'],
+                version_id=json_comment['version_id']
+                )
+            nuevo_comentario.save()
+
+        return HttpResponse(serializers.serialize("json", [nuevo_comentario]))
+        ##return HttpResponse("algo")

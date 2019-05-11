@@ -1,0 +1,33 @@
+import os
+from django.db import models
+import psycopg2
+
+
+host = 'localhost'
+port = '5432'
+dbname = 'sellerhub'
+username = 'postgres'
+password = 'postgres'
+
+
+class Reports:
+    def __init__(self):
+        global host, port, dbname, username, password
+        try:
+            self.db_conn = psycopg2.connect("host=%s port=%s dbname=%s user=%s password=%s" %(host, port, dbname, username, password))
+        except psycopg2.OperationalError:
+            print "Database Not Found Or the Credentials are wrong."
+        self.cur = self.db_conn.cursor()
+def saveUploadedInventory(self, inventory_file):
+        #print "Inventory File"
+        with open('uploaded_inventory_sheet.csv','wb+') as destination:
+            for chunk in inventory_file.chunks():
+                destination.write(chunk)
+        #print "Inventory Saved."
+        copy_sql = """copy fk_invent_temp from stdin WITH CSV HEADER DELIMITER as ',' """
+        #print "query created"
+        with open('uploaded_inventory_sheet.csv','r') as pmt_file:
+            self.cur.copy_expert(sql=copy_sql, file=pmt_file)
+        #print "file uploades"
+        os.system('rm uploaded_inventory_sheet.csv')
+        #print "removes file"
