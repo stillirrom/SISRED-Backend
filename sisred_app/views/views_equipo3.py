@@ -112,8 +112,13 @@ def get_reds_asignados(request, id):
         rolesAsignado = RolAsignado.objects.filter(usuario=perfil)
         for rolAsignado in rolesAsignado:
             red = rolAsignado.red
+            try:
+                id_version = Version.objects.filter(red=red).latest('fecha_creacion').id
+            except Version.DoesNotExist:
+                id_version = None
+            print(id_version)
             reds_asignados.append(
-                {"idRed": red.pk, "nombreRed": red.nombre, "descripcion": red.descripcion, "tipo": red.tipo, "solicitante": red.solicitante, "fecha_inicio": red.fecha_inicio, "fecha_cierre": red.fecha_cierre, "porcentaje": red.porcentaje_avance, "horas_estimadas": red.horas_estimadas, "listo_revision": red.listo_para_revision})
+                {"idRed": red.pk, "nombreRed": red.nombre, "descripcion": red.descripcion, "tipo": red.tipo, "solicitante": red.solicitante, "fecha_inicio": red.fecha_inicio, "fecha_cierre": red.fecha_cierre, "porcentaje": red.porcentaje_avance, "horas_estimadas": red.horas_estimadas, "listo_revision": red.listo_para_revision, "version_id": id_version})
         respuesta = {
             "redsAsignados": reds_asignados}
         return JsonResponse(respuesta, safe=False)
