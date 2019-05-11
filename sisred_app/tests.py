@@ -1277,6 +1277,7 @@ class DescargarRED(TestCase):
         url = '/api/reds/' + str(self.red.pk) + '/proyectored/'
         response = self.client.get(url, format='json')
         data = json.loads(response.content)['context']
+        print(data)
         self.assertEqual(len(data), 2)
 
     def test_listar_proyecto_red(self):

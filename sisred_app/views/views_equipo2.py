@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from django.core import serializers
 from django.core.serializers import serialize
 from rest_framework import serializers
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404, HttpResponseForbidden
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version, Comentario, ComentarioMultimedia
@@ -10,6 +10,9 @@ from django.contrib.auth.models import User
 from sisred_app.serializer import RecursoSerializer
 import datetime
 import json
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 
 @csrf_exempt
 def getProyectosRED(request):
@@ -314,7 +317,20 @@ class ProyectoREDSerializer(serializers.ModelSerializer):
 
 #Obtiene la lista de Proyectos RED asociados al RED
 @csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
 def getListaProyectosred(request, id):
+    """
+    token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        TokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        TokenStatus = False
+    if not TokenStatus:
+        return HttpResponseForbidden('Invalid Token')
+
+    """
     try:
         red = RED.objects.get(pk=id)
     except:
