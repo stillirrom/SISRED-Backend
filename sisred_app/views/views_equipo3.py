@@ -112,8 +112,8 @@ def get_reds_asignados(request, id):
         rolesAsignado = RolAsignado.objects.filter(usuario=perfil)
         for rolAsignado in rolesAsignado:
             red = rolAsignado.red
-            version_id = 0
-            version_numero = 0
+            version_id = None
+            version_numero = None
             try:
                 version = Version.objects.filter(red=red).latest('fecha_creacion')
                 version_id = version.id
