@@ -1267,7 +1267,7 @@ class CerrarComentarioVideoTestCase(TestCase):
         multimedia = ComentarioMultimedia.objects.create(x1=10.2, y1=50.1, x2=30.5, y2=14.3)
 
         response = self.client.post(url, json.dumps(
-            {"id_recurso": recurso.pk, "id_usuario": perfil.pk, "id_multimedia": multimedia.pk,
+            {"id_recurso": recurso.pk, "id_usuario": perfil.id_conectate, "id_multimedia": multimedia.pk,
              "contenido": "Se cierra comentario de manera exitosa", "cerrado": True, "resuelto": True,
              "es_cierre": True}), content_type='application/json')
         print(response)
