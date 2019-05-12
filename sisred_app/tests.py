@@ -10,16 +10,22 @@ from .models import User, Perfil, RED, Fase, ProyectoConectate, Recurso, Notific
     Notificacion
 from django.contrib.auth.models import User
 import json
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 
 
 # Create your tests here.
 class sisred_appTestCase(TestCase):
-
+    
     def setUp(self):
-        user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
+        user = User.objects.create_user(id=1, username='test', password='sihdfnssejkhfse', email='test@test.com')
         self.perfil = Perfil.objects.create(id_conectate='1', usuario=user, estado=1)
         self.rol = Rol.objects.create(id_conectate='1', nombre='rolPrueba')
 
+        #token = Token.objects.create(key='23784jsdfk',user_id=user.id)     
+        
+        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+    
     def testMarcarComoVersionFinalJustOne(self):
         url1 = '/api/versiones/'
         url2 = '/marcar'
@@ -79,7 +85,7 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(versionMainAfter1.es_final, False)
         self.assertEqual(versionMainAfter2.es_final, True)
-
+    
     def testBuscarRedNameAllParameters(self):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3, fecha_inicio=fecha, fecha_fin=fecha)
@@ -103,7 +109,7 @@ class sisred_appTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(reds), 1)
-
+    
     def testBuscarRedNameAllByNameNoDates(self):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3, fecha_inicio=fecha, fecha_fin=fecha)
@@ -1240,3 +1246,5 @@ class SisredTestCase(TestCase):
         print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
+        
+    

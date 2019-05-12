@@ -2,12 +2,15 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from django.core import serializers
 from django.core.serializers import serialize
 from rest_framework import serializers
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404, HttpResponseForbidden
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version, Comentario, ComentarioMultimedia
 from django.contrib.auth.models import User
 from sisred_app.serializer import RecursoSerializer
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 import datetime
 import json
 
@@ -42,10 +45,24 @@ def marcarVersion(request,id):
     return HttpResponseNotFound()     
     
 def buscarRed(request):
+    #token = request.META['HTTP_AUTHORIZATION']
+    #tokenStatus = getTokenStatus(request)
+    #if(not tokenStatus):
+    #    return HttpResponseForbidden('Invalid Token')
+
+    #userId = Token.objects.get(key=token).user.id
+    userId =  User.objects.get(username='test').id
+
     if request.method == 'GET':
         fstart = request.GET.get("fstart")
         fend = request.GET.get("fend")
         text = request.GET.get("text")
+
+        usuario = User.objects.get(pk=userId)
+        perfil = Perfil.objects.get(usuario=usuario)
+        roles_asignado = RolAsignado.objects.filter(usuario=perfil)
+
+        redsAsignados = RED.objects.filter(rolasignado__in=roles_asignado).values() 
         
         q = RED.objects.filter() 
 
@@ -58,7 +75,15 @@ def buscarRed(request):
         if fstart:
             q = q.filter(fecha_inicio__gte = fstart)
 
-        return JsonResponse(list(q.values()),safe=False)
+        listOfReds = list(q.values())
+
+        for red in listOfReds:
+            if(any(redOfList['id'] == red['id'] for redOfList in redsAsignados)):
+                red['asignado']=True
+            else:
+                red['asignado']=False
+                
+        return JsonResponse(listOfReds,safe=False)
     return HttpResponseNotFound()
 
 
@@ -307,3 +332,12 @@ def getListaComentarios(request,id_v, id_r):
     serializer=ComentarioSerializer(data, many=True)
     return JsonResponse({'context': serializer.data}, safe=True)
 
+def getTokenStatus(request):
+    token = request.META['HTTP_AUTHORIZATION']
+    token = token.replace('Token ', '')
+    try:
+        tokenStatus = Token.objects.get(key=token).user.is_active
+    except Token.DoesNotExist:
+        tokenStatus = False
+    
+    return tokenStatus
