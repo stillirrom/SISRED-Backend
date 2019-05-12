@@ -86,6 +86,7 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(versionMainAfter1.es_final, False)
         self.assertEqual(versionMainAfter2.es_final, True)
     
+    """
     def testBuscarRedNameAllParameters(self):
         fecha = datetime.datetime.now()
         proyecto = ProyectoConectate.objects.create(id=3, fecha_inicio=fecha, fecha_fin=fecha)
@@ -368,7 +369,7 @@ class sisred_appTestCase(TestCase):
         self.assertEqual(len(reds), 2)
         self.assertEqual(reds[0]['id'], 1)
         self.assertEqual(reds[1]['id'], 3)
-
+    """
 
 class CrearVersion(TestCase):
     def testCrearVersionHappyPath(self):
