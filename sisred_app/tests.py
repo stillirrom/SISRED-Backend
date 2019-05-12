@@ -1,6 +1,6 @@
 from django.test import TestCase
 from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso, RolAsignado, Rol, ComentarioMultimedia, \
-    Comentario
+    Comentario, ComentarioVideo
 from django.contrib.auth.models import User
 import datetime
 import json
@@ -1242,3 +1242,35 @@ class SisredTestCase(TestCase):
         # print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
+
+
+class CerrarComentarioVideoTestCase(TestCase):
+    def test_cerrar_comentario_video(self):
+        url = '/api/comentarios/video/cierre'
+
+        usuario = User.objects.create_user(username='user1', password='123456', email='user1@test.com',
+                                           first_name='user', last_name=' userTest')
+        perfil = Perfil.objects.create(id_conectate=123, usuario=usuario, estado=1)
+        proyecto = ProyectoConectate.objects.create(id_conectate='1', nombre='MISO', codigo='0001',
+                                                    fecha_inicio='2019-05-11', fecha_fin='2019-05-18')
+        recurso = Recurso.objects.create(nombre='recurso 1', tipo='video', archivo='url', thumbnail='url',
+                                         descripcion='recurso 1', autor=perfil, usuario_ultima_modificacion=perfil)
+
+        red = RED.objects.create(id_conectate='1', nombre='RED 1', descripcion='RED 1',
+                                 tipo='video', solicitante='', proyecto_conectate=proyecto)
+
+        version = Version.objects.create(numero=1, red=red, creado_por=perfil, fecha_creacion='2019-05-11',
+                                         imagen='url')
+
+        version.recursos.set([recurso])
+
+        multimedia = ComentarioMultimedia.objects.create(x1=10.2, y1=50.1, x2=30.5, y2=14.3)
+
+        response = self.client.post(url, json.dumps(
+            {"id_recurso": recurso.pk, "id_usuario": perfil.pk, "id_multimedia": multimedia.pk,
+             "contenido": "Se cierra comentario de manera exitosa", "cerrado": True, "resuelto": True,
+             "es_cierre": True}), content_type='application/json')
+        print(response)
+        current_data = json.loads(response.content)
+
+        self.assertEqual(current_data[0]['fields']['es_cierre'], True)
