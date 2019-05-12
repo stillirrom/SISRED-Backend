@@ -323,3 +323,22 @@ def get_versiones_revision(request, id):
             for ver in versiones:
                 respuesta.append({"versionId": ver.pk,"redId": rol.red.pk, "rol": rol.rol.nombre, "red": rol.red.nombre, "fecha": ver.date.strftime("%d/%m/%Y")})
     return HttpResponse(json.dumps(respuesta), content_type="application/json")
+
+# Metodo para cerrar comentario de un recurso tipo video
+@csrf_exempt
+def post_cerrar_comentario_video(request):
+    if request.method == 'POST':
+        json_comentario_cierre = json.loads(request.body)
+        recurso = Recurso.objects.get(pk=json_comentario_cierre['id_recurso'])
+        perfil = Perfil.objects.get(id_conectate=json_comentario_cierre['id_usuario'])
+        multimedia = ComentarioMultimedia.objects.get(pk=json_comentario_cierre['id_multimedia'])
+        comentario_cierre = Comentario(
+            contenido=json_comentario_cierre['contenido'],
+            recurso=recurso,
+            usuario=perfil,
+            comentario_multimedia=multimedia,
+            cerrado=json_comentario_cierre['cerrado'],
+            resuelto=json_comentario_cierre['resuelto'],
+            esCierre=json_comentario_cierre['es_cierre'])
+        comentario_cierre.save()
+        return HttpResponse(serializers.serialize("json", [comentario_cierre]))

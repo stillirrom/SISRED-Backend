@@ -1272,5 +1272,5 @@ class CerrarComentarioVideoTestCase(TestCase):
              "es_cierre": True}), content_type='application/json')
         print(response)
         current_data = json.loads(response.content)
-
-        self.assertEqual(current_data[0]['fields']['es_cierre'], True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(current_data[0]['fields']['esCierre'], True)
