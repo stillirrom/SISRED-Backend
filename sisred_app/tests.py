@@ -1242,10 +1242,26 @@ class SisredTestCase(TestCase):
         self.assertEqual(current_data[0]['listo'], True)
     """
     def testVerAvanceProyectoConectate(self):
+        fecha_inicio = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
+        fecha_fin = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
+
+        idProyectoConectate = '1'
+
+        proyectto_conectate = ProyectoConectate.objects.create(id_conectate=idProyectoConectate, nombre='prueba',
+                                                               codigo='prueba', fecha_inicio=fecha_inicio,
+                                                               fecha_fin=fecha_fin)
+        red = RED.objects.create(id_conectate=idProyectoConectate, nombre='pruebaRED', descripcion='prueba',
+                                 tipo='prueba', solicitante='prueba', proyecto_conectate=proyectto_conectate)
+        version = Version.objects.create(numero=1, imagen='prueba', red=red, id=1)
+
+
         
-        url = f"/api/proyectoConectate/1/verAvance"
+        url = f"/api/proyectoConectate/"+idProyectoConectate+"/verAvance"
         
         response = self.client.get(url)
+
+        current_data = json.loads(response.content)
+        print(current_data)
 
         #reds = json.loads(response.content)
         self.assertEqual(response.status_code, 200)

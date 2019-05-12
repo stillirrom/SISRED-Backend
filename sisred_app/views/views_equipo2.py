@@ -314,15 +314,33 @@ def getListaComentarios(request,id_v, id_r):
 
 @csrf_exempt
 def verAvanceProyectoConectate(request,idProyecto):
-    tokenStatus = getTokenStatus(request)
-    if(not tokenStatus) return HttpResponse('Invalid Token')
+    #tokenStatus = getTokenStatus(request)
+    #if(not tokenStatus):
+    #    return HttpResponse('Invalid Token')
+
+    reds = RED.objects.filter(proyecto_conectate__id=idProyecto)
+
+    alertaReds = []
+    normalReds = []
+    cerradosReds = []
+
+    for red in reds:
+        if False:
+            cerradosReds.append(red)
+        elif esActivo(red):
+            normalReds.append(red)
+        else:
+            alertaReds.append(red)
     
     return JsonResponse(
         {
-            'totalReds': 0,
-            'alertaReds': 0,
-            'normalReds': 0,
-            'cerradosReds': 0,
+            'redsCount': len(reds),
+            'alertaRedsCount':len(alertaReds),
+            'normalRedsCount': len(normalReds),
+            'cerradosRedsCount': len(cerradosReds),
+            'alertaReds':list(alertaReds),
+            'normalReds': list(normalReds),
+            'cerradosReds':list(cerradosReds),
         }, safe=True)
 
 def getTokenStatus(request):
@@ -334,3 +352,21 @@ def getTokenStatus(request):
         tokenStatus = False
     
     return tokenStatus
+
+def esActivo(red):
+    if not red.fecha_creacion:
+        return False
+
+    redCreacionDelta = datetime.datetime.now().date() - red.fecha_creacion
+
+    if(redCreacionDelta.days > 7):
+        return True
+
+    comentarios = Comentario.objects.filter(version__red__id=red.id)
+
+    for c in comentarios:
+        comentarioCreacionDelta = datetime.datetime.now() - c.fecha_creacion
+        if(comentarioCreacionDelta.days > 7):
+            return True
+    
+    return False
