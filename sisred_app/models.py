@@ -249,7 +249,7 @@ class Comentario(models.Model):
 
     @property
     def UsuarioComentario(self):
-        return self.usuario.usuario.first_name + " " + self.autor.usuario.last_name
+        return self.usuario.usuario.first_name + " " + self.usuario.usuario.last_name
 
 
 class Propiedad(models.Model):
