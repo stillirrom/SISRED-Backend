@@ -326,8 +326,21 @@ def comentario_pdf_post(request):
         contenido = data['contenido']
         version = Version.objects.get(id=data['version'])
         usuario = Perfil.objects.get(usuario__id=reqUser)
-        comentario_multimedia = ComentarioMultimedia.objects.get(id=data['comentario_multimedia'])
         fecha_creacion = datetime.now()
+
+        try:
+            comentario_multimedia = ComentarioMultimedia.objects.get(id=data['comentario_multimedia'])
+        except ComentarioMultimedia.DoesNotExist:
+            comentario_multimedia = None
+
+        if comentario_multimedia == None:
+
+            x1 = data['x1']
+            x2 = data['x2']
+            y1 = data['y1']
+            y2 = data['y2']
+
+            comentario_multimedia = ComentarioMultimedia.objects.create(x1=x1, y1=y1, x2=x2, y2=y2)
 
         comentario = Comentario.objects.create(
             contenido=contenido,
@@ -341,4 +354,4 @@ def comentario_pdf_post(request):
         serializer=comentariosHijosSerializer(comentario, many=False)
 
         return JsonResponse(serializer.data, safe=True)
-    return HttpResponseNotFound()    
+    return HttpResponseNotFound()
