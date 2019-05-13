@@ -7,7 +7,7 @@ import json
 from django.forms.models import model_to_dict
 from sisred_app.views.views_equipo4 import createNotification
 from .models import User, Perfil, RED, Fase, ProyectoConectate, Recurso, NotificacionTipo, Rol, RolAsignado, \
-    Notificacion
+    Notificacion, Fase, HistorialFases
 from django.contrib.auth.models import User
 import json
 
@@ -16,10 +16,10 @@ import json
 class sisred_appTestCase(TestCase):
 
     def setUp(self):
-        user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
-        self.perfil = Perfil.objects.create(id_conectate='1', usuario=user, estado=1)
+        self.user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
+        self.perfil = Perfil.objects.create(id_conectate='1', usuario=self.user, estado=1)
         self.rol = Rol.objects.create(id_conectate='1', nombre='rolPrueba')
-    """
+    
     def testMarcarComoVersionFinalJustOne(self):
         url1 = '/api/versiones/'
         url2 = '/marcar'
@@ -1240,19 +1240,40 @@ class SisredTestCase(TestCase):
         print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
-    """
+    
     def testVerAvanceProyectoConectate(self):
         fecha_inicio = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
-        fecha_fin = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
+        fecha_fin = datetime.datetime.strptime("2018-03-12", "%Y-%m-%d").date()
 
         idProyectoConectate = '1'
 
         proyectto_conectate = ProyectoConectate.objects.create(id_conectate=idProyectoConectate, nombre='prueba',
                                                                codigo='prueba', fecha_inicio=fecha_inicio,
                                                                fecha_fin=fecha_fin)
-        red = RED.objects.create(id_conectate=idProyectoConectate, nombre='pruebaRED', descripcion='prueba',
+        red = RED.objects.create(id_conectate="1", nombre='pruebaREDAlerta', descripcion='prueba',
                                  tipo='prueba', solicitante='prueba', proyecto_conectate=proyectto_conectate)
         version = Version.objects.create(numero=1, imagen='prueba', red=red, id=1)
+
+        fase1 = Fase.objects.create(id_conectate=idProyectoConectate,nombre_fase="fase 1")
+        fase2 = Fase.objects.create(id_conectate=idProyectoConectate,nombre_fase="fase 2")
+
+        HistorialFases.objects.create(fecha_cambio=fecha_inicio,fase=fase1,red=red)
+        HistorialFases.objects.create(fecha_cambio=fecha_fin,fase=fase2,red=red)
+
+        red2 = RED.objects.create(id_conectate="2", nombre='pruebaREDActivo', descripcion='prueba',
+                                 tipo='prueba', solicitante='prueba', proyecto_conectate=proyectto_conectate)
+
+        version2 = Version.objects.create(numero=1, imagen='prueba', red=red2, id=2)
+
+        HistorialFases.objects.create(fecha_cambio=fecha_inicio,fase=fase1,red=red2)
+        HistorialFases.objects.create(fecha_cambio=fecha_fin,fase=fase2,red=red2)
+
+        Comentario.objects.create(
+            contenido = "comentario",
+            version = version2,
+            usuario = self.perfil,
+            fecha_creacion = datetime.datetime.now()
+        )
 
 
         

@@ -5,7 +5,7 @@ from rest_framework import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
-from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version, Comentario, ComentarioMultimedia
+from sisred_app.models import ProyectoRED, Recurso, RED, RolAsignado, Perfil, Rol, ProyectoConectate, Version, Comentario, ComentarioMultimedia, HistorialFases
 from django.contrib.auth.models import User
 from sisred_app.serializer import RecursoSerializer
 from rest_framework.authtoken.models import Token
@@ -314,9 +314,9 @@ def getListaComentarios(request,id_v, id_r):
 
 @csrf_exempt
 def verAvanceProyectoConectate(request,idProyecto):
-    #tokenStatus = getTokenStatus(request)
-    #if(not tokenStatus):
-    #    return HttpResponse('Invalid Token')
+    tokenStatus = getTokenStatus(request)
+    if(not tokenStatus):
+        return HttpResponse('Invalid Token')
 
     reds = RED.objects.filter(proyecto_conectate__id=idProyecto)
 
@@ -326,11 +326,62 @@ def verAvanceProyectoConectate(request,idProyecto):
 
     for red in reds:
         if False:
-            cerradosReds.append(red)
+            cerradosReds.append(
+                {
+                    "idRed":red.id,
+                    "nombre":red.nombre,
+                    "nombre_corto":red.nombre_corto,
+                    "fecha_inicio":red.fecha_inicio,
+                })
         elif esActivo(red):
-            normalReds.append(red)
+            fases = HistorialFases.objects.filter(red__id=red.id).order_by("-fecha_cambio")
+
+            if(len(fases)>0):
+                historialFase = fases[0]
+                fase=historialFase.fase.nombre_fase
+                inicio_fase=historialFase.fecha_cambio
+                ultima_modificacion=historialFase.fecha_cambio
+            else:
+                fase=""
+                inicio_fase=""
+                ultima_modificacion=""
+            
+            normalReds.append(
+                {
+                    "idRed":red.id,
+                    "nombre":red.nombre,
+                    "nombre_corto":red.nombre_corto,
+                    "fecha_inicio":red.fecha_inicio,
+                    "fase":fase,
+                    "inicio_fase":inicio_fase,
+                    "ultima_modificacion":ultima_modificacion
+                })
+
         else:
-            alertaReds.append(red)
+            fases = HistorialFases.objects.filter(red__id=red.id).order_by("-fecha_cambio")
+
+            if(len(fases)>0):
+                historialFase = fases[0]
+                fase=historialFase.fase.nombre_fase
+                inicio_fase=historialFase.fecha_cambio
+                ultima_modificacion=historialFase.fecha_cambio
+            else:
+                fase=""
+                inicio_fase=""
+                ultima_modificacion=""
+            
+            alertaReds.append(
+                {
+                    "idRed":red.id,
+                    "nombre":red.nombre,
+                    "nombre_corto":red.nombre_corto,
+                    "fecha_inicio":red.fecha_inicio,
+                    "fase":fase,
+                    "inicio_fase":inicio_fase,
+                    "ultima_modificacion":ultima_modificacion
+                })
+
+        
     
     return JsonResponse(
         {
@@ -365,8 +416,8 @@ def esActivo(red):
     comentarios = Comentario.objects.filter(version__red__id=red.id)
 
     for c in comentarios:
-        comentarioCreacionDelta = datetime.datetime.now() - c.fecha_creacion
-        if(comentarioCreacionDelta.days > 7):
+        comentarioCreacionDelta = datetime.datetime.now().date() - c.fecha_creacion.date()
+        if(comentarioCreacionDelta.days < 7):
             return True
     
     return False
