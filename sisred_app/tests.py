@@ -16,7 +16,7 @@ import json
 class sisred_appTestCase(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com')
+        self.user = User.objects.create_user(username='test', password='sihdfnssejkhfse', email='test@test.com', first_name="fname",last_name="lname")
         self.perfil = Perfil.objects.create(id_conectate='1', usuario=self.user, estado=1)
         self.rol = Rol.objects.create(id_conectate='1', nombre='rolPrueba')
     
@@ -1282,7 +1282,34 @@ class SisredTestCase(TestCase):
         response = self.client.get(url)
 
         current_data = json.loads(response.content)
-        print(current_data)
 
         #reds = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
+
+    """
+    def testGetAsignados(self):
+        redId = '1'
+        idProyectoConectate = '1'
+        fecha_inicio = datetime.datetime.strptime("2018-03-11", "%Y-%m-%d").date()
+        fecha_fin = datetime.datetime.strptime("2018-03-12", "%Y-%m-%d").date()
+        
+        proyectto_conectate = ProyectoConectate.objects.create(id_conectate=idProyectoConectate, nombre='prueba',
+                                                               codigo='prueba', fecha_inicio=fecha_inicio,
+                                                               fecha_fin=fecha_fin)
+
+        red = RED.objects.create(id_conectate="1", nombre='pruebaREDAlerta', descripcion='prueba',
+                                 tipo='prueba', solicitante='prueba', proyecto_conectate=proyectto_conectate)
+        
+        RolAsignado.objects.create(id_conectate="2", red=red, usuario=self.perfil,estado=1,rol=self.rol)
+
+
+        url = f"/api/red/{redId}/historicoAsignados"
+        
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        current_data = json.loads(response.content)
+
+        self.assertEqual(current_data[0], "fname lname")
+        """

@@ -325,7 +325,19 @@ def verAvanceProyectoConectate(request,idProyecto):
     cerradosReds = []
 
     for red in reds:
-        if False:
+        fases = HistorialFases.objects.filter(red__id=red.id).order_by("-fecha_cambio")
+
+        if(len(fases)>0):
+            historialFase = fases[0]
+            fase=historialFase.fase.nombre_fase
+            inicio_fase=historialFase.fecha_cambio
+            ultima_modificacion=historialFase.fecha_cambio
+        else:
+            fase=""
+            inicio_fase=""
+            ultima_modificacion=""
+
+        if fase.lower()=="cerrado":
             cerradosReds.append(
                 {
                     "idRed":red.id,
@@ -334,18 +346,6 @@ def verAvanceProyectoConectate(request,idProyecto):
                     "fecha_inicio":red.fecha_inicio,
                 })
         elif esActivo(red):
-            fases = HistorialFases.objects.filter(red__id=red.id).order_by("-fecha_cambio")
-
-            if(len(fases)>0):
-                historialFase = fases[0]
-                fase=historialFase.fase.nombre_fase
-                inicio_fase=historialFase.fecha_cambio
-                ultima_modificacion=historialFase.fecha_cambio
-            else:
-                fase=""
-                inicio_fase=""
-                ultima_modificacion=""
-            
             normalReds.append(
                 {
                     "idRed":red.id,
@@ -357,19 +357,7 @@ def verAvanceProyectoConectate(request,idProyecto):
                     "ultima_modificacion":ultima_modificacion
                 })
 
-        else:
-            fases = HistorialFases.objects.filter(red__id=red.id).order_by("-fecha_cambio")
-
-            if(len(fases)>0):
-                historialFase = fases[0]
-                fase=historialFase.fase.nombre_fase
-                inicio_fase=historialFase.fecha_cambio
-                ultima_modificacion=historialFase.fecha_cambio
-            else:
-                fase=""
-                inicio_fase=""
-                ultima_modificacion=""
-            
+        else:            
             alertaReds.append(
                 {
                     "idRed":red.id,
@@ -380,8 +368,6 @@ def verAvanceProyectoConectate(request,idProyecto):
                     "inicio_fase":inicio_fase,
                     "ultima_modificacion":ultima_modificacion
                 })
-
-        
     
     return JsonResponse(
         {
@@ -393,6 +379,21 @@ def verAvanceProyectoConectate(request,idProyecto):
             'normalReds': list(normalReds),
             'cerradosReds':list(cerradosReds),
         }, safe=True)
+
+def getAllAsignados(request,redId):
+    tokenStatus = getTokenStatus(request)
+    if(not tokenStatus):
+        return HttpResponse('Invalid Token')
+
+    asignados = RolAsignado.objects.filter(red__id=redId)
+    personasAsignadas = []
+
+    for asignado in asignados:
+        personasAsignadas.append(asignado.usuario.usuario.first_name + ' ' + asignado.usuario.usuario.last_name)
+
+    return JsonResponse(list(personasAsignadas), safe=False)
+
+
 
 def getTokenStatus(request):
     token = request.META['HTTP_AUTHORIZATION']
