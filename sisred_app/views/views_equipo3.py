@@ -171,7 +171,8 @@ def get_comentarios_video(request, id):
                     idUsuario = usuario.pk
                     metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'), "user_id": idUsuario,
                                  "user_name": nombreUsuario}
-                    comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido})
+                    comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido,
+                                      "cerrado": comEsp.cerrado, "resuelto": comEsp.resuelto})
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
                 print(respuesta)
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
