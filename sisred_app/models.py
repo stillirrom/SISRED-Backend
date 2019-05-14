@@ -221,11 +221,15 @@ class Comentario(models.Model):
     @property
     def EsPadre(self):
         Comen = Comentario.objects.filter(version=self.version,comentario_multimedia=self.comentario_multimedia).order_by("id").exclude(id=self.id)
-        for item in Comen:
-            if item.id <self.id:
-                return  False
-            else:
-                return  True
+        if len(Comen) == 0:
+            return True
+        else:
+            for item in Comen:
+                if item.id <self.id:
+                    return  False
+                else:
+                    return  True
+
     @property
     def comentariosHijos(self):
         Comen=Comentario.objects.filter(version=self.version, comentario_multimedia=self.comentario_multimedia).order_by("id").exclude(id=self.id)
