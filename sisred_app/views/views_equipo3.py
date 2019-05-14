@@ -172,7 +172,13 @@ def get_comentarios_video(request, id):
                     metaVideo = {"datetime": comEsp.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'), "user_id": idUsuario,
                                  "user_name": nombreUsuario}
                     comentEsp.append({"id": str(comEsp.pk), "meta": metaVideo, "body": comEsp.contenido,
-                                      "cerrado": comEsp.cerrado, "resuelto": comEsp.resuelto})
+                                      "cerrado": comEsp.cerrado, "resuelto": comEsp.resuelto, "es_cierre": comEsp.esCierre})
+
+                comentEsp = sorted(comentEsp, key=lambda k: k['meta'].get('datetime', 0), reverse=False)
+                output_dict = [x for x in comentEsp if x['cerrado']]
+                if len(output_dict) > 0:
+                    comentEsp[0]['cerrado'] = True
+
                 respuesta.append({"id": multimedia.pk, "range": rangeEsp, "shape": shape, "comments": comentEsp})
                 print(respuesta)
             return HttpResponse(json.dumps(respuesta, default=decimal_default), content_type="application/json")
