@@ -1,13 +1,8 @@
 from django.test import TestCase
-from .models import Version, RED, ProyectoConectate, Metadata, Perfil, Recurso, RolAsignado, Rol, ComentarioMultimedia, \
+from .models import Version, ComentarioMultimedia, \
     Comentario
-from django.contrib.auth.models import User
-import datetime
-import json
-from django.forms.models import model_to_dict
-from sisred_app.views.views_equipo4 import createNotification
-from .models import User, Perfil, RED, Fase, ProyectoConectate, Recurso, NotificacionTipo, Rol, RolAsignado, \
-    Notificacion
+
+from .models import Perfil, RED, ProyectoConectate
 from django.contrib.auth.models import User
 import json
 

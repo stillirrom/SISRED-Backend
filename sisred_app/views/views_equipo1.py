@@ -1,9 +1,6 @@
-import json
-
 from django.contrib.auth.models import User
-from django.core.serializers import serialize
-from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, HttpResponseNotFound
-from rest_framework import  status
+from django.http import JsonResponse, HttpResponseNotFound
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
 
@@ -14,10 +11,9 @@ import requests
 from datetime import datetime
 from rest_framework.authtoken.models import Token
 
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
-from sisred_app.models import Recurso, RED, Perfil, Fase, HistorialFases, Version, Comentario, ComentarioMultimedia
+from sisred_app.models import Recurso, RED, Perfil, Version, Comentario, ComentarioMultimedia
 from sisred_app.serializer import RecursoSerializer, RecursoSerializer_post, RecursoSerializer_put, \
-    REDSerializer, ComentarioCierreSerializer, comentariosHijosSerializer, comentarioMultimediaSerializer, ComentariosPDFSerializer
+    REDSerializer, ComentarioCierreSerializer, comentariosHijosSerializer, ComentariosPDFSerializer
 
 
 #Autor: Francisco Perneth
@@ -92,7 +88,7 @@ def recurso_put(request):
 #    id -> id del recurso para consultar
 #Descripcion:
 #   Permite consultar  la información de un RED, especialmente información del avance
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def fase_byid(request,id):
     if request.method == 'GET':
         red = RED.objects.filter(id=id)
