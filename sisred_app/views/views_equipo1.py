@@ -195,3 +195,37 @@ def sincronizarFases(idRed, idActual, idFase):
     print(response)
 
     return Response(response)
+
+#Autor:         Alejandro Garcia
+#Fecha:         2019-05-08
+#Parametros:    idRed -> Id del RED
+#Descripcion:   Funcionalidad para obtener el avance de un  RED
+
+@api_view(['GET','PUT'])
+def getAvanceRED(request, idRed):
+    fases=[]
+    lista_fases=[]
+
+    if request.method == 'GET':
+        try:
+            red = RED.objects.get(id=idRed)
+            fecha = red.fecha_inicio
+            primera_fecha = True
+        except RED.DoesNotExist:
+            raise NotFound(detail="Error 404, RED not found", code=404)
+
+        lista_fases = HistorialFases.objects.filter(red=idRed)
+        lista_fases.order_by('fecha_cambio')
+        tamaño = lista_fases.__len__()
+        count = 0
+        for fase in lista_fases:
+            fs = Fase.objects.get(id=fase.fase)
+            fecha_final = "null"
+            fecha_inicial = fase.fecha_cambio
+            if(count+1<tamaño):
+                fecha_final = lista_fases[count+1].fecha_cambio
+            fases.append({"fase": fs.nombre_fase, "fechaInicio": fecha_inicial, "fechaFinal": fecha_final, "comentario": fase.comentario})
+            count=count+1
+
+        jsonObject ={"id": red.id,"nombre": red.nombre, "fases":fases}
+        return Response(jsonObject)

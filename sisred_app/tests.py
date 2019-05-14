@@ -7,7 +7,7 @@ import json
 from django.forms.models import model_to_dict
 from sisred_app.views.views_equipo4 import createNotification
 from .models import User, Perfil, RED, Fase, ProyectoConectate, Recurso, NotificacionTipo, Rol, RolAsignado, \
-    Notificacion
+    Notificacion, HistorialFases
 from django.contrib.auth.models import User
 import json
 
@@ -1242,3 +1242,29 @@ class SisredTestCase(TestCase):
         # print(current_data)
 
         self.assertEqual(current_data[0]['listo'], True)
+
+class verAvanceTestCase(TestCase):
+
+    def test_get_avance_red_sin_fases(self):
+        red = RED.objects.create(id_conectate="S0001", nombre="null", nombre_corto="null", descripcion="1 video",
+                                 fecha_inicio="2019-12-31", fecha_cierre="2019-12-31", fecha_creacion="2019-12-31",
+                                 porcentaje_avance="0", tipo="Sin definir", solicitante="PR0011(Sandra)",
+                                 horas_estimadas="0", horas_trabajadas="0", proyecto_conectate_id="1")
+
+        response = self.client.get('/api/getAvanceRED/'+ str(red.id))
+        current_data = json.loads(response.content)
+        print(current_data)
+
+        self.assertEqual(current_data[0]['nombre'], red.nombre)
+
+    def test_get_avance_red_con_fases(self):
+        red = RED.objects.create(id_conectate="S0001", nombre="null", nombre_corto="null", descripcion="1 video",
+                                 fecha_inicio="2019-12-31", fecha_cierre="2019-12-31", fecha_creacion="2019-12-31",
+                                 porcentaje_avance="0", tipo="Sin definir", solicitante="PR0011(Sandra)",
+                                 horas_estimadas="0", horas_trabajadas="0", proyecto_conectate_id="1")
+
+        response = self.client.get('/api/getAvanceRED/'+ str(red.id))
+        current_data = json.loads(response.content)
+        print(current_data)
+
+        self.assertEqual(current_data[0]['nombre'], red.nombre)
