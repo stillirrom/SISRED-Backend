@@ -13,10 +13,10 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTT
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Q
-
 from sisred_app.views.views_equipo1 import sincronizarFases
+
 
 """
 Vista para ver los detalles de un RED en donde se incluyen los recursos (GET)
@@ -1027,3 +1027,12 @@ def createNotification(id_red, id_notificationtype):
     except Exception as ex:
         error = {"errorInfo": 'Error: ' + str(ex), "error": "Se presentó un error realizando la petición"}
         return error
+
+
+def getMetrics(request):
+    logs = RED.objects.all()
+    print(logs)
+    data = ProyectoConectate.objects.all()
+    if request.method == 'GET':
+        serializer = ProyectosSerializer(data, many=True)
+    return JsonResponse(serializer.data, safe=False)
