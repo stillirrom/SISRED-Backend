@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'sotrhspg',
         'USER': 'sotrhspg',
         'PASSWORD': 'ZCXP5hsMhf_PEHlWZkhi6VEzovX4oHCc',
-        'HOST': 'postgres://sotrhspg:ZCXP5hsMhf_PEHlWZkhi6VEzovX4oHCc@isilo.db.elephantsql.com:5432/sotrhspg',
+        'HOST': 'isilo.db.elephantsql.com',
         'PORT': '5432'
     }
 }
