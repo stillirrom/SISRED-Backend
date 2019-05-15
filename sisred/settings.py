@@ -85,8 +85,12 @@ WSGI_APPLICATION = 'sisred.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'sotrhspg',
+        'USER': 'sotrhspg',
+        'PASSWORD': 'ZCXP5hsMhf_PEHlWZkhi6VEzovX4oHCc',
+        'HOST': 'postgres://sotrhspg:ZCXP5hsMhf_PEHlWZkhi6VEzovX4oHCc@isilo.db.elephantsql.com:5432/sotrhspg',
+        'PORT': '5432'
     }
 }
 '''
