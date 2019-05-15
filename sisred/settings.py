@@ -88,8 +88,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ["BD_SISRED"],
-        'USER': os.environ["BD_SISRED_USUARIO"],
-        'PASSWORD': os.environ["BD_SISRED_PASSWORD"],
+        'USER': os.environ.get('PGUSER'),
+        'PASSWORD': os.environ.get('PGPASSWORD'),
         'HOST': os.environ["BD_SISRED_HOST"],
         'PORT': os.environ["BD_SISRED_PORT"]
     }
